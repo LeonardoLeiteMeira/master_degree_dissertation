@@ -1,0 +1,11 @@
+% !TeX spellcheck = en_US
+During this work we made a research of web application authentication solutions. We identified the risks of textual passwords and the possible attack vectors. We made a research of graphical password authentication methods and made a comparison between them. Due to the research results we propose authentication solutions based on recognition and recall based methods.
+%Also we made a research about Apache Shiro framework to future integration. And finally analyze of the proposed methods.  
+
+Based on the research, we developed an algorithm for graphical authentication which can be used as single or multi-level authentication. As a future work we will integrate this algorithms in Apache Shiro, in order to create the extension and enabling users to use our graphical challenges.
+
+Related with recognition based authentication method, we consider to analyze the matrix, and how many categories will increase the difficulty for attackers and make it comfortable to  use. 
+ 
+For improving our proposed method of recall based authentication, we still need to analyze the minimal and maximal resolutions of images which user can upload, and tune the error region when validating the points, considering that should be a dynamic value related with the screen resolution and input device (mouse, finger). Moreover, to further improve the security of recall based method, we are planning to add to the identification algorithm, a validation to check if the user can request this process. The main idea is that when the user uploads the image, on registration process, an hash is calculated to the image, which the client will sent during the identification phase. Then server will check if the photo stored has the same hash before sending the authentication challenge to the user.
+
+Also we should test the usability of our challenge with different web developing frameworks and CMS (Content Management System) engines.   
