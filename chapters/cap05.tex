@@ -1,4 +1,4 @@
-\chapter{Tests/Discussion}\label{cap:test}
+\chapter{Implementação}\label{cap:test}
 
 This chapter presents and describes the tests that were developed to check if the project fulfills the objectives and solves the problem described in Analysis/Methodology.
 
@@ -13,3 +13,38 @@ The work results are commented, including:
 	\item What are the objectives there were not met and why?
 \end{itemize}
 
+
+\subsection[Implementação do banco de dados]{Implementação do banco de dados}
+- Databases
+- Collections
+
+\subsection[Implementação da API]{Implementação da API}
+
+- Uvicorn usado pelo FastAPI e sua forma asyncrona
+- Biblioteca Motor usada para acesso ao mongoDB
+- Biblioteca Pydantic para criação dos modelos e tipos
+- Web socket para envio de notificações
+- Biblioteca Jose para autenticação
+- Comunicação entre as camadas com a classe Result
+- Contratos de interfaces
+- Tratamento de erros com classes personalizadas
+
+
+\subsection[Implementação do módulo de processamento de dados]{Implementação do módulo de processamento de dados}
+- Leitura dos dados de acordo com o processamento realizado anteriormente
+- Uso da biblioteca pandas
+- Funcionamento do BoxPlot para realizar analise estatística
+
+\subsection[Implementação do frontend]{Implementação do frontend}
+- Criação de paginas componentes de layouts
+- Recharts
+- Material UI
+- Days JS
+- Criação da camada de dados com o Context API
+- Acesso externo a API
+- Axios e fetch
+
+\subsection[Adaptando a implementação para outros contextos]{Adaptando a implementação para outros contextos}
+Discussão sobre a reutização do sistema para outros contextos....
+- como fazer
+- alterações necessarias
