@@ -45,6 +45,62 @@ The work results are commented, including:
 - Tratamento de erros com classes personalizadas
 
 
+
+
+Para interpretar e extrair informações da mensagem recebida do multicast, é crucial decodificar adequadamente a mensagem de acordo com o protocolo definido anteriormente. A implementação dessa decodificação é feita pela função \texttt{\_\_parse\_multicast\_message}. 
+
+\subsection{Interpretação dos Bytes}
+
+A primeira parte da decodificação envolve interpretar os bytes da mensagem. A função auxiliar \texttt{\_\_parse\_bytes} é utilizada para essa tarefa. Dada uma sequência de bytes, esta função interpreta os bytes utilizando a ordem big-endian (onde os bytes mais significativos vêm primeiro):
+
+\begin{verbatim}
+def __parse_bytes(self, bytes):
+    data = int.from_bytes(bytes, byteorder='big')
+    high_data = (data >> 8) & 0xFF
+    low_data = data & 0xFF
+
+    return (high_data,low_data)
+\end{verbatim}
+
+Aqui, \texttt{data} contém o valor inteiro dos bytes fornecidos. O byte de ordem superior (High) é extraído deslocando o valor 8 bits para a direita e aplicando uma operação "E" (\&). O byte de ordem inferior (Low) é simplesmente obtido aplicando a operação "E" com \texttt{0xFF}.
+
+\subsection{Decodificação da Mensagem}
+
+Com a capacidade de interpretar os bytes, a função principal \texttt{\_\_parse\_multicast\_message} pode começar a decodificação:
+
+\begin{itemize}
+    \item Primeiro, ela extrai o tipo de máquina e o número da máquina dos dois primeiros bytes da mensagem.
+    
+    \item O terceiro byte da mensagem é então interpretado como o tipo da mensagem. Se o tipo da mensagem for \texttt{2}, a função retornará diretamente uma solicitação para publicar.
+    
+    \item Os bytes 4 e 5 são interpretados como o ID do sensor, que contém a quantidade física sendo medida e o número do sensor.
+    
+    \item Os bytes 6 e 7 são usados para extrair o tipo de dados e seu significado.
+    
+    \item Finalmente, os bytes 8 e 9 são usados para determinar o comprimento dos dados que seguem.
+\end{itemize}
+
+A informação extraída é então organizada em um dicionário para representação clara e fácil acesso aos componentes individualmente:
+
+\begin{verbatim}
+message_dict = {
+    'Machine': {
+        ...
+    },
+    'Type': ...,
+    'Sensor': {
+        ...
+    },
+    'MeaningOfData': {
+        ...
+    }
+}
+\end{verbatim}
+
+Esta estrutura permite uma representação clara e modular da mensagem decodificada, tornando fácil a integração e utilização em outras partes do sistema.
+
+
+
 \subsection[Implementação do módulo de processamento de dados]{Implementação do módulo de processamento de dados}
 - Leitura dos dados de acordo com o processamento realizado anteriormente
 - Uso da biblioteca pandas
