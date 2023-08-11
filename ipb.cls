@@ -76,7 +76,7 @@
 \def\secauthnum#1{\gdef\@secauthnum{#1}}
 
 % Curso
-\def\@course{Information Systems}
+\def\@course{Sistemas de Informa\c{c}\~{a}o}
 \def\course#1{\gdef\@course{#1}}
 \def\@courseyear{\the\year} % default spelling
 \def\courseyear#1{\gdef\@courseyear{#1}}
@@ -121,17 +121,17 @@
     \@author \ifdefined\@authnum \quad\@authnum \fi\\
 }}
       \vfill
-    Thesis presented to the School of Technology and Management in the scope of the Master in \@course.\\
+    Disserta\c{c}\~{a}o apresentada \`a Escola Superior de Tecnologia e de Gest\~{a}o de Bragan\c{c}a para obten\c{c}\~{a}o do Grau de Mestre em \@course.\\
     
     \vspace{4em}
-    Supervisors:\\
+    Trabalho orientado por:\\
     \@supervisor\\
     \ifdefined\@cosupervisor
     \@cosupervisor\\
     \fi
 	
     \vfill
-    This document does not include the suggestions made by the board.\\
+    Esta disserta\c{c}\~{a}o n\~{a}o inclui as cr\'iticas e sugest\~{o}es feitas pelo J\'uri.\\
     \vspace{2em}
 	Bragança\\
 	\@courseyear
@@ -157,17 +157,17 @@
     \@author \ifdefined\@authnum \quad\@authnum \fi\\
 }}
     \vfill
-    Thesis presented to the School of Technology and Management in the scope of the Master in \@course.\\
-
+    Disserta\c{c}\~{a}o apresentada \`a Escola Superior de Tecnologia e de Gest\~{a}o de Bragan\c{c}a para obten\c{c}\~{a}o do Grau de Mestre em \@course.\\
+    
 	    \vspace{4em}
-	    Supervisors:\\
+	    Trabalho orientado por:\\
 	    \@supervisor\\
     \ifdefined\@cosupervisor
     \@cosupervisor\\
     \fi
 	
     \vfill
-    This document does not include the suggestions made by the board.\\
+    Esta disserta\c{c}\~{a}o n\~{a}o inclui as cr\'iticas e sugest\~{o}es feitas pelo J\'uri.\\
     \vspace{2em}
 	Bragança\\
 	\@courseyear
