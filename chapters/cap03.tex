@@ -5,16 +5,66 @@
 % No caso de projetos de desenvolvimento de software, deverá deitar-se mão dos conceitos e ferramentas de Análise/Modelação estudadas durante o curso (por exemplo, diagramas UML ou outra linguagem gráfica). Deve-se indicar explicitamente as tarefas a desempenhar pelo sistema, e os atores que interagem com o mesmo. A descrição deve ter suficiente detalhes  para perceber as dificuldades associadas à resolução do problema.
 
 
-\chapter{Methodology}\label{cap:metodology}
+\chapter{Methodology}\label{cap:metodology} 
 
-In this chapter it is expected a detailed description of the problem and proposed solution.
+\section[Definição dos requisitos]{Definição dos requisitos}
+A definição precisa dos requisitos é fundamental para garantir que o sistema desenvolvido atenda às necessidades e objetivos. Os requisitos desse projeto foram classificados nas categorias funcionais e não funcionais, para garantir uma compreensão completa do que é esperado do sistema.
 
-In the case of software development projects, there should include tools and concepts related to the modeling and analysis (such as UML diagrams or others). There should also describe the tasks that the system should implement and the authors that interact with it. The description should be detailed to understand the difficulties associated to the problem resolution.
+\subsection[Requisitos Funcionais]{Requisitos Funcionais}
+%TODO Artigo que fala da importância de requisitos funcionais
+Os requisitos funcionais desempenham um papel fundamental no desenvolvimento de sistemas, definindo as funções que um sistema ou componente de software deve ser capaz de executar. Em essência, eles fornecem uma descrição das interações que o sistema terá com seus usuários ou com outros sistemas, especificando os serviços que o sistema deve fornecer.
 
-\section[Tecnologias]{Tecnologias}
-Texto ...
+Para garantir eficácia, os requisitos funcionais devem ser claramente definidos, sem ambiguidades, e serem mensuráveis, rastreáveis, completos e consistentes. Além disso, eles devem ser definidos levando em consideração as necessidades e objetivos do projeto, garantindo que o sistema desenvolvido seja não apenas tecnicamente sólido, mas também útil e relevante para seus usuários finais.
+
+Dentro do contexto do sistema desenvolvido, está listado abaixo os requisitos funcionais do sistema e sua descrição, de forma a deixar claro, de forma funcional, o que o sistema deve fazer.
+
+\subsubsection{O sistema deve permitir que um usuário acesse o sistema de forma segura com um email e senha}
+Dado que o sistema é para a visualização dos dados de operação de uma industria de estampagem, as informações disponibilizadas devem ser acessadas apenas por usuários previamente autorizados.
+
+\subsubsection{O sistema deve permitir que um usuário veja as suas informações pessoais que são armazenadas nos sistema}
+Cada usuário que tiver acesso ao sistema terá registrado nele alguns de seus dados pessoais, como e-mail, cargo e tipo de acesso. Portanto, cada usuário deve ter acesso a suas informações pessoais que estão salvas no sistema.
+
+\subsubsection{O sistema deve exibir em tempo real os valores lidos pelos sensores em cada uma das máquinas}
+Ao receber os dados enviados pelos sensores, os sistema deve exibir em tela os valores lidos, separado por tipo de sensor e máquina. 
+
+\subsubsection{O sistema deve armazenar um valor máximo ideal para cada para tipo de sensor utilizado}
+Cada sensor deverá ter um valor máximo ideal para o funcionamento. Ele servirá de parâmetro para entender se o valor lido pelo sensor indica um bom ou mal funcionamento da máquina.
+
+\subsubsection{O sistema deve identificar sempre que um valor lido pelo sensor não estiver abaixo do valor ideal}
+Esse requisito refere-se à capacidade do sistema de detectar, de forma automática, toda vez que o sensor indicar um valor que não esteja abaixo dO limite pré definido. Isto é, se o valor ideal for X, e o sensor ler um valor maior ou igual a X, o sistema reconhecerá esta situação.
+
+\subsubsection{O sistema deve registrar sempre que um valor lido pelo sensor não estiver de acordo com o valor ideal}
+Esse requisito implica que o sistema deve manter um registro de todos os momentos em que o valor detectado pelo sensor não estiver abaixo do valor ideal armazenado.
+
+\subsubsection{O sistema deve mostrar em tela quando um valor lido pelo sensor não estiver abaixo do ideal}
+Sempre que o sensor detectar um valor abaixo do padrão ideal, o sistema deverá exibir um alerta na interface de forma que fique sempre visível para o usuário.
+
+\subsubsection{O sistema deve mostrar no formato de notificação os registros de não funcionamento abaixo do valor ideal}
+Este requisito estabelece que o sistema deve apresentar aos usuários na forma de notificações quando o sensor ler um valor acima do ideal, para possibilitar que os usuários sejam informados, mesmo que posteriormente, sempre que um alerta for identificado.
+
+\subsubsection{O sistema deve permitir que o usuário marque uma notificação como lida, de forma que ela não apareça novamente}
+Após ser notificado, os usuários deverão ter a capacidade de marcar essa notificação como "lida", garantindo que a mesma informação não continue a ser exibida repetidamente.
+
+\subsubsection{O sistema deve exibir gráficos mostrando os valores lidos pelos sensores nos dias anteriores de forma agregada, separando por máquinas}
+Esse requisito assegura que os usuários possam visualizar, por meio de representações gráficas, as leituras dos sensores de dias anteriores de forma agregada. Estes gráficos devem ser categorizados por máquina, proporcionando uma análise detalhada do desempenho de cada equipamento ao longo do tempo.
+
+\subsubsection{O sistema deve exibir nos gráficos uma análise estatística do funcionamento das máquinas, junto com o valor máximo de funcionamento ideal}
+Os gráficos devem oferecer uma análise estatística, mostrando os indicadores estatísticos dos dados agregados média, mediana, percentil 75 e média removendo os outliers. Juntamente com isso, o gráfico também mostrará o valor ideal, servindo como uma referência para avaliar o desempenho.
+
+\subsubsection{O sistema deve permitir filtrar as informações exibidas em tela por máquinas}
+Os usuários devem ter a flexibilidade de selecionar e visualizar informações específicas para determinadas máquinas, permitindo que eles se concentrem em equipamentos específicos conforme a necessidade.
+
+\subsubsection{O sistema deve permitir filtrar os gráficos exibidas em tela por data}
+O sistema deve oferecer a capacidade de os usuários filtrarem as exibições gráficas por datas específicas, permitindo análises temporais detalhadas e comparações entre diferentes períodos.
+
+\subsubsection{O sistema deve exibir os gráficos de parada das máquinas de forma a exemplificar a exibição desses dados}
+O sistema deve mostrar as paradas de máquina de acordo com os dados passados pelas planilhas com os dados. Dessa forma poderá ser exemplificado como ficaria as informações de parada das maquinas caso o sistema recebesse essas informações.
+
+
+\subsection[Requisitos Não Funcionais]{Requisitos Não Funcionais}
 
 \section[Método de coleta e armazenamento de dados]{Método de coleta e armazenamento de dados}
+como que seria feito o recebimento e o armazenamento dos dados
 - Recebimento dos dados pelo protocolo feito pelo outro professor
 - protocolo esse que decodifico as informações e disponibilizo para uso
 
@@ -26,6 +76,8 @@ Texto ...
 - Github
 - Reuniões semanais com o professor para discutir sobre o andamento
 
+\section[Tecnologias]{Tecnologias}
+Desenho arquitetural e e uma seção para cada tecnologia da stack
 
 \section[Gestão das atividades do projeto]{Gestão das atividades do projeto}
 - Historias de usuario
