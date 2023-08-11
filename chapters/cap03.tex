@@ -62,11 +62,111 @@ O sistema deve mostrar as paradas de máquina de acordo com os dados passados pe
 
 
 \subsection[Requisitos Não Funcionais]{Requisitos Não Funcionais}
+%TODO Artigo que fala da importância de requisitos não funcionais
+Requisitos não funcionais são especificações que determinam as características de desempenho, usabilidade, confiabilidade e outras propriedades que o sistema deve possuir, ao invés de comportamentos específicos que ele deve demonstrar. Enquanto os requisitos funcionais descrevem o que um sistema deve fazer, os requisitos não funcionais especificam como o sistema deve realizar essas funções.
+
+Estes requisitos são cruciais para garantir a satisfação do usuário e a eficácia operacional do sistema, desempenhando um papel fundamental na qualidade e na operação geral de um produto de software.
+
+Os requisitos não funcionais podem ser de vários tipos, como usabilidade, desempenho, segurança, disponibilidade, manutenção e confiabilidade.
+
+Dentro do contexto do sistema desenvolvido, está listado abaixo os requisitos não funcionais do sistema e sua descrição, de forma a deixar claro o que foi levado em consideração no momento de desenvolver cada uma das funcionalidades do sistema.
+
+\subsubsection{Disponibilidade}
+O sistema deve possuir mecanismos de reconexão automática que se ativam quando problemas de conexão ou recebimento de dados dos sensores forem detectados, garantindo assim a continuidade no recebimento dos dados.
+
+\subsubsection{Segurança no acesso}
+O sistema deve implementar controles de acesso para que somente colaboradores autorizados tenham permissão para acessar os dados e funcionalidades pertinentes ao seu papel.
+
+%TODO Sigla HTTPS e TLS
+\subsubsection{Segurança na rede}
+Para garantir a segurança da transmissão de dados, a conexão ao sistema deve ser estabelecida utilizando o protocolo HTTPS, que incorpora a camada de segurança TLS, protegendo assim os dados contra intercepções e alterações.
+
+\subsubsection{Transmissão em tempo real}
+O sistema deve processar e transmitir os dados enviados pelos sensores em uma arquitetura baseada em streaming. O atraso entre o envio do dado pelo sensor e sua visualização pelo usuário final deve ser inferior a três segundos.
+
+\subsubsection{Modularidade}
+A arquitetura do sistema deve ser modular, possibilitando a integração e a adição de novos componentes ou funcionalidades de maneira eficiente e sem comprometer o funcionamento das partes já existentes.
+
+
+%TODO sigla SOLID
+\subsubsection{Manutenibilidade}
+Priorizando a longevidade e facilidade de manutenção, o sistema deve ser desenvolvido seguindo boas práticas de programação e os princípios do SOLID. Isso facilitará futuras modificações, expansões e a correção de eventuais problemas.
+
+\subsubsection{Escalabilidade de sensores e máquinas}
+O design do sistema deve ser capaz de lidar com um crescente volume de sensores e máquinas, garantindo que não haja degradação de performance ou falhas quando a demanda por recursos aumentar.
+
+\subsubsection{Portabilidade}
+O sistema deve garantir compatibilidade com os principais navegadores web disponíveis no mercado. Além disso, a interface de usuário deve se adaptar bem em telas maiores como televisões, permitindo que o dashboard seja visualizado de forma clara em diferentes ambientes da fábrica.
+
+\subsubsection{Usabilidade}
+A interface do sistema e seus componentes devem ser projetados considerando princípios fundamentais de design de interação, garantindo que os usuários possam compreender e interagir com o sistema de maneira intuitiva e eficiente.
+
 
 \section[Método de coleta e armazenamento de dados]{Método de coleta e armazenamento de dados}
 como que seria feito o recebimento e o armazenamento dos dados
 - Recebimento dos dados pelo protocolo feito pelo outro professor
 - protocolo esse que decodifico as informações e disponibilizo para uso
+
+%TODO Referencia para o outro projeto com os sensores e protocolos
+Dentro do contexto do projeto, a forma como os dados dos sensores são coletados e armazenados influenciam muito no funcionamento do sistema, pois é a partir deles que todo o sistema é estruturado. Dessa forma foi utilizado como base um protocolo desenvolvido em outro projeto, que transmite todas as informações necessárias para o contexto desse projeto. Dentro do sistema em questão, ficou a responsabilidade de implementar o decodificador para o determinado protocolo.
+
+%TODO Sigla IPB
+O protocolo utilizado foi desenvolvido dentro do mesmo contexto desse projeto, dentro do IPB, para atender uma demanda da mesma empresa, portanto ele se tornou a opção mais ideal dentre as possibilidades, otimizando a comunicação entre os sensores e o sistema. O formato é estruturado de forma a representar distintamente as informações pertinentes à máquina, ao tipo de comunicação, ao sensor e ao significado dos dados transmitidos.
+
+\subsubsection{Machine ID (2 bytes)}
+
+O campo \textit{Machine ID} é responsável por identificar a máquina em questão e está dividido em dois subcampos:
+
+\begin{itemize}
+    \item \textbf{High (bytes de ordem superior)}: Representa o tipo da máquina. Exemplos de valores possíveis são: prensa, torno, robot, tapete, entre outros.
+    \item \textbf{Low (bytes de ordem inferior)}: Identifica o número da máquina.
+\end{itemize}
+
+\subsubsection{Type (1 byte)}
+
+O campo \textit{Type} indica o tipo de mensagem e pode assumir os seguintes valores:
+\begin{enumerate}
+    \item Publish
+    \item Request to publish
+\end{enumerate}
+
+\subsubsection{Sensor ID (2 bytes)}
+
+O campo \textit{Sensor ID} fornece detalhes sobre o sensor que está transmitindo os dados:
+
+\begin{itemize}
+    \item \textbf{High (bytes de ordem superior)}: Representa a quantidade física sendo medida, como temperatura, velocidade, pressão, força, entre outros.
+    \item \textbf{Low (bytes de ordem inferior)}: Indica o número do sensor.
+\end{itemize}
+
+\subsubsection{Meaning of Data (2 bytes)}
+
+O campo \textit{Meaning of Data} fornece informações sobre o tipo e significado dos dados:
+
+\begin{itemize}
+    \item \textbf{High (bytes de ordem superior)}: Tipo dos dados:
+    \begin{enumerate}
+        \item Not defined
+        \item Normal
+        \item Raw data
+        \item Alarm
+    \end{enumerate}
+    \item \textbf{Low (bytes de ordem inferior)}: Significado dos dados, que varia de acordo com o equipamento. Exemplos incluem:
+    \begin{itemize}
+        \item Oil critical temperature
+        \item Check oil temperature
+        \item Oil pressure
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Length (2 bytes)}
+
+O campo \textit{Length} indica o número de bytes subsequentes no pacote.
+
+\subsubsection{Data}
+
+Este campo representa os dados transmitidos pelo sensor. A especificação exata do que os dados representam deve ser definida e normalizada, conforme indicado pela notação (*).
+
 
 \section[Processo de desenvolvimento do software]{Processo de desenvolvimento do software}
 
