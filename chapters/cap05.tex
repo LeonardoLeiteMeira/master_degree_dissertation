@@ -13,7 +13,7 @@
 % 	\item  Quais os objetivos que ficaram por cumprir, e porquê ?
 % \end{itemize}
 
-\chapter{Implementação}\label{cap:test}
+\chapter{Implementação}\label{cap:implementation}
 
 This chapter presents and describes the tests that were developed to check if the project fulfills the objectives and solves the problem described in Analysis/Methodology.
 
@@ -33,6 +33,12 @@ The work results are commented, including:
 - Databases
 - Collections
 
+%\subsection[Implementação do modulo de recebimento de dados]{Implementação do modulo de recebimento de dados}
+%A explicação deve passar pelas seguintes caracteristicas desse modulo:
+%- A conexão é feita via multicast messages. Quando o sistema inicializa é chamada uma função que inicia a conexão, e roda uma função em loop infinito para receber todas as mensagens que forem transmitidas 
+%- Ao receber uma mensagem... Terminar de detalhar 
+
+
 \subsection[Implementação da API]{Implementação da API}
 
 - Uvicorn usado pelo FastAPI e sua forma asyncrona
@@ -43,9 +49,6 @@ The work results are commented, including:
 - Comunicação entre as camadas com a classe Result
 - Contratos de interfaces
 - Tratamento de erros com classes personalizadas
-
-
-
 
 Para interpretar e extrair informações da mensagem recebida do multicast, é crucial decodificar adequadamente a mensagem de acordo com o protocolo definido anteriormente. A implementação dessa decodificação é feita pela função \texttt{\_\_parse\_multicast\_message}. 
 
