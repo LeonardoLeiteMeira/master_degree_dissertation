@@ -1,60 +1,178 @@
-% \chapter{Testes/Avaliação/Discussão}\label{cap:test}
-
-% Este capítulo apresenta os testes realizados para verificar que o projeto desenvolvido cumpre os objetivos assumidos e resolve, de facto, o problema descrito na Análise/Modelação. 
-
-% Para uma melhor compreensão, os resultados de cada teste devem ser precedidos de uma descrição, mesmo que resumida, do teste realizado e dos resultados esperados.
-
-% Os resultados do trabalho são comentados, acrescentando-lhe valor:
-
-% \begin{itemize}
-% 	\item  O que é que se pode inferir ou conjeturar dos resultados obtidos? 
-% 	\item O que poderia/deveria ter sido feito de forma diferente? 
-% 	\item Onde se foi além dos objetivos iniciais?
-% 	\item  Quais os objetivos que ficaram por cumprir, e porquê ?
-% \end{itemize}
-
 \chapter{Implementação}\label{cap:implementation}
 
-This chapter presents and describes the tests that were developed to check if the project fulfills the objectives and solves the problem described in Analysis/Methodology.
+Após o capítulo anterior, onde a arquitetura do software foi detalhada, este capítulo é focado em explicar como tal arquitetura foi implementada. A distinção entre a concepção e a efetiva construção do sistema é crucial, pois enquanto o primeiro descreve a estrutura e a organização, este foca nas ações técnicas e metodologias adotadas para fazer essa estrutura funcionar.
 
-To better understand, the results of each test should be preceded by a description of the test and the expected results.
-
-The work results are commented, including:
+Para uma análise mais estruturada e detalhada, este capítulo foi dividido em seções específicas para cada componente do sistema. São elas:
 
 \begin{itemize}
-	\item  What can be learned from the results?
-	\item What could be done differently? 
-	\item What was beyond initial objectives?
-	\item What are the objectives there were not met and why?
+    \item \textbf{Implementação do banco de dados}: Esta seção abordará os detalhes técnicos do design do banco de dados, esquemas adotados e como as informações são armazenadas e recuperadas.
+    
+    \item \textbf{Implementação da API}: Aqui, a estrutura da API será discutida, incluindo os endpoints fornecidos, a lógica por trás de cada um e como eles interagem com o resto do sistema.
+    
+    \item \textbf{Implementação do módulo de recebimento de dados}: Esta seção detalhará como os dados são recebidos, validados e processados antes de serem armazenados e processados.
+    
+    \item \textbf{Implementação do módulo de processamento de dados}: Será abordado o tratamento e transformação dos dados, garantindo que as informações sejam interpretadas e utilizadas corretamente pelo sistema.
+    
+    \item \textbf{Implementação do frontend}: Por fim, a interface com o usuário será discutida, explicando como os dados são estruturados apresentados e apresentados em tela.
 \end{itemize}
 
-
-\subsection[Implementação do banco de dados]{Implementação do banco de dados}
-- Databases
-- Collections
-
-%\subsection[Implementação do modulo de recebimento de dados]{Implementação do modulo de recebimento de dados}
-%A explicação deve passar pelas seguintes caracteristicas desse modulo:
-%- A conexão é feita via multicast messages. Quando o sistema inicializa é chamada uma função que inicia a conexão, e roda uma função em loop infinito para receber todas as mensagens que forem transmitidas 
-%- Ao receber uma mensagem... Terminar de detalhar 
+%TODO - Itens de implementação para adicionar; - Classe Singleton - 
 
 
-\subsection[Implementação da API]{Implementação da API}
 
-- Uvicorn usado pelo FastAPI e sua forma asyncrona
-- Biblioteca Motor usada para acesso ao mongoDB
-- Biblioteca Pydantic para criação dos modelos e tipos
-- Web socket para envio de notificações
-- Biblioteca Jose para autenticação
-- Comunicação entre as camadas com a classe Result
-- Contratos de interfaces
-- Tratamento de erros com classes personalizadas
+\section[Implementação do banco de dados]{Implementação do banco de dados}
 
-Para interpretar e extrair informações da mensagem recebida do multicast, é crucial decodificar adequadamente a mensagem de acordo com o protocolo definido anteriormente. A implementação dessa decodificação é feita pela função \texttt{\_\_parse\_multicast\_message}. 
 
-\subsection{Interpretação dos Bytes}
+\subsection[Organização do banco de dados]{Organização do banco de dados}
 
-A primeira parte da decodificação envolve interpretar os bytes da mensagem. A função auxiliar \texttt{\_\_parse\_bytes} é utilizada para essa tarefa. Dada uma sequência de bytes, esta função interpreta os bytes utilizando a ordem big-endian (onde os bytes mais significativos vêm primeiro):
+Dentro da implementação do sistema, o MongoDB foi usado para armazenar todas as informações do sistema. Este banco de dados, orientado a documentos, permitiu uma organização flexível dos dados, facilitando o armazenamento de diferentes dados que podem ser recebidos pelo modulo de recebimento de dados, e facilitando a criação de camadas de processamento. A estruturação dos bancos de dados e suas respectivas coleções foi pensada para facilitar tanto a inserção quanto a consulta de informações.
+
+Em relação à organização dos dados, os seguintes bancos de dados foram criados:
+
+\begin{itemize}
+    \item \textbf{Users}: Armazena informações referentes aos usuários. Possui coleções que registram tentativas de login, detalhes pessoais dos usuários e tokens associados a eles.
+    
+    \item \textbf{Notification}: Destinado às notificações do sistema. Atualmente, este banco contém apenas notificações associadas aos alertas das máquinas, gerados pelos dados recebidos dos sensores junto com os parâmetros armazenados.
+    
+    \item \textbf{Downtime}: Armazena duas coleções, uma com os dados lidos das planilhas de parada das máquinas, e outro com esses dados tratados. Esse banco de dados com essas coleções são apenas para simular como ficaria os dados de parada das maquinas, caso eles fosses inseridos no sistema.
+    
+    \item \textbf{Raw Data}: Este banco é dedicado ao armazenamento de dados brutos oriundos de diferentes sensores. Cada tipo de sensor, como os sensores de pressão, tem sua própria coleção, garantindo uma categorização intuitiva dos dados.
+    
+    \item \textbf{Processed Data}: Como o próprio nome sugere, armazena dados que já passaram por uma etapa de processamento. Assim, dados interpretados de diferentes sensores são separados em coleções específicas, como os de pressão em uma e os de voltagem em outra.
+    
+    \item \textbf{Metadados}: Dedicado à armazenagem de metadados do sistema. Até o momento, a única coleção presente é a "AlertParameter", que reúne parâmetros utilizados para gerar alertas associados a cada sensor.
+\end{itemize}
+
+Com esta estruturação, busca-se não apenas organizar de forma lógica os dados, mas também otimizar operações de consulta e garantir uma expansão simplificada à medida que novas necessidades de armazenamento emergem no sistema.
+
+
+\subsection[Acesso ao banco de dados]{Acesso ao banco de dados}
+
+%TODO referencia para o motor
+No processo de implementação do sistema, para estabelecer uma conexão eficiente com o banco de dados foi utilizado a biblioteca "motor" foi adotada como mecanismo.
+
+No centro da estratégia de conexão está uma classe base, denominada \texttt{BaseDB}. Esta classe tem a responsabilidade não apenas de estabelecer a conexão com o MongoDB, mas também de definir uma série de operações básicas para a manipulação dos dados armazenados. A estrutura dessa classe é apresentada a seguir:
+
+\begin{verbatim}
+import motor
+class BaseDB:
+    def __init__(self):
+        self.client = motor.motor_tornado.MotorClient(url, port)
+\end{verbatim}
+
+Algumas das operações fundamentais implementadas por \texttt{BaseDB} incluem:
+
+\begin{itemize}
+    \item \texttt{insert\_one (database, collection, data)}: Insere um documento na coleção especificada.
+    \item \texttt{insert\_many (database, collection, data)}: Insere vários documentos na coleção especificada.
+    \item \texttt{read\_data\_with\_pagination (database, collection, query, page\_number, limit, sort\_descending\_field, projection)}: Recupera dados com paginação, permitindo uma leitura mais organizada.
+    \item \texttt{read\_data\_with\_limit (database, collection, query, limit)}: Lê dados com um limite predefinido de documentos retornados.
+    \item \texttt{read\_data (database, collection, query)}: Realiza uma leitura simples de dados baseada em uma query.
+    \item \texttt{get\_distinct\_property (database, collection, property)}: Obtém propriedades distintas de uma coleção, verificando todos os documentos presentes.
+    \item \texttt{list\_collections\_by\_db (database)}: Lista todas as coleções presentes em um banco de dados específico.
+    \item \texttt{add\_item\_into\_lists\_by\_filter (database, collection, filter, list\_properties, new\_data)}: Adiciona um item em listas específicas baseado em um filtro.
+    \item \texttt{update\_item (database, collection, data, filter)}: Atualiza um documento específico.
+    \item \texttt{update\_many\_items (database, collection, data, filter)}: Atualiza vários documentos que atendam a um filtro.
+    \item \texttt{count\_documents (database, collection, query)}: Conta o número de documentos em uma coleção que atendem a uma consulta.
+    \item \texttt{get\_data\_between\_dates (database, collection, query)}: Recupera dados entre duas datas específicas.
+\end{itemize}
+
+Com a base de acesso estabelecida, outras classes foram desenvolvidas, herdados de \texttt{BaseDB}, para atender contextos específicos do sistema. Essas classes, seguindo o padrão singleton, garantem que apenas uma instância da conexão seja criada para um contexto específico, otimizando a gestão dos recursos. Um exemplo é a classe \texttt{MongoDBIOT} destinada ao módulo de recebimento de dados:
+
+\begin{verbatim}
+class MongoDBIOT(BaseDB, metaclass=Singleton):
+    def __init__(self):
+        super().__init__()
+\end{verbatim}
+
+Classes semelhantes, seguindo o mesmo formato, foram criadas para outros contextos, como o acesso ao banco de dados pela API, garantindo uma estrutura organizada e eficiente de conexão e manipulação dos dados.
+
+
+
+\section[Implementação do modulo de recebimento de dados]{Implementação do modulo de recebimento de dados}
+
+No processo de implementação do sistema, uma das etapas essenciais foi o desenvolvimento de um módulo destinado ao recebimento de dados provenientes dos sensores IoT. Este recebimento é realizado por meio de uma conexão multicast, uma abordagem eficiente para lidar com a transmissão de mensagens a vários destinatários simultaneamente.
+
+\subsection[Conexão e recebimento dos dados]{Conexão e recebimento dos dados}
+
+No centro deste módulo encontra-se a classe \texttt{SensorConnection}. Esta classe tem como principal responsabilidade criar um socket, manter-se conectada para receber mensagens e processá-las. A estrutura e o funcionamento desta classe são detalhados a seguir.
+
+A classe \texttt{SensorConnection} é iniciada com a criação de um socket IPv4 e UDP:
+
+\begin{verbatim}
+class SensorConnection:
+    def __init__(self):
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+\end{verbatim}
+
+Para garantir que o sistema esteja constantemente ouvindo mensagens multicast dos sensores, a função \texttt{listen\_multicast\_messages} foi definida. Esta função invoca a criação da conexão e inicia o processo de leitura de mensagens, gerenciando ainda possíveis desconexões e reestabelecendo a ligação quando necessário:
+
+\begin{verbatim}
+    async def listen_multicast_messages(self, save_data_func):
+        self.__create_connection()
+        while True:
+            await self.__start_read_messages(save_data_func)
+            self.sock.close()
+            time.sleep(1)
+            self.__reconnect()
+\end{verbatim}
+
+A função \texttt{\_\_create\_connection} tem um papel fundamental na classe \texttt{SensorConnection}, sendo responsável por estabelecer e configurar a conexão inicial com o grupo multicast.
+
+Inicialmente, o socket é configurado para permitir várias conexões em um único endereço. A opção \texttt{SO\_REUSEADDR} é definida com o valor 1, permitindo que mais de um socket se ligue a um mesmo endereço, o que é especialmente útil em contextos de conexões multicast:
+
+\begin{verbatim}
+    self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+\end{verbatim}
+
+Após isso, o socket é vinculado a um endereço e porta multicast específicos. É importante ressaltar que o primeiro argumento na definição do endereço do servidor é deixado vazio. Esta abordagem garante que o sistema esteja conectando-se com todas as interfaces de rede disponíveis, proporcionando uma ampla cobertura de conexão:
+
+\begin{verbatim}
+    server_address = ('', SENSOR_MULTICAST_PORT)
+    self.sock.bind(server_address)
+\end{verbatim}
+
+Por fim, para se juntar efetivamente ao grupo multicast, algumas etapas são realizadas. O endereço IP multicast é primeiramente convertido para o formato binário. Em seguida, este endereço e o endereço local (representado por \texttt{socket.INADDR\_ANY}) são empacotados em uma estrutura de dados. Esta estrutura é usado para especificar ao socket que ele deve se juntar a um grupo multicast. E então, a opção \texttt{IP\_ADD\_MEMBERSHIP} é definida e a estrutura previamente criada é passada como argumento, concluindo a conexão com o grupo multicast:
+
+\begin{verbatim}
+    multicast_group = SENSOR_MULTICAST
+    group = socket.inet_aton(multicast_group)
+    mreq = struct.pack('4sL', group, socket.INADDR_ANY)
+    self.sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+\end{verbatim}
+
+Essas operações garantem que o socket esteja configurado e conectado ao grupo multicast, pronto para receber mensagens de múltiplas fontes simultaneamente.
+
+Após as configurações realizads, as mensagens são continuamente lidas e processadas pela função \texttt{\_\_start\_read\_messages}. Durante este processo, cada mensagem é processada, e se estiver no formato correto, é passada para uma função que irá salvar e disponibilizar para API enviar por streaming para os usuários conectados.
+
+\begin{verbatim}
+    async def __start_read_messages(self, save_data_func):
+    while True:
+        try:
+            data, address = self.sock.recvfrom(1024)
+            result = self.__parse_multicast_message(data)
+            if not type(result) == str:
+                await save_data_func(result)
+        except Exception as e:
+            print(f"Error: {e}")
+            break
+\end{verbatim}
+
+
+Em situações em que a conexão com os sensores é interrompida, o método \texttt{\_\_reconnect} é chamado para tentar estabelecer novamente a conexão, criando uma nova instância do socket e chamando novamente a função \texttt{\_\_create\_connection}:
+
+\begin{verbatim}
+    def __reconnect(self):
+        try:
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            self.__create_connection()
+        except Exception as e:
+            print(f"Error to reconnect: {e}")
+\end{verbatim}
+        
+
+%TODO Colocar referencia para a arquitetura
+Para interpretar e extrair informações da mensagem recebida do multicast, é crucial decodificar adequadamente a mensagem de acordo com o protocolo definido anteriormente. A implementação dessa decodificação é feita pelo método \texttt{\_\_parse\_multicast\_message}. A função auxiliar \texttt{\_\_parse\_bytes} é utilizada para essa tarefa, dada uma sequência de bytes, a função interpreta os bytes utilizando a ordem big-endian (onde os bytes mais significativos vêm primeiro):
 
 \begin{verbatim}
 def __parse_bytes(self, bytes):
@@ -65,9 +183,7 @@ def __parse_bytes(self, bytes):
     return (high_data,low_data)
 \end{verbatim}
 
-Aqui, \texttt{data} contém o valor inteiro dos bytes fornecidos. O byte de ordem superior (High) é extraído deslocando o valor 8 bits para a direita e aplicando uma operação "E" (\&). O byte de ordem inferior (Low) é simplesmente obtido aplicando a operação "E" com \texttt{0xFF}.
-
-\subsection{Decodificação da Mensagem}
+Aqui, \texttt{data} contém o valor inteiro dos bytes fornecidos. O byte de ordem superior (High) é extraído deslocando o valor 8 bits para a direita e aplicando uma operação "E" (\&), e o byte de ordem inferior (Low) é simplesmente obtido aplicando a operação "E" com \texttt{0xFF}.
 
 Com a capacidade de interpretar os bytes, a função principal \texttt{\_\_parse\_multicast\_message} pode começar a decodificação:
 
@@ -102,14 +218,29 @@ message_dict = {
 
 Esta estrutura permite uma representação clara e modular da mensagem decodificada, tornando fácil a integração e utilização em outras partes do sistema.
 
+\subsection[Interpretação dos dados]{Interpretação dos dados}
+- explicar a criação da classe
+- Salvamento no banco
+- Disponibilizar para streaming para o front 
 
 
-\subsection[Implementação do módulo de processamento de dados]{Implementação do módulo de processamento de dados}
+\section[Implementação do módulo de processamento de dados]{Implementação do módulo de processamento de dados}
 - Leitura dos dados de acordo com o processamento realizado anteriormente
 - Uso da biblioteca pandas
 - Funcionamento do BoxPlot para realizar analise estatística
 
-\subsection[Implementação do frontend]{Implementação do frontend}
+\section[Implementação da API]{Implementação da API}
+- Uvicorn usado pelo FastAPI e sua forma asyncrona
+- Biblioteca Motor usada para acesso ao mongoDB
+- Biblioteca Pydantic para criação dos modelos e tipos
+- Web socket para envio de notificações
+- Biblioteca Jose para autenticação
+- Comunicação entre as camadas com a classe Result
+- Contratos de interfaces
+- Tratamento de erros com classes personalizadas
+
+
+\section[Implementação do frontend]{Implementação do frontend}
 - Criação de paginas componentes de layouts
 - Recharts
 - Material UI
@@ -118,7 +249,7 @@ Esta estrutura permite uma representação clara e modular da mensagem decodific
 - Acesso externo a API
 - Axios e fetch
 
-\subsection[Adaptando a implementação para outros contextos]{Adaptando a implementação para outros contextos}
+\section[Adaptando a implementação para outros contextos]{Adaptando a implementação para outros contextos}
 Discussão sobre a reutização do sistema para outros contextos....
 - como fazer
 - alterações necessarias

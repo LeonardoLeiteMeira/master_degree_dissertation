@@ -159,4 +159,21 @@ A utilização de containers no projeto trouxe vantagens. Primeiramente, garanti
 
 
 \section{Web Server}\label{sec:webserver}
-Explicar sobre o NGINX
+
+%TODO referencia para o NGINX
+%TODO Sigla NGINX
+Dentro da arquitetura proposta, com containers executando diferentes partes da aplicação, 
+foi utilizado o \textit{NGINX} para ser o intermediário no tráfego de requisições, assegurando a distribuição correta para cada container. 
+
+O método empregado para tal é o de proxy reverso. Em termos simples, o proxy reverso atua como uma interface entre o cliente e vários servidores, direcionando as solicitações dos clientes ao servidor adequado  (no contexto desse projeto, os containers), e assim, otimizando o uso dos recursos e garantindo uma resposta mais rápida e eficiente.
+
+No que se refere a requisições específicas, aquelas que envolvem retorno em formato de stream ou estabelecem uma conexão \textit{WebSocket}, as configurações específicas foram feitas na configuração do \textit{NGINX}, sendo essas detalhadas no capítulo ~\ref{cap:implementation},  dedicado à implementação. Ao receber uma requisição, o servidor \textit{NGINX} identifica, com base nela, qual container é o responsável pelo atendimento. Após essa identificação, são aplicadas as configurações adequadas, e a requisição é direcionada ao container correspondente para obter a resposta. Esse workflow pode ser visto na figura ~\ref{fig:nginx_workflow}.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=\textwidth]{images/diagrama_nginx.png}
+	\caption{NGINX workflow.}
+	\label{fig:nginx_workflow}
+\end{figure}
+
+A incorporação do \textit{NGINX} trouxe alguns benefícios ao projeto. Um deles é a camada adicional de segurança: o \textit{NGINX} limita o acesso direto aos containers, servindo como uma barreira contra tentativas de acesso não autorizado. Adicionalmente, com o NGINX, o processo de escalabilidade torna-se mais simples e eficiente, graças à capacidade inerente do servidor em atuar como um balanceador de carga. Este balanceador de carga distribui o tráfego de entrada entre vários servidores, assegurando que nenhum servidor fique sobrecarregado. Esta funcionalidade não só melhora a performance geral como também proporciona uma maior disponibilidade do sistema, já que, em caso de falha de um servidor, o tráfego pode ser direcionado a outro que esteja operacional.
