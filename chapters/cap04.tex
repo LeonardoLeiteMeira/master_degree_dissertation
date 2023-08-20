@@ -97,16 +97,66 @@ Os módulos implementados na API com a lógica descrita são:
 Além dessas camadas modulares, existe uma área especifica na API para o armazenamento de códigos comuns a todos os módulos. Esta seção engloba diversas funções úteis, modelos de classes, valores constantes e configurações padrão. Tais elementos garantem uma maior coesão e reduzem a repetição de código, otimizando o desempenho geral. Dentre as configurações padrão, merecem destaque o inicializador que estabelece o acesso ao banco de dados, middleware de autenticação, conexão web socket para envio de notificações, e o inicializador de novas \textit{threads}. Este último é utilizada para operações assíncronas que são executadas em paralelo a operação da API, como aquelas executadas pelo módulo de recebimento de dados.
 
 \section[Arquitetura do frontend]{Arquitetura do frontend}
-- Next JS e estrutura pre definida de pastas para as paginas do sistema
-- Componentes e layouts
-- Context API e seu uso
-- Acesso a camada externa (API)
+%TODO referencia para a doc do next
+Utilizando o \textit{Next.js} como framework, o frontend segue uma estrutura básica já estabelecida pelo mesmo.
+
+As rotas do sistema residem na pasta \texttt{pages}, alinhadas com as diretrizes do framework. Já os layouts que servem de base para cada página estão localizados na pasta \texttt{layouts}.
+
+%TODO Referencia react
+Os componentes \textit{React} são a fundação de cada página e layout e estão organizados em uma camada específica, permitindo que sejam reutilizados em várias partes da aplicação.
+
+%TODO referencia para o typescript
+Com a adoção do \textit{Typescript}, modelos definem os tipos de estrutura de dados utilizados. Estes são mantidos na pasta \texttt{types}, estabelecendo contratos de formato de dados para o frontend. Isso minimiza erros e potencializa a eficiência no desenvolvimento.
+
+A \textit{Context API} do React é empregada para gerir dados nos componentes, permitindo o compartilhamento centralizado de informações, como pode ser visto na figura ~\ref{fig:FrontendOrganization}. Esta abordagem otimiza a maneira como os dados são acessados e distribuídos no sistema, otimizando a organização da arquitetura.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=\textwidth]{images/components_frontend.png}
+	\caption{Frontend organization.}
+	\label{fig:FrontendOrganization}
+\end{figure}
+
+Existe uma camada específica para acesso externo, que administra a comunicação com a API e as conexões \textit{WebSocket}. Esta é acessada apenas pelos contextos para atualização e recuperação de dados.
+
+Por fim, há uma pasta dedicada para armazenar códigos recorrentes, contendo funções auxiliares, temas e \textit{assets}, facilitando o desenvolvimento e manutenção ao proporcionar uma estrutura clara e coesa.
+
 
 \section{Containers}
-Explicar sobre os containers
 
-\section{Web Server}
+%TODO Referencia para explicar sobre containers
+Containers são tecnologias que permitem isolar aplicações em ambientes específicos com todas as suas dependências, bibliotecas e configurações necessárias, sem a sobrecarga de máquinas virtuais completas. Isso garante que a aplicação funcione de maneira idêntica em diferentes ambientes, desde o desenvolvimento até a produção. Na figura ~\ref{fig:container} é possível visualizar como é o funcionamento dos containers dentro do sistema operacional do  host.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=\textwidth]{images/container.jpg}
+	\caption{How container works.}
+	\label{fig:container}
+\end{figure}
+
+%TODO Referencia para o docker
+Dentro do universo dos containers, o \textit{Docker} foi a ferramenta selecionada para este projeto. Diversos fatores influenciaram essa decisão, incluindo uma documentação abrangente, uma comunidade ativa e a presença de uma ampla variedade de conteúdos disponíveis. Além disso, o Docker simplifica a definição, criação e execução de containers, tornando-se uma solução robusta para a implantação de aplicações.
+
+O sistema adota diversos containers para organizar e gerenciar as várias partes da aplicação:
+\begin{itemize}
+    \item \textbf{Frontend}: Um container dedicado ao frontend, construído com \textit{NextJs}.
+    \item \textbf{Backend}: Dividido em dois containers distintos, um abrange a API e o módulo de recebimento de dados, enquanto o segundo é voltado especificamente para o módulo de processamento.
+    \item \textbf{Banco de Dados}: Um container para o banco de dados MongoDB, garantindo isolamento e eficiência na gestão dos dados.
+\end{itemize}
+
+%TODO Referencia para redes do docker
+A comunicação entre os containers é viabilizada através de uma rede \textit{bridge} providenciada pelo Docker. Esta rede é uma interface de software criada no host que permite que containers comuniquem entre si e com o host, assegurando a conectividade necessária entre os diferentes módulos da aplicação. Com isso é adicionada uma camada a mais de segurança na aplicação, já que toda conexão externa deve ser feita por meio dessa rede. A conexão com rede externa é feita por meio de um web sever, explicado na seção ~\ref{sec:webserver}.
+
+%TODO referencia para volume
+Para garantir a persistência dos dados e evitar a perda de informações vitais, foi empregado o conceito de \textit{volumes} do Docker na arquitetura do sistema. Volumes são espaços designados no sistema host que podem ser acessados e utilizados pelos containers. No contexto deste projeto, um volume foi especificamente configurado para o banco de dados MongoDB. Assim, mesmo que o container do banco de dados seja reiniciado ou removido, a base de dados se mantém intacta e disponível, devido à sua armazenagem no volume, que opera independentemente do ciclo de vida do container.
+
+%TODO referencia para o docker compose
+%TODO referencia para o arquivo YAML
+Com a necessidade de gerenciar múltiplos containers, configurações de rede e volumes de forma coesa e simplificada, foi adotado o \textit{Docker Compose} na arquitetura do sistema. O Docker Compose permite a definição e execução de aplicações multi-container usando um arquivo YAML. Esse arquivo contém todas as configurações necessárias para inicializar e interconectar os containers. Assim, ao invés de executar uma série de comandos para iniciar cada container individualmente, é possível, através do Docker Compose, iniciar todo o sistema com um único comando. Essa abordagem não apenas simplifica o processo de deploy e desenvolvimento, mas também garante que as configurações de rede e volume sejam consistentemente aplicadas em cada execução.
+
+%TODO Referencia para os benefícios do docker
+A utilização de containers no projeto trouxe vantagens. Primeiramente, garantiu a consistência entre os ambientes de desenvolvimento e produção. Adicionalmente, a modularização proporcionada pelos containers facilita a escalabilidade e manutenção do sistema, permitindo atualizações e alterações de forma ágil e segura a medida que o sistema for crescendo. Por último, a utilização de containers facilita a portabilidade do sistema, podendo ser executado em diversos tipos de servidores e sistemas, bastando ter a instalação do docker.
+
+
+\section{Web Server}\label{sec:webserver}
 Explicar sobre o NGINX
-
-\section[Princípios do SOLID]{Princípios do SOLID}
-Tópicos explicando cada uma das letras do SOLID e relacionando com exemplos concretos do sistema
