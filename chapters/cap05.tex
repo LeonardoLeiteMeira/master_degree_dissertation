@@ -1,22 +1,31 @@
 \chapter{Implementação}\label{cap:implementation}
 
-Após o capítulo anterior, onde a arquitetura do software foi detalhada, este capítulo é focado em explicar como tal arquitetura foi implementada. A distinção entre a concepção e a efetiva construção do sistema é crucial, pois enquanto o primeiro descreve a estrutura e a organização, este foca nas ações técnicas e metodologias adotadas para fazer essa estrutura funcionar.
+Após o capítulo onde a arquitetura do software foi detalhada, este capítulo é focado em explicar como tal arquitetura foi implementada, pois enquanto o primeiro descreve a estrutura e a organização, este foca nas ações técnicas adotadas para fazer essa estrutura funcionar.
 
 Para uma análise mais estruturada e detalhada, este capítulo foi dividido em seções específicas para cada componente do sistema. São elas:
 
 \begin{itemize}
     \item \textbf{Implementação do banco de dados}: Esta seção abordará os detalhes técnicos do design do banco de dados, esquemas adotados e como as informações são armazenadas e recuperadas.
     
-    \item \textbf{Implementação da API}: Aqui, a estrutura da API será discutida, incluindo os endpoints fornecidos, a lógica por trás de cada um e como eles interagem com o resto do sistema.
+    \item \textbf{Implementação do módulo de recebimento de dados}: Esta seção detalhará como os dados são recebidos, validados e processados antes de serem armazenados e disponibilizados para os usuários.
     
-    \item \textbf{Implementação do módulo de recebimento de dados}: Esta seção detalhará como os dados são recebidos, validados e processados antes de serem armazenados e processados.
+    \item \textbf{Implementação da API}: Aqui, a estrutura da API será discutida, passando pelos endpoints fornecidos, a lógica por trás de cada um e as camadas utilizadas.
     
-    \item \textbf{Implementação do módulo de processamento de dados}: Será abordado o tratamento e transformação dos dados, garantindo que as informações sejam interpretadas e utilizadas corretamente pelo sistema.
+    
+    
+    \item \textbf{Implementação do módulo de processamento de dados}: É abordado o tratamento dos dados recebidos pelos sensores, e como é feito a analise estatística que gera as informações apresentadas nos gráficos.
     
     \item \textbf{Implementação do frontend}: Por fim, a interface com o usuário será discutida, explicando como os dados são estruturados apresentados e apresentados em tela.
 \end{itemize}
 
-%TODO - Itens de implementação para adicionar; - Classe Singleton - 
+%TODO - Itens de implementação para adicionar;
+% - Classe Singleton -
+% - Classe ThreadManager -
+% - Classe Datatype -
+% - MetadataRepository -
+% - iot_collection_parser.py - 
+% - Pydantic - 
+% - Envio de notificações via web socket - 
 
 
 
@@ -36,7 +45,7 @@ Em relação à organização dos dados, os seguintes bancos de dados foram cria
     
     \item \textbf{Downtime}: Armazena duas coleções, uma com os dados lidos das planilhas de parada das máquinas, e outro com esses dados tratados. Esse banco de dados com essas coleções são apenas para simular como ficaria os dados de parada das maquinas, caso eles fosses inseridos no sistema.
     
-    \item \textbf{Raw Data}: Este banco é dedicado ao armazenamento de dados brutos oriundos de diferentes sensores. Cada tipo de sensor, como os sensores de pressão, tem sua própria coleção, garantindo uma categorização intuitiva dos dados.
+    \item \textbf{Raw Data}: Este banco é dedicado ao armazenamento de dados brutos oriundos de diferentes sensores. Cada tipo de sensor, como os sensores de pressão, tem sua própria coleção, garantindo um agrupamento das informações que facilita a análise.
     
     \item \textbf{Processed Data}: Como o próprio nome sugere, armazena dados que já passaram por uma etapa de processamento. Assim, dados interpretados de diferentes sensores são separados em coleções específicas, como os de pressão em uma e os de voltagem em outra.
     
@@ -49,9 +58,9 @@ Com esta estruturação, busca-se não apenas organizar de forma lógica os dado
 \subsection[Acesso ao banco de dados]{Acesso ao banco de dados}
 
 %TODO referencia para o motor
-No processo de implementação do sistema, para estabelecer uma conexão eficiente com o banco de dados foi utilizado a biblioteca "motor" foi adotada como mecanismo.
+No processo de implementação do sistema, para estabelecer uma conexão eficiente com o banco de dados foi utilizado a biblioteca \texttt{motor} foi adotada como mecanismo.
 
-No centro da estratégia de conexão está uma classe base, denominada \texttt{BaseDB}. Esta classe tem a responsabilidade não apenas de estabelecer a conexão com o MongoDB, mas também de definir uma série de operações básicas para a manipulação dos dados armazenados. A estrutura dessa classe é apresentada a seguir:
+No centro da estratégia de conexão está uma classe base, denominada \texttt{BaseDB}, que tem a responsabilidade não apenas de estabelecer a conexão com o MongoDB, mas também de definir uma série de operações básicas para a manipulação dos dados armazenados. A estrutura dessa classe é apresentada a seguir:
 
 \begin{verbatim}
 import motor
@@ -63,21 +72,33 @@ class BaseDB:
 Algumas das operações fundamentais implementadas por \texttt{BaseDB} incluem:
 
 \begin{itemize}
-    \item \texttt{insert\_one (database, collection, data)}: Insere um documento na coleção especificada.
-    \item \texttt{insert\_many (database, collection, data)}: Insere vários documentos na coleção especificada.
-    \item \texttt{read\_data\_with\_pagination (database, collection, query, page\_number, limit, sort\_descending\_field, projection)}: Recupera dados com paginação, permitindo uma leitura mais organizada.
-    \item \texttt{read\_data\_with\_limit (database, collection, query, limit)}: Lê dados com um limite predefinido de documentos retornados.
-    \item \texttt{read\_data (database, collection, query)}: Realiza uma leitura simples de dados baseada em uma query.
-    \item \texttt{get\_distinct\_property (database, collection, property)}: Obtém propriedades distintas de uma coleção, verificando todos os documentos presentes.
-    \item \texttt{list\_collections\_by\_db (database)}: Lista todas as coleções presentes em um banco de dados específico.
-    \item \texttt{add\_item\_into\_lists\_by\_filter (database, collection, filter, list\_properties, new\_data)}: Adiciona um item em listas específicas baseado em um filtro.
-    \item \texttt{update\_item (database, collection, data, filter)}: Atualiza um documento específico.
-    \item \texttt{update\_many\_items (database, collection, data, filter)}: Atualiza vários documentos que atendam a um filtro.
-    \item \texttt{count\_documents (database, collection, query)}: Conta o número de documentos em uma coleção que atendem a uma consulta.
-    \item \texttt{get\_data\_between\_dates (database, collection, query)}: Recupera dados entre duas datas específicas.
+    \item \texttt{insert\_one}: Recebe como parâmetros o \textit{database} e a \textit{collection} correspondentes em formato de texto, e a \textit{data} a ser inserida. Insere um documento na coleção especificada.
+    
+    \item \texttt{insert\_many}: Recebe como parâmetros o \textit{database} e a \textit{collection} correspondentes em formato de texto, e a \textit{data} contendo vários documentos a serem inseridos. Insere vários documentos na coleção especificada.
+    
+    \item \texttt{read\_data\_with\_pagination}: Recebe como parâmetros o \textit{database}, a \textit{collection}, a \textit{query}, o \textit{page\_number}, o \textit{limit}, o \textit{sort\_descending\_field} e a \textit{projection}. Recupera dados com paginação, permitindo uma leitura mais organizada.
+    
+    \item \texttt{read\_data\_with\_limit}: Recebe como parâmetros o \textit{database}, a \textit{collection}, a \textit{query} e o \textit{limit}. Lê dados com um limite predefinido de documentos retornados.
+    
+    \item \texttt{read\_data}: Recebe como parâmetros o \textit{database}, a \textit{collection} e a \textit{query}. Realiza uma leitura simples de dados baseada em uma query.
+    
+    \item \texttt{get\_distinct\_property}: Recebe como parâmetros o \textit{database}, a \textit{collection} e a \textit{property}. Obtém propriedades distintas de uma coleção, verificando todos os documentos presentes.
+    
+    \item \texttt{list\_collections\_by\_db}: Recebe como parâmetro o \textit{database}. Lista todas as coleções presentes em um banco de dados específico.
+    
+    \item \texttt{add\_item\_into\_lists\_by\_filter}: Recebe como parâmetros o \textit{database}, a \textit{collection}, o \textit{filter}, as \textit{list\_properties} e a \textit{new\_data}. Adiciona um item em listas específicas baseado em um filtro.
+    
+    \item \texttt{update\_item}: Recebe como parâmetros o \textit{database}, a \textit{collection}, a \textit{data} a ser atualizada e o \textit{filter}. Atualiza um documento específico.
+    
+    \item \texttt{update\_many\_items}: Recebe como parâmetros o \textit{database}, a \textit{collection}, a \textit{data} a ser atualizada e o \textit{filter}. Atualiza vários documentos que atendam a um filtro.
+    
+    \item \texttt{count\_documents}: Recebe como parâmetros o \textit{database}, a \textit{collection} e a \textit{query}. Conta o número de documentos em uma coleção que atendem a uma consulta.
+    
+    \item \texttt{get\_data\_between\_dates}: Recebe como parâmetros o \textit{database}, a \textit{collection} e a \textit{query}. Recupera dados entre duas datas específicas.
 \end{itemize}
 
-Com a base de acesso estabelecida, outras classes foram desenvolvidas, herdados de \texttt{BaseDB}, para atender contextos específicos do sistema. Essas classes, seguindo o padrão singleton, garantem que apenas uma instância da conexão seja criada para um contexto específico, otimizando a gestão dos recursos. Um exemplo é a classe \texttt{MongoDBIOT} destinada ao módulo de recebimento de dados:
+
+Com a base de acesso estabelecida, outras classes foram desenvolvidas, herdados de \texttt{BaseDB}, para atender contextos específicos do sistema. Essas classes seguem o padrão singleton, o que garante que apenas uma instância da conexão seja criada para um contexto específico, otimizando a gestão dos recursos. Um exemplo é a classe \texttt{MongoDBIOT} destinada ao módulo de recebimento de dados:
 
 \begin{verbatim}
 class MongoDBIOT(BaseDB, metaclass=Singleton):
@@ -87,15 +108,15 @@ class MongoDBIOT(BaseDB, metaclass=Singleton):
 
 Classes semelhantes, seguindo o mesmo formato, foram criadas para outros contextos, como o acesso ao banco de dados pela API, garantindo uma estrutura organizada e eficiente de conexão e manipulação dos dados.
 
-
-
-\section[Implementação do modulo de recebimento de dados]{Implementação do modulo de recebimento de dados}
+\section[Implementação do modulo de recebimento de dados]{Implementação do modulo de recebimento de dados}\label{sec:Implementação do modulo de recebimento de dados}
 
 No processo de implementação do sistema, uma das etapas essenciais foi o desenvolvimento de um módulo destinado ao recebimento de dados provenientes dos sensores IoT. Este recebimento é realizado por meio de uma conexão multicast, uma abordagem eficiente para lidar com a transmissão de mensagens a vários destinatários simultaneamente.
 
-\subsection[Conexão e recebimento dos dados]{Conexão e recebimento dos dados}
+Esse modulo é responsável por estabelecer a conexão multicast para receber os dados, realizar a conversão dos dados recebidos de acordo com o protocolo pré definido, disponibilizar os dados para serem mostrados em tempo real para os usuários conectados, verificar se gera algum tipo de alerta (e se gerar, notificar os usuários sobre isso com a criação de uma notificação), e salvar as informações geradas no banco de dados.
 
-No centro deste módulo encontra-se a classe \texttt{SensorConnection}. Esta classe tem como principal responsabilidade criar um socket, manter-se conectada para receber mensagens e processá-las. A estrutura e o funcionamento desta classe são detalhados a seguir.
+\subsection[Conexão e recebimento dos dados]{Conexão e recebimento dos dados}\label{subsec:Conexão e recebimento dos dados}
+
+A classe \texttt{SensorConnection} tem como principal responsabilidade criar um socket, manter-se conectada para receber mensagens e interpreta-las. A estrutura e o funcionamento desta classe são detalhados a seguir.
 
 A classe \texttt{SensorConnection} é iniciada com a criação de um socket IPv4 e UDP:
 
@@ -105,7 +126,7 @@ class SensorConnection:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 \end{verbatim}
 
-Para garantir que o sistema esteja constantemente ouvindo mensagens multicast dos sensores, a função \texttt{listen\_multicast\_messages} foi definida. Esta função invoca a criação da conexão e inicia o processo de leitura de mensagens, gerenciando ainda possíveis desconexões e reestabelecendo a ligação quando necessário:
+Para garantir que o sistema esteja constantemente ouvindo mensagens multicast dos sensores, o método \texttt{listen\_multicast\_messages} foi definido dentro dessa classe. Ele invoca a criação da conexão e inicia o processo de leitura de mensagens, gerenciando ainda possíveis desconexões e reestabelecendo a ligação quando necessário:
 
 \begin{verbatim}
     async def listen_multicast_messages(self, save_data_func):
@@ -117,7 +138,25 @@ Para garantir que o sistema esteja constantemente ouvindo mensagens multicast do
             self.__reconnect()
 \end{verbatim}
 
-A função \texttt{\_\_create\_connection} tem um papel fundamental na classe \texttt{SensorConnection}, sendo responsável por estabelecer e configurar a conexão inicial com o grupo multicast.
+A função \texttt{\_\_create\_connection} tem o papel de estabelecer e configurar a conexão inicial com o grupo multicast, e dentro do loop infinito é inciado o recebimento das mensagens com o método \texttt{\_\_start\_read\_messages}. Quando esse método é finalizado a conexão socket é fechada, e em seguida reconectada para depois voltar a fazer a leitura das mensagens. A chamada da função \texttt{time.sleep(1)} é utilizada para ter um pequeno intervalo entre uma chamada e outra caso e não realizar uma quantidade muito grande de chamadas caso esteja ocorrendo algum tipo de problema.
+
+A seguir, cada uma das funções chamadas dentro desse método e detalhado.
+
+
+\subsubsection[Método create connection]{Método create connection}
+
+\begin{verbatim}
+    def __create_connection(self):
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+        server_address = ('', SENSOR_MULTICAST_PORT)
+        self.sock.bind(server_address)
+
+        multicast_group = SENSOR_MULTICAST
+        group = socket.inet_aton(multicast_group)
+        mreq = struct.pack('4sL', group, socket.INADDR_ANY)
+        self.sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+\end{verbatim}
 
 Inicialmente, o socket é configurado para permitir várias conexões em um único endereço. A opção \texttt{SO\_REUSEADDR} é definida com o valor 1, permitindo que mais de um socket se ligue a um mesmo endereço, o que é especialmente útil em contextos de conexões multicast:
 
@@ -132,7 +171,7 @@ Após isso, o socket é vinculado a um endereço e porta multicast específicos.
     self.sock.bind(server_address)
 \end{verbatim}
 
-Por fim, para se juntar efetivamente ao grupo multicast, algumas etapas são realizadas. O endereço IP multicast é primeiramente convertido para o formato binário. Em seguida, este endereço e o endereço local (representado por \texttt{socket.INADDR\_ANY}) são empacotados em uma estrutura de dados. Esta estrutura é usado para especificar ao socket que ele deve se juntar a um grupo multicast. E então, a opção \texttt{IP\_ADD\_MEMBERSHIP} é definida e a estrutura previamente criada é passada como argumento, concluindo a conexão com o grupo multicast:
+Por fim, para se juntar efetivamente ao grupo multicast, algumas etapas são realizadas. O endereço IP multicast é primeiramente convertido para o formato binário com a chamada de \texttt{socket.inet\_aton}. Em seguida, este endereço e o endereço local (representado por \texttt{socket.INADDR\_ANY}) são empacotados em uma estrutura de dados por \texttt{struct.pack}. Esta estrutura é usado para especificar ao socket que ele deve se juntar a um grupo multicast em \texttt{self.sock.setsockopt}. A opção \texttt{IP\_ADD\_MEMBERSHIP} é definida e a estrutura previamente criada é passada como argumento, concluindo a conexão com o grupo multicast:
 
 \begin{verbatim}
     multicast_group = SENSOR_MULTICAST
@@ -143,10 +182,23 @@ Por fim, para se juntar efetivamente ao grupo multicast, algumas etapas são rea
 
 Essas operações garantem que o socket esteja configurado e conectado ao grupo multicast, pronto para receber mensagens de múltiplas fontes simultaneamente.
 
-Após as configurações realizads, as mensagens são continuamente lidas e processadas pela função \texttt{\_\_start\_read\_messages}. Durante este processo, cada mensagem é processada, e se estiver no formato correto, é passada para uma função que irá salvar e disponibilizar para API enviar por streaming para os usuários conectados.
+
+\subsubsection[Método reconnect]{Método reconnect}
+\begin{verbatim}
+def __reconnect(self):
+    try:
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.__create_connection()
+    except Exception as e:
+        print(f"Error to reconnect: {e}")
+\end{verbatim}
+
+Em situações em que a conexão com os sensores é interrompida, o método \texttt{\_\_reconnect} é chamado para tentar estabelecer novamente a conexão, criando uma nova instância do socket e chamando novamente a função \texttt{\_\_create\_connection}, detalhada anteriormente.
+
+\subsubsection[Método start read messages]{Método start read messages}
 
 \begin{verbatim}
-    async def __start_read_messages(self, save_data_func):
+async def __start_read_messages(self, save_data_func):
     while True:
         try:
             data, address = self.sock.recvfrom(1024)
@@ -158,21 +210,53 @@ Após as configurações realizads, as mensagens são continuamente lidas e proc
             break
 \end{verbatim}
 
+Após as configurações realizads, as mensagens são continuamente lidas e processadas pela função \texttt{\_\_start\_read\_messages}. Durante este processo, cada mensagem é processada pelo método \texttt{\_\_parse\_multicast\_message}, e se estiver no formato correto, é passada para uma função que irá salvar e disponibilizar para API enviar por streaming para os usuários conectados.
 
-Em situações em que a conexão com os sensores é interrompida, o método \texttt{\_\_reconnect} é chamado para tentar estabelecer novamente a conexão, criando uma nova instância do socket e chamando novamente a função \texttt{\_\_create\_connection}:
+Se ocorrer algum problema na execução desse método, ele é finalizado e volta para o \texttt{listen\_multicast\_messages}, onde o socket é fechado e uma nova conexão é estabelecida pelo método \texttt{\_\_reconnect}.
+
+
+\subsubsection[Método parse multicast messages]{Método parse multicast messages}
+
 
 \begin{verbatim}
-    def __reconnect(self):
-        try:
-            self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            self.__create_connection()
-        except Exception as e:
-            print(f"Error to reconnect: {e}")
-\end{verbatim}
+def __parse_multicast_message(self, data):
+        (machine_type_high, machine_number_low) = 
+            self.__parse_bytes(data[:2])
+
+        message_type = data[2]
+
+        if message_type == 2:
+            return "Request to publish..."
+
+        (physical_quantity_high, sensor_number_low) = 
+            self.__parse_bytes(data[3:5])
         
+        (data_type_high, meaning_low) = 
+            self.__parse_bytes(data[5:7])
+
+        message_dict = {
+            'Machine': {
+                'Type': str(machine_type_high)+". "+MACHINE_TYPE[machine_type_high],
+                'Number': machine_number_low
+            },
+            'Type': str(message_type)+". "+ MESSAGE_TYPE[message_type],
+            'Sensor': {
+                'PhysicalQuantity': PHYSICAL_QUANTITY[physical_quantity_high],
+                'Number': sensor_number_low
+            },
+            'MeaningOfData': {
+                'DataType': str(data_type_high)+". "+DATA_TYPE[data_type_high],
+                'Meaning': str(meaning_low)+". "+DATA_MEANING[meaning_low]
+            }
+        }
+
+        return message_dict
+    \end{verbatim}
+
+
 
 %TODO Colocar referencia para a arquitetura
-Para interpretar e extrair informações da mensagem recebida do multicast, é crucial decodificar adequadamente a mensagem de acordo com o protocolo definido anteriormente. A implementação dessa decodificação é feita pelo método \texttt{\_\_parse\_multicast\_message}. A função auxiliar \texttt{\_\_parse\_bytes} é utilizada para essa tarefa, dada uma sequência de bytes, a função interpreta os bytes utilizando a ordem big-endian (onde os bytes mais significativos vêm primeiro):
+Para interpretar e extrair informações da mensagem recebida do multicast, é crucial decodificar adequadamente a mensagem de acordo com o protocolo definido anteriormente. A implementação dessa decodificação é feita pelo método \texttt{\_\_parse\_multicast\_message}. A função auxiliar \texttt{\_\_parse\_bytes} é utilizada para essa tarefa, dada uma sequência de bytes, a função interpreta os bytes utilizando a ordem big-endian (onde os bytes mais significativos vêm primeiro).
 
 \begin{verbatim}
 def __parse_bytes(self, bytes):
@@ -183,7 +267,7 @@ def __parse_bytes(self, bytes):
     return (high_data,low_data)
 \end{verbatim}
 
-Aqui, \texttt{data} contém o valor inteiro dos bytes fornecidos. O byte de ordem superior (High) é extraído deslocando o valor 8 bits para a direita e aplicando uma operação "E" (\&), e o byte de ordem inferior (Low) é simplesmente obtido aplicando a operação "E" com \texttt{0xFF}.
+Aqui, \texttt{data} contém o valor inteiro dos bytes fornecidos. O byte de ordem superior (High) é extraído deslocando o valor 8 bits para a direita e aplicando uma operação "END" (\&), e o byte de ordem inferior (Low) é simplesmente obtido aplicando a operação "END" com \texttt{0xFF}.
 
 Com a capacidade de interpretar os bytes, a função principal \texttt{\_\_parse\_multicast\_message} pode começar a decodificação:
 
@@ -195,8 +279,6 @@ Com a capacidade de interpretar os bytes, a função principal \texttt{\_\_parse
     \item Os bytes 4 e 5 são interpretados como o ID do sensor, que contém a quantidade física sendo medida e o número do sensor.
     
     \item Os bytes 6 e 7 são usados para extrair o tipo de dados e seu significado.
-    
-    \item Finalmente, os bytes 8 e 9 são usados para determinar o comprimento dos dados que seguem.
 \end{itemize}
 
 A informação extraída é então organizada em um dicionário para representação clara e fácil acesso aos componentes individualmente:
@@ -216,12 +298,389 @@ message_dict = {
 }
 \end{verbatim}
 
-Esta estrutura permite uma representação clara e modular da mensagem decodificada, tornando fácil a integração e utilização em outras partes do sistema.
+Esta estrutura permite uma representação clara e modular da mensagem decodificada, tornando fácil a integração e utilização em outras partes do sistema. Sendo assim, o retorno do método \texttt{\_\_parse\_multicast\_message} é utilizado como resultado da interpretação da mensagem multicast, e enviado para função recebida como parâmetro, \texttt{save\_data\_func}.
 
-\subsection[Interpretação dos dados]{Interpretação dos dados}
-- explicar a criação da classe
-- Salvamento no banco
-- Disponibilizar para streaming para o front 
+\subsection[Verificação e disponibilização dos dados]{Verificação e disponibilização dos dados}
+No processo de recebimento dos dados, após abrir a conexão e os dados, é necessário verificar se estão no formato correto, se gera algum alerta, inserir no banco de dados e disponibilizar para os usuários conectados no sistema.
+
+A classe \texttt{IotSensorConnection}, que implementa a interface \texttt{IotSensorConnectionInterface}, desempenha um papel principal neste módulo. Na sua inicialização, é estabelecida uma ligação com o repositório através da variável \texttt{self.\_\_repository}. Além disso, é responsável pela conexão com o sensor é estabelecida por meio do \texttt{self.\_\_sensor\_connection}, explicada anteriormente na seção ~\ref{subsec:Conexão e recebimento dos dados}.
+
+\begin{verbatim}
+class IotSensorConnection(IotSensorConnectionInterface):
+    def __init__(self, respository:SensorsRepository):
+        self.__repository = respository
+        self.__sensor_connection = SensorConnection()
+    
+    def start_connection(self):
+        threadManager = ThreadManager()
+        threadManager.start_async_thread(self.__start_connection)
+    
+    async def __start_connection(self):
+        await self.__sensor_connection.
+            listen_multicast_messages(self.__handle_iot_data)
+\end{verbatim}
+
+%TODO Referencia para o helper de threads
+Ao iniciar a conexão, utilizando o método \texttt{start\_connection}, é criada uma nova thread por meio da classe \texttt{ThreadManager}. Esta thread invoca o método \texttt{listen\_multicast\_messages} da classe \texttt{SensorConnection} que foi detalhado na seção ~\ref{subsec:Conexão e recebimento dos dados}. É necessário criar uma nova thread pois como esse modulo está junto com a API, e é necessário que os doi processos funcionem ao mesmo tempo, uma nova thread foi necessária para o funcionamento em paralelo de ambos.
+
+\subsubsection{Verificação do formato dos dados}
+
+%TODO referencia para a seção de helper do Pydantic
+Para lidar com os dados recebidos, o método \texttt{\_\_handle\_iot\_data} é passado como argumento para \texttt{listen\_multicast\_messages} (como o argumento save\_func na classe que existe na classe \texttt{SensorConnection}).
+
+%TODO Alterar o value no parse
+\begin{verbatim}
+async def __handle_iot_data(self, sensor_data:dict):
+    sensor_model = self.__parse_sensor_data_to_sensor_model(sensor_data)
+    await self.__repository.update_current_sensor_value(
+        sensor_value = sensor_model.value,
+        machine = sensor_model.machine,
+        date = sensor_model.date,
+        sensor_type = sensor_model.type,
+        sensor_number = sensor_model.sensor_number
+    )
+
+def __parse_sensor_data_to_sensor_model(self, sensor_data:dict):
+    value = 1
+    machine = str(sensor_data["Machine"]['Number']) 
+        + sensor_data["Machine"]['Type']
+    date = datetime.now()
+    data_type = sensor_data["Sensor"]["PhysicalQuantity"]
+    sensor_number = sensor_data["Sensor"]["Number"]
+    return ConnectionModelToParse(
+        date=date,
+        machine=machine,
+        sensor_number=sensor_number,
+        type=data_type,
+        value=value
+    )
+\end{verbatim}
+
+%TODO REFERENCIA PARA O PYDANTIC
+Este método tem a responsabilidade de receber os dados so sensor e converter para uma classe modelo, denominada \texttt{ConnectionModelToParse}, que utiliza o \texttt{Pydantic} para validar as informações. O uso do \texttt{Pydantic} é mostrado na seção ~\ref{sec:a}.
+
+\begin{verbatim}
+from datetime import datetime
+class ConnectionModelToParse:
+    def __init__(self,value:float,machine:str,
+        date:datetime,type:Datatype,
+        sensor_number:int):
+
+        self.value = value
+        self.machine = machine
+        self.date = date
+        self.type = type
+        self.sensor_number = sensor_number
+\end{verbatim}
+
+Após essa transformação, os dados são encaminhados para o repositório. O método \texttt{update\_current\_sensor\_value} do repository é chamado para checar se o dado recebido gera algum tipo de alerta, salvar no banco de dados, atualizar os dados em memoria, e realizar as verificações de notificação.
+
+\begin{verbatim}
+class SensorsRepository:
+    def __init__(self):
+        self.database = MongoDBIOT()
+        self.iot_notification_check = IotNotificationCheck()
+        self.__sensor_value = SensorValue()
+
+    async def update_current_sensor_value(self, sensor_type:Datatype,
+        sensor_value:float, machine:str, date:datetime, 
+        sensor_number:int):
+        alert_type = await self.__get_alert_type(sensor_value, sensor_type)
+        current_value = {"machine":machine,
+            "value":sensor_value, "timestamp": date,
+            "alert_type":alert_type.value,
+            "sensor_number":sensor_number}
+        result = await self.insert_value_into_database(current_value, 
+            sensor_type)
+        new_id = result.inserted_id
+        iot_data = IotData(
+            alert_type=current_value["alert_type"],
+            machine=current_value["machine"],
+            timestamp=current_value["timestamp"],
+            value=current_value["value"],
+            id=PyObjectId(new_id),
+            datatype=sensor_type,
+            sensor_number=sensor_number
+        )
+        
+        self.__sensor_value.update_sensor_value_by_type(
+            iot_data,sensor_type)
+        
+        await self.iot_notification_check.check_iot_notification(
+            iot_data)
+\end{verbatim}
+
+\subsubsection{Verificação de alertas}
+
+Dentro do método \texttt{update\_current\_sensor\_value}, primeiramente é verificado o tipo de alerta gerado com a o método  \texttt{\_\_get\_alert\_type}.
+%TODO Referencia para o helper de metadados com a leitura do parametro de alerta em get_sensor_alert_value
+Esse método realiza a leitura do parâmetro de acordo do com tipo do sensor dentro dos metadados do sistema, em que o acesso é explicado em ..., e com ele verifica o status de alerta. 
+
+O stats de alerta, definido pela função  \texttt{get\_alert\_status}, retorna como \texttt{OK} caso o valor do sensor seja menor que 90\% do valor definido com parâmetro, retorna como \texttt{WARNING} caso esse valor esteja entre 90\% e 100\%, e retorna como \texttt{PROBLEM} caso o valor retornado pelo sensor seja maior que 100\% do valor definido como parâmetro
+
+\begin{verbatim}
+def get_alert_status(self,sensor_value:int,
+    alert_parameter:int)->AlertTypes:
+
+    parameter = ((sensor_value/alert_parameter)*100)
+    if parameter < 90:
+        return AlertTypes.OK
+    if parameter >= 90 and parameter < 100:
+        return AlertTypes.WARNING
+    if parameter >= 100:
+        return AlertTypes.PROBLEM
+
+async def __get_alert_type(self, sensor_value:float,
+    sensor_type:Datatype)->AlertTypes:
+    alert_parameter = await MetadataRepository()
+        .get_sensor_alert_value(sensor_type)
+    alert_type = self.get_alert_status(sensor_value,alert_parameter)
+    return alert_type
+\end{verbatim}
+
+
+\subsubsection{Registro no banco de dados}
+
+Com a verificação dos alertas, todas as informações foram geradas, portanto já podem ser registradas no banco de dados. Para esse registro é usado o método \texttt{insert\_value\_into\_database}.
+
+\begin{verbatim}
+async def insert_value_into_database(self, value:BaseIotData, type:Datatype):
+    try:
+        collection = sensor_name_to_raw_data_collection(type)
+        return await self.database.insert_one(IOT_DATABASE,collection,value)
+    except Exception as ex:
+        print(ex)
+        raise ex
+\end{verbatim}
+
+Esse método utiliza da classe base do banco de dados com operações já definidas para realizar o registro. Dentro do método \texttt{update\_current\_sensor\_value} do repositório, o retorno é utilizado para manter o ID registrado em memoria, importante para criar o objeto \texttt{IotData}, que é enviado para os usuários conectados, via stream, no passo seguinte.
+
+\begin{verbatim}
+current_value = {"machine":machine,
+    "value":sensor_value,
+    "timestamp": date,
+    "alert_type":alert_type.value,
+    "sensor_number":sensor_number}
+result = await self.insert_value_into_database(current_value, sensor_type)
+new_id = result.inserted_id
+iot_data = IotData(
+    alert_type=current_value["alert_type"],
+    machine=current_value["machine"],
+    timestamp=current_value["timestamp"],
+    value=current_value["value"],
+    id=PyObjectId(new_id),
+    datatype=sensor_type,
+    sensor_number=sensor_number
+)
+\end{verbatim}
+
+%TODO Referencia para a seção de helpers quando pega o nome da collection
+Uma informação importante a se destacar, é que o nome da coleção utilizada pelo método \texttt{insert\_value\_into\_database} é definida de acordo com tipo de dado estabelecido, usando a função de ajuda \texttt{sensor\_name\_to\_raw\_data\_collection}, explicada anteriormente em ....
+
+\subsubsection{Atualização dos dados em memoria}
+
+Com o tipo de alerta definido e os dados registrados no banco de dados, é utilizado a classe \texttt{SensorValue} para atualizar as informações na memória. Esse processo é feito por meio da chamada \texttt{\_\_sensor\_value.update\_sensor\_value\_by\_type (iot\_data,sensor\_type)} no método \texttt{update\_current\_sensor\_value} do repository.
+
+
+A classe \texttt{SensorValue} é responsável por gerenciar e atualizar os valores em memória. Nota-se que a mesma utiliza o padrão de projeto \texttt{Singleton}, assegurando a existência de apenas uma instância desta classe durante todo o ciclo de vida da aplicação, garantindo que so existe uma instancia armazenando as informações dos sensores.
+
+\begin{verbatim}
+class SensorValue(metaclass=Singleton):
+    def __init__(self) -> None:
+        self.machine_list:list[MachineData] = []
+
+    def update_sensor_value_by_type(self, new_value: IotData, data_type: Datatype):
+        is_new_machine = True
+
+        for machine in self.machine_list:
+            if machine.name == new_value.machine:
+                is_new_machine = False
+                is_new_sensor = True
+
+                for index, sensor in enumerate(machine.sensor_data):
+                    if sensor.datatype == data_type:
+                        machine.sensor_data[index] = new_value
+                        is_new_sensor = False
+                        break
+
+                if is_new_sensor:
+                    machine.sensor_data.append(new_value)
+                    break
+
+        if is_new_machine:
+            new_machine = MachineData(name=new_value.machine,sensor_data=[new_value])
+            self.machine_list.append(new_machine)
+\end{verbatim}
+
+No momento de sua inicialização, a classe \texttt{SensorValue} inicializa uma lista vazia, \texttt{machine\_list}, que será responsável por armazenar os valores dos sensores organizados por máquina.
+
+A atualização acontece pelo método \texttt{update\_sensor\_value\_by\_type}. Este método atualiza o valor do sensor na memória de acordo com seu tipo (\texttt{data\_type}). O processo de atualização verifica primeiramente se a máquina associada ao sensor já existe na lista. Caso positivo, busca-se pelo sensor específico dentro dos dados da máquina e atualiza-se seu valor. Se o sensor não for encontrado, um novo é adicionado à lista de sensores da máquina correspondente.
+
+Por outro lado, se a máquina não for encontrada na lista \texttt{machine\_list}, uma nova instância de \texttt{MachineData} é criada e adicionada à lista, contendo as informações da máquina e os dados do sensor recebido.
+
+\begin{verbatim}
+class MachineData(BaseModel):
+    name:str = Field(...)
+    sensor_data:list[IotData] = Field([])
+\end{verbatim}
+
+Dessa forma, o repositório envia as informações para esse método, e com a verificação adequada, é mantido os dados mais atualizados em memoria, e disponível para ser utilizado pela API, possibilitando o acesso em tempo real dos dados dos sensores.
+
+
+\subsubsection{Verificação de notificação}
+Com o tipo de alerta verificado, a informação salva no banco de dados e o objeto \texttt{IotData} montado, a última tarefa do método \texttt{update\_current\_sensor\_value} do repository é utilizar o singleton IotNotificationCheck para verificar as notificações em relação a operação das máquinas.
+
+A classe \texttt{IotNotificationCheck} atua como um controlador de alertas para dados IoT. Ao receber dados IoT, ela verifica o estado do alerta e toma medidas apropriadas, seja adicionando ou removendo máquinas ou sensores da lista de alertas. Essa classe é essencial para monitorar e responder a eventos de alerta em tempo real, garantindo que os usuários associados sejam notificados de quaisquer anormalidades ou eventos importantes detectados pelos sensores IoT.
+
+Por meio do método \texttt{check\_iot\_notification}, a classe verifica o tipo de alerta recebido pelo objeto IotData, se a máquina está em estado de alerta e se o sensor específico da máquina está em estado de alerta. Com base nessa verificação, o método toma uma das seguintes ações:
+
+\begin{enumerate}
+    \item Coloca uma nova máquina em estado de alerta.
+    \item Coloca um novo sensor da máquina em estado de alerta.
+    \item Remove um sensor da máquina do estado de alerta. Se a máquina tiver apenas um único sensor em estado de alerta, a maquina é removida do estado de alerta
+\end{enumerate}
+
+
+\begin{verbatim}
+async def check_iot_notification(self, iot_data:IotData):
+    is_alert_value = self.__is_alert_type_a_new_alert(
+        iot_data.alert_type)
+    machine_in_alert = self.__is_machine_in_alert_state(
+        machine_name=iot_data.machine)
+    machine_sensor_in_alert = self.__is_machine_sensor_in_alert_state(
+        machine_in_alert,
+        iot_data.datatype)
+
+    is_machine_in_alert = machine_in_alert!=None
+
+    if is_alert_value and is_machine_in_alert and (not machine_sensor_in_alert):
+        await self.__put_new_machine_sensor_in_alert_state(
+            machine_in_alert,
+            iot_data.datatype)
+
+    if is_alert_value and (not is_machine_in_alert):
+        await self.__put_new_machine_in_alert_state(
+            iot_data.machine,
+            iot_data.datatype,
+            iot_data.timestamp,
+            iot_data.alert_type)
+
+    if (not is_alert_value) and is_machine_in_alert and machine_sensor_in_alert:
+        await self.__remove_machine_sensor_from_alert_state(
+            machine_in_alert,
+            iot_data.datatype,
+            iot_data.timestamp)
+\end{verbatim}
+
+%TODO referencia para o datatype
+O método \texttt{\_\_put\_new\_machine\_sensor\_in\_alert\_state} é um método assíncrono privado que tem a responsabilidade de adicionar um novo sensor ao estado de alerta para uma máquina específica. Ele recebe dois parâmetros: \texttt{machine\_in\_alert}, que é uma instância da classe \texttt{MachinesSensorAlert} representando a máquina em questão, e \texttt{sensor\_type}, que é uma instância do tipo \texttt{Datatype} representando o tipo de sensor que deve ser colocado em alerta.
+
+\begin{verbatim}
+class MachinesSensorAlert(BaseModel):
+    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    machine:str = Field(...)
+    sensors:list[str] = Field([])
+    alert_type:str = Field(...)
+    start_time:datetime = Field(...)
+    sensors_historical:list[str] = Field([])
+    is_in_alert:bool = Field(True)
+    
+    end_time:Optional[datetime|None] = Field(None)
+    read_by:Optional[list[str]] = Field([])
+\end{verbatim}
+
+Importante destacar que dentro dessa instância que é mantida em memória, o atributo \texttt{read\_by} não é preenchido. Isso acontece pois esse atributo é usado para controlar os usuários que marcaram a notificação como lida, portanto é preenchida apenas no banco de dados. A implementação da parte de notificações que faz uso desse atributo pode ser lida na seção ....%TODO Referencia para a seção que mostra a implementação das notifcações
+
+
+A primeira etapa realizada por este método é identificar a posição (ou índice) da máquina dentro da lista de alertas \texttt{machines\_alert} usando o método \texttt{index}. Uma vez obtido o índice, o tipo do sensor é adicionado à lista de sensores em estado de alerta da máquina, representada pelo atributo \texttt{sensors}. Além disso, este sensor também é adicionado ao histórico de sensores em estado de alerta da máquina, indicado pelo atributo \texttt{sensors\_historical}. Finalmente, a máquina atualizada (com o novo sensor adicionado às suas listas de alerta e histórico) é reinserida na lista principal \texttt{machines\_alert} na mesma posição identificada anteriormente.
+
+Este método, garante que sempre que um novo sensor entra em estado de alerta para uma máquina que ja tinha um sensor em alerta, as informações relevantes são adequadamente atualizadas e mantidas em memória, permitindo um acompanhamento em tempo real das condições de alerta de todas as máquinas monitoradas.
+
+\begin{verbatim}
+async def __put_new_machine_sensor_in_alert_state(
+        self,
+        machine_in_alert: MachinesSensorAlert,
+        sensor_type:Datatype):
+    index = self.machines_alert.index(machine_in_alert)
+    machine_in_alert.sensors.append(sensor_type.value)
+    machine_in_alert.sensors_historical.append(sensor_type.value)
+    self.machines_alert[index] = machine_in_alert
+\end{verbatim}
+
+Já o método \texttt{\_\_put\_new\_machine\_in\_alert\_state} é um método assíncrono privado cuja principal função é criar e registrar um novo estado de alerta para uma máquina específica. Este método é invocado quando uma máquina entra em estado de alerta pela primeira vez, o que significa que ainda não está presente na lista de alertas \texttt{machines\_alert} da classe.
+
+%TODO referencia para o datatype
+Recebe quatro parâmetros: \texttt{machine\_name}, que é uma string representando o nome da máquina; \texttt{sensor\_type}, que é uma instância do tipo \texttt{Datatype} denotando o tipo de sensor que disparou o alerta; \texttt{start\_time}, uma instância de \texttt{datetime} indicando o início do alerta; e \texttt{alert\_type}, que é uma string representando o tipo de alerta.
+
+Inicialmente, o método cria uma nova instância da classe \texttt{MachinesSensorAlert}. Esta nova instância representa o estado de alerta da máquina. A instância é inicializada com o nome da máquina, o tipo de sensor que causou o alerta, uma marca temporal do início do alerta e o tipo de alerta. Além disso, a máquina é marcada como estando em estado de alerta através do atributo \texttt{is\_in\_alert}, que é definido como \texttt{True}.
+
+Finalmente, o novo estado de alerta da máquina, representado pela instância \texttt{MachinesSensorAlert} recém-criada, é adicionado à lista \texttt{machines\_alert}.
+
+\begin{verbatim}
+async def __put_new_machine_in_alert_state(self,
+    machine_name:str,
+    sensor_type:Datatype,
+    start_time:datetime,
+    alert_type:str):
+
+    new_machine_alert = MachinesSensorAlert(
+        machine=machine_name,
+        sensors=[sensor_type.value],
+        sensors_historical=[sensor_type.value],
+        is_in_alert=True,
+        start_time=start_time,
+        alert_type=alert_type)
+
+    self.machines_alert.append(new_machine_alert)
+\end{verbatim}
+
+
+%TODO referencia para o datatype
+O método \texttt{\_\_remove\_machine\_sensor\_from\_alert\_state} é uma função assíncrona privada projetada para remover um sensor específico do estado de alerta de uma máquina. Ele recebe três parâmetros: \texttt{machine\_in\_alert}, que é uma instância da classe \texttt{MachinesSensorAlert} representando a máquina em questão; \texttt{sensor\_to\_remove}, que é do tipo \texttt{Datatype} e identifica o sensor a ser removido; e \texttt{end\_time}, uma instância de \texttt{datetime} que indica o momento em que o sensor foi removido do estado de alerta. Dentro deste método, inicialmente, as posições do sensor e da máquina são identificadas nas listas apropriadas. O sensor é então removido da lista de sensores em estado de alerta da máquina. Se, após a remoção, a máquina não tiver mais sensores em estado de alerta, ela será removida do estado de alerta, pela chamada do método \texttt{\_\_remove\_machine\_from\_alert} caso contrário, apenas o estado do sensor é atualizado, pela chamada de outro método, \texttt{\_\_remove\_sensor\_from\_alert\_state}.
+
+\begin{verbatim}
+async def __remove_machine_sensor_from_alert_state(self,
+    machine_in_alert: MachinesSensorAlert,
+    sensor_to_remove:Datatype,
+    end_time:datetime):
+    index_of_machine = self.machines_alert.index(machine_in_alert)
+    index_of_sensor = machine_in_alert.sensors.index(sensor_to_remove.value)
+    
+    machine_in_alert.sensors.pop(index_of_sensor)
+    
+    if len(machine_in_alert.sensors) == 0:
+    await self.__remove_machine_from_alert(index_of_machine, end_time)
+    else:
+    await self.__remove_sensor_from_alert_state(index_of_machine,machine_in_alert)
+    
+\end{verbatim}
+
+O método \texttt{\_\_remove\_machine\_from\_alert} é outra função assíncrona privada, que tem a responsabilidade de remover completamente uma máquina do estado de alerta. Aceita dois parâmetros: \texttt{index\_of\_machine}, o índice da máquina em questão na lista, e \texttt{end\_time}, o momento em que a máquina foi removida do alerta. Dentro deste método, a máquina é primeiro marcada como não estando em alerta e depois é removida da lista \texttt{machines\_alert}. A máquina é então armazenada no banco de dados com um registro de seu estado final e o horário de término. Finalmente, uma notificação é enviada através de um websocket para informar a interface do usuário sobre a mudança no estado da máquina. O detalhamento de como a notificação é enviada está explicada em X %TODO referencia aqui para as notificações
+
+\begin{verbatim}
+async def __remove_machine_from_alert(self,
+    index_of_machine:int,
+    end_time:datetime):
+    machine_in_alert = self.machines_alert[index_of_machine]
+    machine_in_alert.is_in_alert = False
+    machineNotification = self.machines_alert.pop(index_of_machine)
+    machineNotification.end_time = end_time
+    await self.iot_database.insert_one(
+    NOTIFICATION_DATABASE,
+    IOT_MACHINE_ALERTS,
+    machineNotification.to_bson())
+    await self.websocket.send_notification(machineNotification)    
+\end{verbatim}
+
+O método \texttt{\_\_remove\_sensor\_from\_alert\_state} é uma função assíncrona simples que atualiza o estado do sensor de uma máquina em alerta na lista de máquinas em alerta. Recebe dois parâmetros: \texttt{index\_of\_machine}, que é o índice da máquina na lista \texttt{machines\_alert}, e \texttt{machine\_alert\_updated}, que é a instância atualizada da máquina em alerta. Essencialmente, este método substitui a máquina existente na lista pelo objeto atualizado fornecido como parâmetro pelo método \texttt{\_\_remove\_machine\_sensor\_from\_alert\_state}.
+
+\begin{verbatim}
+async def __remove_sensor_from_alert_state(self,
+    index_of_machine:int,
+    machine_alert_updated:MachinesSensorAlert):
+    self.machines_alert[index_of_machine] = machine_alert_updated
+\end{verbatim}
+
 
 
 \section[Implementação do módulo de processamento de dados]{Implementação do módulo de processamento de dados}
