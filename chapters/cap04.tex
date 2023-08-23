@@ -54,7 +54,7 @@ No capítulo~\ref{cap:implementation}, é aprofundado nos detalhes de implementa
 \end{figure}
 
 
-\subsection{Modulo de processamento}
+\subsection{Modulo de processamento}\label{subsec:moduloProcessamento}
 O módulo de processamento de dados foi desenvolvido para garantir que os dados brutos coletados sejam processados, fornecendo a análise estatística que é exibida para os usuários.
 
 O código é executado quando é invocada uma função específica encarregada de realizar uma série de operações. Primeiramente, uma lista é constituída contendo as coleções do banco de dados responsáveis pelo armazenamento tanto dos dados brutos quanto dos dados já processados. Simultaneamente, uma segunda lista é gerada, representando as máquinas que enviaram informações para o sistema.
@@ -74,7 +74,7 @@ Ao adotar o Box Plot, o sistema garante uma compreensão robusta da distribuiç�
 \end{figure}
 
 
-\subsection{API}
+\subsection{API}\label{subsec:apiArchitecture}
 A API foi estruturada em pequenos sub-módulos, cada um focado em um contexto específico. Esta modularização assegura que cada parte da API tenha uma única responsabilidade. Em cada módulo, há uma segmentação composta por: a camada de \textit{controller}, destinada a receber e gerenciar as requisições HTTP; a camada de serviço, que serve para processar a informação e aplicar as respectivas regras de negócio; e a camada de repositório, cujo papel é estabelecer uma ponte com o banco de dados, acessando e disponibilizando os dados necessários. A figura ~\ref{fig:api_organization} representa a organização de pastas que foi utilizada para essa arquitetura.
 
 \begin{figure}[htbp]

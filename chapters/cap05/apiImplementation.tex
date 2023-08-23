@@ -1,0 +1,167 @@
+\section[Implementação da API]{Implementação da API}
+%Sigla API
+Como explicado na seção sobre a arquitetura ~\ref{subsec:apiArchitecture}, a API possui um divisão por módulos, e cada modulo segue uma estrutura pré definida, com uma camada de controller, responsável por receber as requisições HTTP, uma camada de service, responsável por tratar os dados e regras de negócio, e uma camada de respository, responsável por gerenciar o acesso ao banco de dados daquele modulo. 
+
+Além disso, a API possui também partes que são comuns a todos os módulos. A infraestrutura que tem a função de disponibilizar uma interface de acesso ao banco de dados, uma interface de acesso para envio de mensagens web socket, os meios de autenticação, e o gerenciador de threads. A os códigos comuns, que armazenam constantes, funções comuns que precisam ser padronizadas, e modelos de dados.
+
+Portanto, essa seção irá abordar cada uma dessas partes, passando primeiro pelas partes comuns do sistema e depois será mostrado como foi desenvolvido um modulo completo.
+
+\subsection{Infraestrutura}\label{subsec:infra}
+A infraestrutura e composta de 4 sub-módulos, Autenticação, WebSocket, Conexão com o banco de dados e Gerenciamento de Threads.
+
+\subsubsection{Authetication}\label{subsubsec:auth}
+%TODO referencia para JWT
+%TODO referencia para auth do fastAPI
+%TODO sigla JWT
+A implementação da autenticação do sistema foi baseada na documentação oficial do FastAPI, portanto foi adotada uma abordagem baseada em tokens JWT (JSON Web Tokens). JWT é um padrão amplamente aceito para transmitir informações entre partes de maneira segura. A estrutura de um JWT é codificada e pode ser verificada para assegurar que os dados não foram alterados durante a transmissão. 
+
+O ponto de entrada para a autenticação é o \texttt{o\_auth2\_password\_bearer}, uma instância do OAuth2PasswordBearer que é designada para obter o token a partir do cabeçalho da requisição. O método \texttt{auth\_middleware} foi definido como um middleware assíncrono, que depende deste bearer token. Esse middleware é utilizado nos controllers para verificar se a requisição recebida tem ou não permissão para acessar as informações.
+
+Dentro deste middleware, a função \texttt{decode\_jwt\_token} é invocada para decodificar e validar o token JWT fornecido.
+
+\begin{verbatim}
+o_auth2_password_bearer = OAuth2PasswordBearer(tokenUrl="/user/login")
+
+async def auth_middleware(token:str = Depends(o_auth2_password_bearer))-> TokenPayload:
+    try:
+        result = decode_jwt_token(token)
+        if result.status:
+            return result.data
+        else:
+            raise HTTPException(status_code=401, detail=result.exception.message)
+    except JWSError as jwt_err:
+        print(jwt_err)
+        raise HTTPException(status_code=401, detail=Unauthorized().message)
+\end{verbatim}
+
+A função \texttt{decode\_jwt\_token} recebe um token como argumento e tenta decodificá-lo usando a chave secreta e o algoritmo especificados. Se o token for decodificado com sucesso e for do tipo "\texttt{access\_token}". Caso contrário, diferentes tipos de exceções podem ser levantadas, por exemplo, se o token estiver expirado ou se houver algum erro nas operações de JWT.
+
+\begin{verbatim}
+def decode_jwt_token(token:str)->Result[TokenPayload|None]:
+    try:
+        token_dict = jwt.decode(token,key=SECRET_KEY, algorithms=ALGORITHM)
+        if token_dict["type"] != "access_token":
+            return Result(status=False, exception=WrongTokenType(), data=None)
+        token_payload = TokenPayload(**token_dict)
+        return Result(status=True, data=token_payload, exception=None)
+    
+    except ExpiredSignatureError as invalid_token:
+        return Result(status=False, exception=Unauthorized(exception=invalid_token), data=None)
+
+    except (JWSError, JOSEError, JWTError, JWEError) as ex:
+        return Result(status=False, exception=GenericException(message="Authorization error!",exception=ex), data=None)
+
+    except Exception as ex:
+        print(ex)
+        raise ex
+\end{verbatim}
+
+A classe modelo para o payload do token é a seguinte:
+\begin{verbatim}
+class TokenPayload(BaseModel):
+    name:str
+    exp:int|None = None
+    sub:str|None = None
+    user_id:str
+    type:str = "access_token"
+\end{verbatim}
+
+A classe \texttt{AuthService} é onde a lógica principal de autenticação é implementada. Esta classe segue o padrão \textit{Singleton} para garantir que apenas uma instância seja criada e usada ao longo da execução do programa.
+
+Dentro de \texttt{AuthService}, o método \texttt{verify\_password} é utilizado para verificar se uma senha fornecida coincide com uma senha criptografada, enquanto o \texttt{hash\_password} é responsável por criptografar uma senha fornecida.
+
+O método \texttt{create\_user\_tokens} gera um par de tokens (access e refresh) para um usuário, onde o access token é válido por 4 horas e o refresh token por 168 horas. O refresh token é especialmente importante para permitir que os usuários obtenham novos tokens de acesso sem ter que inserir suas credenciais novamente. Se o token de acesso expirar, o token de atualização pode ser usado para obter um novo par de tokens, usando o método \texttt{get\_new\_user\_tokens}. Importante destacar que o frontend ainda não faz uso do refresh token, ficando essa funcionalidade para uma futura implementação.
+
+\begin{verbatim}
+class AuthService(metaclass=Singleton):
+    def __init__(self):
+        self.__database__ = MongoDB()
+        self.__user_repository = UserRepository()
+
+        self.__ACCESS_TOKEN_EXPIRE_HOURS__ = 4
+        self.__REFRESH_TOKEN_EXPIRE_HOURS__ = 168
+        self.__SECRET_KEY__ = SECRET_KEY
+        self.__ALGORITHM__ = ALGORITHM
+        self.__pwd_context__ = CryptContext(
+            schemes=["bcrypt"],
+            deprecated="auto")
+
+    def verify_password(self,plain_text_password:str, hashed_password:str):
+        return self.__pwd_context__.verify(plain_text_password,hashed_password)
+
+    def hash_password(self,password:str):
+        return self.__pwd_context__.hash(password)
+    
+    async def create_user_tokens(self, user:User)->tuple[str,str]:
+        payload = TokenPayload(name=user.name,user_id=str(user.id))
+        access_token = self.__create_bearer_token(
+            user_id=user.id,
+            data=payload.__dict__,
+            expire_hours=self.__ACCESS_TOKEN_EXPIRE_HOURS__)
+        refresh_token = await self.__create_refresh_token(str(user.id))
+        return (access_token, refresh_token)
+        
+    async def get_new_user_tokens(self,
+        refresh_token:str) -> Result[tuple[str, str]]:
+        result = self.__decode_jwt_refresh_token(refresh_token)
+        if not result.status:
+            return Result(status=False, exception=result.exception, data=None)
+        
+        token_payload = result.data
+        is_valid = await self.__check_if_refresh_token_is_valid(token_payload)
+        if not is_valid:
+            return Result(status=False, data=None, exception=Unauthorized())
+        
+        user = await self.__user_repository.read_user_by_id(token_payload.user)
+        payload = TokenPayload(name=user.name,user_id=str(user.id))
+        new_access_token = self.__create_bearer_token(
+            user_id=token_payload.user,
+            data=payload.__dict__,
+            expire_hours=self.__ACCESS_TOKEN_EXPIRE_HOURS__)
+
+        return Result(status=True, data=(new_access_token, refresh_token), exception=None)
+\end{verbatim}
+
+Os métodos \texttt{\_\_create\_bearer\_token} e \texttt{\_\_decode\_token} são funções auxiliares utilizadas para criar, decodificar e verificar tokens, respectivamente
+
+\begin{verbatim}
+def __create_bearer_token(self,user_id:int, data:dict, expire_hours):
+    data_to_enconde = data.copy()
+    expire = datetime.now()+timedelta(hours=expire_hours)
+    data_to_enconde["exp"] = expire
+    data_to_enconde["sub"] = str(user_id)
+    return jwt.encode(
+        claims=data_to_enconde,
+        key=self.__SECRET_KEY__,
+        algorithm=self.__ALGORITHM__)
+
+def __decode_token(self,token:str)->dict:
+    return jwt.decode(
+        token,
+        key=self.__SECRET_KEY__,
+        algorithms=self.__ALGORITHM__)
+    
+\end{verbatim}
+
+%TODO - Itens de implementação para adicionar;
+% - Classe Singleton -
+% - Classe ThreadManager -
+% - Classe Datatype -
+% - MetadataRepository -
+% - iot_collection_parser.py - 
+% - Pydantic - 
+% - Envio de notificações via web socket - 
+
+
+
+
+
+- Uvicorn usado pelo FastAPI e sua forma asyncrona
+- Biblioteca Motor usada para acesso ao mongoDB
+- Biblioteca Pydantic para criação dos modelos e tipos
+- Web socket para envio de notificações
+- Biblioteca Jose para autenticação
+- Comunicação entre as camadas com a classe Result
+- Contratos de interfaces
+- Tratamento de erros com classes personalizadas
+
