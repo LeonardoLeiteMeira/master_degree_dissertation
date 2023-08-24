@@ -165,3 +165,151 @@ def __decode_token(self,token:str)->dict:
 - Contratos de interfaces
 - Tratamento de erros com classes personalizadas
 
+\subsubsection{WebSocket}\label{subsubsec:WebSocketImplement}
+%TODO Ref para a biblioteca socket.io
+A implementação da conexão via WebSocket foi feita utilizando a biblioteca socket.io, que possui diversos recursos prontos que facilitam a gestão de conexões Web Socket, com por exemplo a criação de salas para disparo de notificações.
+
+%TODO se der tempo mudar a implementação para ver a autenticação
+A estrutura adotada para a gestão de conexões Web Socket segue a recomendação de que o cliente deve efetuar uma requisição websocket ao \textit{endpoint} raiz da API para ser registrado em uma sala virtual específica. Após a conclusão bem-sucedida dessa solicitação, o cliente passa a receber todas as mensagens direcionadas à sala na qual foi cadastrado.
+
+A implementação atual contempla apenas uma sala, destinada especificamente ao envio de notificações relacionadas ao funcionamento das máquinas. Esta sala é identificada pelo identificador \texttt{NOTIFICATION\_ROOM}. Essa constante armazena o valor "\texttt{Notification}", que é o nome da sala a ser conectada.
+
+%TODO Sigla ASGI
+%TODO Ref para a explicação de ASGI
+O modo assíncrono "asgi" selecionado para a criação do servidor, e as origens permitidas para \textit{CORS} definidas como vazias.
+
+\begin{verbatim}
+socket_io_server = AsyncServer(async_mode="asgi",
+    cors_allowed_origins=[])
+
+socketio_app = ASGIApp(socketio_server=socket_io_server,
+    socketio_path="")
+
+socket_dispacher = WebSocketDispatcher(socket_io_server)
+
+@socket_io_server.event
+async def connect(sid, environ, auth):
+    socket_io_server.enter_room(sid, NOTIFICATION_ROOM)
+\end{verbatim}
+
+%TODO Sigla ASGI
+%TODO Ref para a explicação da main.py
+O objeto \texttt{socket\_io\_server} é responsável por gerenciar a comunicação \textit{WebSocket}, enquanto o \texttt{socketio\_app} cria uma aplicação \textit{ASGI} que interage com o servidor \textit{WebSocket}, e é adicionado ao servidor FastAPI, como explicado em ~\ref{subsec:X}. Adicionalmente, uma instância da classe \texttt{WebSocketDispatcher} foi criada para facilitar o envio de notificações através do \textit{WebSocket}.
+
+No evento de conexão, denominado \texttt{connect}, um cliente é automaticamente adicionado à sala \texttt{NOTIFICATION\_ROOM}.
+
+Por fim, a classe \texttt{WebSocketDispatcher} possui um método \texttt{send\_notification}, que é usado para enviar notificações. Ao chamar este método, a notificação é convertida para o formato \textit{JSON} e enviada para todos os clientes na sala \texttt{NOTIFICATION\_ROOM} através do método \texttt{emit}.
+
+\begin{verbatim}
+class WebSocketDispatcher:
+    def __init__(self,socket_io_server: AsyncServer):
+        self.__socket_io_server = socket_io_server
+    
+    async def send_notification(self,
+        machine_sensor_notification:MachinesSensorAlert):
+        machine_sensors_dict = machine_sensor_notification.to_json()
+        await self.__socket_io_server.emit(
+            NOTIFICATION_ROOM,
+            machine_sensors_dict,
+            room=NOTIFICATION_ROOM)
+\end{verbatim}
+
+%TODO referencia para o modulo de recebimetno de dados
+A classe \texttt{WebSocketDispatcher} é utilizada pelo modulo de recebimento dos dados, detalhado em ~\ref{subsec:checkDataReceived}, para disparar notificações quando é identificado um funcionamento inadequado das maquinas.
+
+
+\subsubsection{Gerenciamento de Threads para Tarefas Assíncronas}\label{subsubsec:ThreadManager}
+
+Na arquitetura do sistema, foi identificada a necessidade de realizar tarefas de forma concorrente, sem bloquear a execução da API. Essas tarefas são a execução do modulo de recebimento de dados, e a checagem dos metadados do sistema. Ambas tarefas devem ser executadas em paralelo com a execução da API, sem influenciar na sua execução. Portanto, para atingir esse objetivo, um gerenciador de threads, denominado \texttt{ThreadManager}, foi implementado.
+
+%TODO Ref para a biblioteca asyncio
+A classe \texttt{ThreadManager} é projetada seguindo o padrão Singleton, assegurando que apenas uma instância seja criada, evitando assim conflitos ou redundâncias no gerenciamento das threads. Uma lista denominada \texttt{threads} é inicializada para armazenar todas as threads criadas, enquanto um loop de eventos assíncronos, atribuído à variável \texttt{loop}, é criado utilizando a biblioteca \texttt{asyncio}.
+
+O método \texttt{start\_async\_thread} foi introduzido para facilitar a criação e o gerenciamento de tarefas assíncronas. Este método aceita uma função assíncrona, \texttt{func}, como argumento e executa as seguintes operações:
+
+\begin{enumerate}
+    \item Uma função interna \texttt{start\_function} é definida. Esta função é responsável por iniciar a execução da tarefa assíncrona.
+    \item Dentro de \texttt{start\_function}, verifica-se a variável booleana \texttt{isSeted} para determinar se o loop de eventos já foi configurado. Caso contrário, o loop de eventos é configurado e a tarefa assíncrona é executada até a conclusão através do método \texttt{run\_until\_complete}.
+    \item Se o loop de eventos já estiver configurado (\texttt{isSeted = True}), a tarefa assíncrona é simplesmente adicionada ao loop existente usando \texttt{create\_task}.
+    \item Finalmente, uma nova thread é criada com \texttt{start\_function} como alvo e adicionada à lista \texttt{threads}. A thread é então iniciada, executando a tarefa assíncrona.
+\end{enumerate}
+
+\begin{verbatim}
+import asyncio
+from threading import Thread
+
+class ThreadManager(metaclass=Singleton):
+    def __init__(self):
+        self.threads = []
+        self.loop = asyncio.new_event_loop()
+        self.isSeted = False
+
+    def start_async_thread(self,func):
+        def start_function():
+            if not self.isSeted:
+                asyncio.set_event_loop(self.loop)
+                self.isSeted = True
+                self.loop.run_until_complete(func())
+            else:
+                self.loop.create_task(func())
+
+        new_thread = Thread(target = start_function)
+        self.threads.append(new_thread)
+        new_thread.start()
+\end{verbatim}
+
+Esta implementação permite a execução de múltiplas tarefas assíncronas em paralelo, cada uma em sua própria thread, todas gerenciadas pelo mesmo loop de eventos assíncronos.
+
+\subsubsection{Database}\label{subsubsec:DatabaseImpl}
+%TODO referencia para o motor
+No processo de implementação do sistema, para estabelecer uma conexão eficiente com o banco de dados foi utilizado a biblioteca \texttt{motor} foi adotada como mecanismo.
+
+No centro da estratégia de conexão está uma classe base, denominada \texttt{BaseDB}, que tem a responsabilidade não apenas de estabelecer a conexão com o MongoDB, mas também de definir uma série de operações básicas para a manipulação dos dados armazenados. A estrutura dessa classe é apresentada a seguir:
+
+\begin{verbatim}
+import motor
+class BaseDB:
+    def __init__(self):
+        self.client = motor.motor_tornado.MotorClient(url, port)
+\end{verbatim}
+
+Algumas das operações fundamentais implementadas por \texttt{BaseDB} incluem:
+
+\begin{itemize}
+    \item \texttt{insert\_one}: Recebe como parâmetros o \textit{database} e a \textit{collection} correspondentes em formato de texto, e a \textit{data} a ser inserida. Insere um documento na coleção especificada.
+    
+    \item \texttt{insert\_many}: Recebe como parâmetros o \textit{database} e a \textit{collection} correspondentes em formato de texto, e a \textit{data} contendo vários documentos a serem inseridos. Insere vários documentos na coleção especificada.
+    
+    \item \texttt{read\_data\_with\_pagination}: Recebe como parâmetros o \textit{database}, a \textit{collection}, a \textit{query}, o \textit{page\_number}, o \textit{limit}, o \textit{sort\_descending\_field} e a \textit{projection}. Recupera dados com paginação, permitindo uma leitura mais organizada.
+    
+    \item \texttt{read\_data\_with\_limit}: Recebe como parâmetros o \textit{database}, a \textit{collection}, a \textit{query} e o \textit{limit}. Lê dados com um limite predefinido de documentos retornados.
+    
+    \item \texttt{read\_data}: Recebe como parâmetros o \textit{database}, a \textit{collection} e a \textit{query}. Realiza uma leitura simples de dados baseada em uma query.
+    
+    \item \texttt{get\_distinct\_property}: Recebe como parâmetros o \textit{database}, a \textit{collection} e a \textit{property}. Obtém propriedades distintas de uma coleção, verificando todos os documentos presentes.
+    
+    \item \texttt{list\_collections\_by\_db}: Recebe como parâmetro o \textit{database}. Lista todas as coleções presentes em um banco de dados específico.
+    
+    \item \texttt{add\_item\_into\_lists\_by\_filter}: Recebe como parâmetros o \textit{database}, a \textit{collection}, o \textit{filter}, as \textit{list\_properties} e a \textit{new\_data}. Adiciona um item em listas específicas baseado em um filtro.
+    
+    \item \texttt{update\_item}: Recebe como parâmetros o \textit{database}, a \textit{collection}, a \textit{data} a ser atualizada e o \textit{filter}. Atualiza um documento específico.
+    
+    \item \texttt{update\_many\_items}: Recebe como parâmetros o \textit{database}, a \textit{collection}, a \textit{data} a ser atualizada e o \textit{filter}. Atualiza vários documentos que atendam a um filtro.
+    
+    \item \texttt{count\_documents}: Recebe como parâmetros o \textit{database}, a \textit{collection} e a \textit{query}. Conta o número de documentos em uma coleção que atendem a uma consulta.
+    
+    \item \texttt{get\_data\_between\_dates}: Recebe como parâmetros o \textit{database}, a \textit{collection} e a \textit{query}. Recupera dados entre duas datas específicas.
+\end{itemize}
+
+
+Com a base de acesso estabelecida, outras classes foram desenvolvidas, herdados de \texttt{BaseDB}, para atender contextos específicos do sistema. Essas classes seguem o padrão singleton, o que garante que apenas uma instância da conexão seja criada para um contexto específico, otimizando a gestão dos recursos. Um exemplo é a classe \texttt{MongoDBIOT} destinada ao módulo de recebimento de dados:
+
+\begin{verbatim}
+class MongoDBIOT(BaseDB, metaclass=Singleton):
+    def __init__(self):
+        super().__init__()
+\end{verbatim}
+
+Classes semelhantes, seguindo o mesmo formato, foram criadas para outros contextos, como o acesso ao banco de dados pela API, garantindo uma estrutura organizada e eficiente de conexão e manipulação dos dados.
+
+

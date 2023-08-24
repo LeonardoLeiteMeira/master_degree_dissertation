@@ -1,8 +1,6 @@
 \section[Implementação do banco de dados]{Implementação do banco de dados}
 
 
-\subsection[Organização do banco de dados]{Organização do banco de dados}
-
 Dentro da implementação do sistema, o MongoDB foi usado para armazenar todas as informações do sistema. Este banco de dados, orientado a documentos, permitiu uma organização flexível dos dados, facilitando o armazenamento de diferentes dados que podem ser recebidos pelo modulo de recebimento de dados, e facilitando a criação de camadas de processamento. A estruturação dos bancos de dados e suas respectivas coleções foi pensada para facilitar tanto a inserção quanto a consulta de informações.
 
 Em relação à organização dos dados, os seguintes bancos de dados foram criados:
@@ -21,58 +19,8 @@ Em relação à organização dos dados, os seguintes bancos de dados foram cria
     \item \textbf{Metadados}: Dedicado à armazenagem de metadados do sistema. Até o momento, a única coleção presente é a "AlertParameter", que reúne parâmetros utilizados para gerar alertas associados a cada sensor.
 \end{itemize}
 
-Com esta estruturação, busca-se não apenas organizar de forma lógica os dados, mas também otimizar operações de consulta e garantir uma expansão simplificada à medida que novas necessidades de armazenamento emergem no sistema.
+Com esta estruturação, busca-se não apenas organizar de forma lógica os dados, mas também otimizar operações de consulta e garantir uma expansão simplificada à medida que novas necessidades de armazenamento emergem no sistema. 
+
+A implementação do acesso ao banco de dados está detalhada na seção de implementação da API, em ~\ref{subsubsec:DatabaseImpl}.
 
 
-\subsection[Acesso ao banco de dados]{Acesso ao banco de dados}
-
-%TODO referencia para o motor
-No processo de implementação do sistema, para estabelecer uma conexão eficiente com o banco de dados foi utilizado a biblioteca \texttt{motor} foi adotada como mecanismo.
-
-No centro da estratégia de conexão está uma classe base, denominada \texttt{BaseDB}, que tem a responsabilidade não apenas de estabelecer a conexão com o MongoDB, mas também de definir uma série de operações básicas para a manipulação dos dados armazenados. A estrutura dessa classe é apresentada a seguir:
-
-\begin{verbatim}
-import motor
-class BaseDB:
-    def __init__(self):
-        self.client = motor.motor_tornado.MotorClient(url, port)
-\end{verbatim}
-
-Algumas das operações fundamentais implementadas por \texttt{BaseDB} incluem:
-
-\begin{itemize}
-    \item \texttt{insert\_one}: Recebe como parâmetros o \textit{database} e a \textit{collection} correspondentes em formato de texto, e a \textit{data} a ser inserida. Insere um documento na coleção especificada.
-    
-    \item \texttt{insert\_many}: Recebe como parâmetros o \textit{database} e a \textit{collection} correspondentes em formato de texto, e a \textit{data} contendo vários documentos a serem inseridos. Insere vários documentos na coleção especificada.
-    
-    \item \texttt{read\_data\_with\_pagination}: Recebe como parâmetros o \textit{database}, a \textit{collection}, a \textit{query}, o \textit{page\_number}, o \textit{limit}, o \textit{sort\_descending\_field} e a \textit{projection}. Recupera dados com paginação, permitindo uma leitura mais organizada.
-    
-    \item \texttt{read\_data\_with\_limit}: Recebe como parâmetros o \textit{database}, a \textit{collection}, a \textit{query} e o \textit{limit}. Lê dados com um limite predefinido de documentos retornados.
-    
-    \item \texttt{read\_data}: Recebe como parâmetros o \textit{database}, a \textit{collection} e a \textit{query}. Realiza uma leitura simples de dados baseada em uma query.
-    
-    \item \texttt{get\_distinct\_property}: Recebe como parâmetros o \textit{database}, a \textit{collection} e a \textit{property}. Obtém propriedades distintas de uma coleção, verificando todos os documentos presentes.
-    
-    \item \texttt{list\_collections\_by\_db}: Recebe como parâmetro o \textit{database}. Lista todas as coleções presentes em um banco de dados específico.
-    
-    \item \texttt{add\_item\_into\_lists\_by\_filter}: Recebe como parâmetros o \textit{database}, a \textit{collection}, o \textit{filter}, as \textit{list\_properties} e a \textit{new\_data}. Adiciona um item em listas específicas baseado em um filtro.
-    
-    \item \texttt{update\_item}: Recebe como parâmetros o \textit{database}, a \textit{collection}, a \textit{data} a ser atualizada e o \textit{filter}. Atualiza um documento específico.
-    
-    \item \texttt{update\_many\_items}: Recebe como parâmetros o \textit{database}, a \textit{collection}, a \textit{data} a ser atualizada e o \textit{filter}. Atualiza vários documentos que atendam a um filtro.
-    
-    \item \texttt{count\_documents}: Recebe como parâmetros o \textit{database}, a \textit{collection} e a \textit{query}. Conta o número de documentos em uma coleção que atendem a uma consulta.
-    
-    \item \texttt{get\_data\_between\_dates}: Recebe como parâmetros o \textit{database}, a \textit{collection} e a \textit{query}. Recupera dados entre duas datas específicas.
-\end{itemize}
-
-
-Com a base de acesso estabelecida, outras classes foram desenvolvidas, herdados de \texttt{BaseDB}, para atender contextos específicos do sistema. Essas classes seguem o padrão singleton, o que garante que apenas uma instância da conexão seja criada para um contexto específico, otimizando a gestão dos recursos. Um exemplo é a classe \texttt{MongoDBIOT} destinada ao módulo de recebimento de dados:
-
-\begin{verbatim}
-class MongoDBIOT(BaseDB, metaclass=Singleton):
-    def __init__(self):
-        super().__init__()
-\end{verbatim}
-
-Classes semelhantes, seguindo o mesmo formato, foram criadas para outros contextos, como o acesso ao banco de dados pela API, garantindo uma estrutura organizada e eficiente de conexão e manipulação dos dados.

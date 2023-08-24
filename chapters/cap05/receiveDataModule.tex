@@ -190,7 +190,7 @@ message_dict = {
 
 Esta estrutura permite uma representação clara e modular da mensagem decodificada, tornando fácil a integração e utilização em outras partes do sistema. Sendo assim, o retorno do método \texttt{\_\_parse\_multicast\_message} é utilizado como resultado da interpretação da mensagem multicast, e enviado para função recebida como parâmetro, \texttt{save\_data\_func}.
 
-\subsection[Verificação e disponibilização dos dados]{Verificação e disponibilização dos dados}
+\subsection[Verificação e disponibilização dos dados]{Verificação e disponibilização dos dados}\label{subsec:checkDataReceived}
 No processo de recebimento dos dados, após abrir a conexão e os dados, é necessário verificar se estão no formato correto, se gera algum alerta, inserir no banco de dados e disponibilizar para os usuários conectados no sistema.
 
 A classe \texttt{IotSensorConnection}, que implementa a interface \texttt{IotSensorConnectionInterface}, desempenha um papel principal neste módulo. Na sua inicialização, é estabelecida uma ligação com o repositório através da variável \texttt{self.\_\_repository}. Além disso, é responsável pela conexão com o sensor é estabelecida por meio do \texttt{self.\_\_sensor\_connection}, explicada anteriormente na seção ~\ref{subsec:Conexão e recebimento dos dados}.
