@@ -1,12 +1,165 @@
 \section[Implementação do frontend]{Implementação do frontend}
-- Introduzir falando que a implementação segue a arquitetura mostrada em X
-- Dizer que essa implementação é divida em paginas do sistema de acordo com o next, layouts do sistema, gerencia de dados acessado pelos componentes, implementação do acesso externo, acesso a imagens, e como foram construídos os componentes
-- Citar que foi deixada as configurações padroes do Next
+%TODO referencia para o Next
+A implementação da interface de usuário, foi desenvolvida de acordo com a arquitetura exposta na seção X. O desenvolvimento do \textit{frontend} é segmentado em várias partes, que incluem a organização das páginas do sistema conforme a estrutura pré definida do Next.js, a estruturação dos \textit{layouts} do sistema, o gerenciamento de dados acessados pelos componentes, a configuração para acesso externo, a manipulação e o acesso às imagens (\textit{assets}), e a construção dos componentes individuais.
+
+É relevante notar que, para manter a conformidade com as melhores práticas e simplificar o desenvolvimento, as configurações padrão do Next.js foram mantidas.
 
 \subsection{Paginas do sistema}\label{subsec:}
-- Breve introdução de como funciona as paginas do next
-- Subsubsection Paginas de configuração
-- Subsubsection Paginas do sistema
+Por se tratar de um framework, o NextJs tem uma estrutura pré definida para criação das páginas do sistema assim como suas rotas. Dentro dos arquivos do framework, a pasta \textit{pages} é utilizada para armazenar cada uma das páginas do sistema, sendo cada arquivo uma página, e o nome do arquivo sendo a rota. A configuração das páginas acorre por arquivos com nomes específicos, no caso \textit{\_app.tsx} e \textit{\_document.tsx}.
+
+\subsubsection{Paginas de configuração}\label{subsec:}
+%TODO REF para o app da doc do next
+Em relação as páginas de configuração temos primeiro a \textit{\_app.tsx}. Esse arquivo tem a responsabilidade de configurar e gerenciar contextos, estilização global e a localização de datas, ou seja, aspectos globais de toda a aplicação.
+
+%TODO REF para a doc LocalizationProvider
+%TODO REF para a doc Dayjs
+O código começa pela importação de diversos módulos e bibliotecas, o que inclui contextos específicos como \texttt{OpenContext} e \texttt{PrivateContext}, e o suporte para localização de datas com \texttt{LocalizationProvider} e \texttt{AdapterDayjs}.
+
+O \texttt{LocalizationProvider} e \texttt{AdapterDayjs} são de bibliotecas que têm o objetivo de fornecer funcionalidades de localização e formatação de datas. O \texttt{LocalizationProvider} atua como um encapsulador para o sistema de datas, permitindo a integração com diferentes bibliotecas de gerenciamento de datas. Neste caso, o \texttt{AdapterDayjs} é utilizado como o adaptador para a biblioteca Day.js, permitindo que as datas sejam manipuladas e formatadas de maneira eficiente e compatível com diversos locais geográficos e formatos. Com essas bibliotecas fica mais fácil gerenciar datas para a construção dos filtros do dashboard, explicados em X. %TODO ref para a funcionalidade de filtrar por data 
+
+O tipo \texttt{NextPageWithLayout} foi definido para enriquecer as propriedades da página com informações sobre o \textit{layout}. Isso permite que cada página tenha um \textit{layout} personalizado se necessário, oferecendo grande flexibilidade no design da interface.
+
+%TODO REF para o use router
+A função principal \texttt{App}, que recebe \texttt{Component} e \texttt{pageProps} como argumentos, é responsável por configurar o \textit{layout} e renderizar os componentes da página. A lógica dentro desta função verifica a rota atual usando \texttt{useRouter} para determinar se o usuário está na página de login.
+
+O conteúdo é então encapsulado dentro dos contextos relevantes. Se o usuário estiver na página de login, apenas o \texttt{OpenContext} é aplicado. Para todas as outras páginas, o \texttt{PrivateContext} é adicionalmente aplicado, garantindo que as informações sensíveis sejam acessadas apenas por usuários autenticados. Os contextos utilizados são detalhados em ref. %TODO Referencia para explicação dos contextos
+
+Dentro do \texttt{LocalizationProvider}, o adaptador \texttt{AdapterDayjs} é utilizado para fornecer funcionalidades de localização de datas, tornando o aplicativo mais versátil em diferentes locais.
+
+
+\begin{verbatim}
+import {OpenContext, PrivateContext} from '@/context'
+import '@/styles/globals.css'
+import { LocalizationProvider } from '@mui/x-date-pickers'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { NextPage } from 'next'
+import type { AppProps } from 'next/app'
+import { useRouter } from 'next/router'
+import { ReactElement, ReactNode } from 'react'
+
+export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
+    getLayout?: (page: ReactElement) => ReactNode
+}
+
+type AppPropsWithLayout = AppProps & {
+    Component: NextPageWithLayout
+}
+
+export default function App({ Component, pageProps }: 
+    AppPropsWithLayout) {
+
+    const getLayout = Component.getLayout || ((page) => page)
+    const router = useRouter()
+    const isLoginPage = router.pathname === "/"
+
+    const componentWithProps = <Component {...pageProps} /> 
+
+    return getLayout(
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <OpenContext>
+
+        {isLoginPage?
+            <>{componentWithProps}</>
+            :<PrivateContext>
+                {componentWithProps}
+            </PrivateContext>
+        }
+
+        </OpenContext>  
+    </LocalizationProvider>
+    )
+}
+\end{verbatim}
+
+Embora seja um arquivo mais simples comparado ao \texttt{\_app.tsx}, o \texttt{\_document.tsx} tem a responsabilidade de definir da estrutura HTML global da aplicação.
+
+No arquivo, foram importados os componentes \texttt{Html}, \texttt{Head}, \texttt{Main}, e \texttt{NextScript} da biblioteca \texttt{next/document}. Estes componentes são utilizados para criar a estrutura básica da página HTML dentro do NextJs.
+
+O componente \texttt{Html} é utilizado para encapsular todo o conteúdo HTML e inclui o atributo \texttt{lang="en"}, o qual define o idioma da página como inglês. O componente \texttt{Head} é empregado para adicionar elementos no cabeçalho da página HTML. Neste caso, o título da página é definido como 'Dashboard'.
+
+O corpo da página HTML é composto pelos componentes \texttt{Main} e \texttt{NextScript}. O \texttt{Main} é o local onde o conteúdo principal da página é inserido, enquanto o \texttt{NextScript} é responsável por incluir os scripts necessários para o funcionamento do Next.js.
+
+%TODO Ref para essas funções do next da doc
+Vale destacar que o \texttt{\_document.tsx} não tem acesso a características específicas da página como os métodos \texttt{getInitialProps}, \texttt{getStaticProps}, ou \texttt{getServerSideProps} (funções do NextJs para carregado de dados do lado do servidor). Isso implica que este arquivo é ideal para configurações que são comuns em todas as páginas e não requerem informações dinâmicas.
+
+\begin{verbatim}
+import { Html, Head, Main, NextScript } from 'next/document'
+
+export default function Document() {
+  return (
+    <Html lang="en">
+      <Head title='Dashboard'/>
+      <body>
+        <Main />
+        <NextScript />
+      </body>
+    </Html>
+  )
+}
+\end{verbatim}
+
+\subsubsection{Paginas do sistema}\label{subsec:}
+As páginas do sistema se dividem em dois tipos, privadas e publica, sendo que publica é apenas a página de login. Essa página está no arquivo \texttt{index.tsx}, sendo a rota raiz do sistema. 
+
+%TODO Ref para a tag head do next 
+Neste arquivo, apenas configurações \texttt{meta} e o componente \texttt{Login} são invocados. O elemento \texttt{Head} é utilizado para definir configurações globais do HTML, como o título da página e metadados. 
+
+O componente \texttt{Login} é chamado dentro da tag \texttt{main}, que serve como o conteúdo principal da página. Esta abordagem de design mantém a página \texttt{index.tsx} enxuta, transferindo a maior parte da lógica e da apresentação visual para o componente \texttt{Login}. Este é um exemplo do princípio de separação de interesses, onde cada arquivo ou componente tem uma única responsabilidade claramente definida.
+
+\begin{verbatim}
+export default function Home() {
+    return (
+      <>
+        <Head>
+          <title>Catraport Dashboard</title>
+          <meta name="description" 
+            content="Generated by create next app" />
+          <meta name="viewport" 
+            content="width=device-width,
+            initial-scale=1" />
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
+        <main>
+          <Login/>
+        </main>
+      </>
+    )
+  }
+\end{verbatim}
+
+%TODO ref para explicação de rotas do sistema pela doc
+As outras páginas do sistema se encontram dentro da pasta \texttt{dashboard}, que também está dentro da pasta \texttt{pages}. Isso implica que todas as páginas dentro dessa pasta devem ser acessados na rota \texttt{/dashboard}.
+
+Dentro do dashboard, existe a páginas principal, em \texttt{/index.tsx}, com a página do dashboard que exibe os dados em tempo real e os gráficos com os dados históricos processados. As funcionalidades dessa página está detalhada em X. %TODO Ref para a explicação da pagina principal.
+
+Este arquivo segue à mesma lógica de design observada na página de login, mantendo a separação entre as configurações da página e a lógica dos componentes invocados.
+
+O componente \texttt{Dashboard} se baseia em composição, delegando diversas responsabilidades a componentes individuais. O componente \texttt{DashboardLayout} é utilizado como um contêiner que define a estrutura global da página, oferecendo um layout consistente também para as outras páginas do dashboard. Dentro deste layout, vários outros componentes são chamados para realizar funções específicas.
+
+O \texttt{DashboardHeader} é responsável pela exibição do cabeçalho da página, fornecendo o acesso aos filtros para visualização das informações. Segue-se o componente \texttt{SensorsValues}, que é designado para mostrar os valores dos sensores em tempo real.
+
+%TODO ref para o MUI5
+Um elemento \texttt{Divider}, da biblioteca \texttt{Material UI 5} é inserido para fornecer uma separação visual entre as diferentes seções da página. Por fim, o componente \texttt{SensorsGraphs} é invocado para exibir gráficos relacionados aos dados históricos dos sensores de forma agregada.
+
+\begin{verbatim}
+export default function Dashboard() {
+    return (
+        <DashboardLayout>
+            <DashboardHeader/>
+            <SensorsValues/>
+            <Divider/>
+            <SensorsGraphs/>
+        </DashboardLayout>
+    )
+}
+\end{verbatim}
+
+As outras páginas do dashboard também foram construídas usando a lógica de composição demostrada e utilizando o mesmo componente base para o layout, \texttt{DashboardLayout}. Essas páginas são:
+\begin{enumerate}
+    \item \textbf{Maintenace}: Responsável por exibir os dados de paragem das maquinas em forma de gráficos para demostrar a visualização dessas informações dentro do sistema. %TODO ref para essa pagina
+    \item \textbf{Profile}: Responsável por exibir as informações do usuário que está logado no sistema, assim como permitir realizar alterações nos dados. %TODO ref para essa pagina
+\end{enumerate}
+
 
 \subsection{Layouts}\label{subsec:}
 - Mostrar que existem dois layouts
