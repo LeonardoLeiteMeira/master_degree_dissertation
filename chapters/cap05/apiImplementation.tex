@@ -2,11 +2,74 @@
 %Sigla API
 Como explicado na seção sobre a arquitetura ~\ref{subsec:apiArchitecture}, a API possui um divisão por módulos, e cada modulo segue uma estrutura pré definida, com uma camada de controller, responsável por receber as requisições HTTP, uma camada de service, responsável por tratar os dados e regras de negócio, e uma camada de respository, responsável por gerenciar o acesso ao banco de dados daquele modulo. 
 
-Além disso, a API possui também partes que são comuns a todos os módulos. A infraestrutura que tem a função de disponibilizar uma interface de acesso ao banco de dados, uma interface de acesso para envio de mensagens web socket, os meios de autenticação, e o gerenciador de threads. A os códigos comuns, que armazenam constantes, funções comuns que precisam ser padronizadas, e modelos de dados.
+Além disso, a API possui também partes que são comuns a todos os módulos. A infraestrutura que tem a função de disponibilizar uma interface de acesso ao banco de dados, uma interface de acesso para envio de mensagens web socket, os meios de autenticação, e o gerenciador de threads. Os códigos comuns, que armazenam constantes, funções comuns que precisam ser padronizadas, e modelos de dados.
 
 Portanto, essa seção irá abordar cada uma dessas partes, passando primeiro pelas partes comuns do sistema e depois será mostrado como foi desenvolvido um modulo completo.
 
+\subsection{Inicialização}\label{subsec:main}
+A inicialização do sistema acontece por meio do arquivo \texttt{main.py}, que serve como o ponto de entrada para inicializar a API e o modulo de processamento de dados.
+%TODO ref para o fastapi
+%TODO Sigla cors
+A biblioteca \texttt{FastAPI} é utilizada para criar a aplicação principal, aqui referida como \texttt{app}. O middleware \texttt{CORSMiddleware} é adicionado à aplicação \texttt{FastAPI}, permitindo uma configuração de CORS (Cross-Origin Resource Sharing) abrangente. Esta configuração faz com que a API possa ser acessada por diferentes origens.
+
+A importação do módulo \texttt{API\_data\_layer} não apenas incorpora as rotas relacionadas a esse módulo, mas também inicializa o módulo de recebimento de dados. Isso implica que a inicialização deste módulo ocorre simultaneamente ao carregamento da API, porem em uma thread separada, como detalhado em ~\ref{subsec:}.%TODO ref para a implementação do modulo de processamento de dados
+
+Para o gerenciamento de metadados, uma instância do \texttt{MetadataRepository} é criada durante a inicialização. Este componente é essencial para o carregamento dos metadados que são utilizados em diferentes partes do sistema, como constantes e parâmetros de alarme.
+
+%TODO sigla API
+%TODO ref par o include router
+As rotas da API são então incluídas na aplicação principal através do método \texttt{include\_router} para diferentes módulos, como autenticação, análise de API, camada de dados, notificações e usuários.
+
+Adicionalmente, o WebSocket é montado na raiz da aplicação através do objeto \texttt{socketio\_app}, possibilitando a comunicação em tempo real entre o servidor e os clientes. A implementação da conexão websocket pode ser vista em ~\ref{subsec:}.%TODO ref para a implementação da classe de conexão websocket
+
+%TODO singla ASGI
+A execução do arquivo se conclui com a inicialização do servidor \texttt{Uvicorn}, definindo o host e a porta para escuta. \texttt{Uvicorn} é um servidor ASGI (\textit{Asynchronous Server Gateway Interface}) que serve como a interface entre o código da aplicação e o servidor web. Ele é responsável por hospedar a aplicação \texttt{FastAPI} e escutar por conexões de entrada no host e na porta especificados. A escolha deste servidor foi pautada na recomendação da documentação do FastAPI.%TODO ref para a doc do fast api
+
+\begin{verbatim}
+from fastapi import FastAPI
+import uvicorn
+from fastapi.middleware.cors import CORSMiddleware
+from src.infrastructure.database.metadata.metadata_repository import (
+MetadataRepository)
+from src.modules.api_analytics import api_analytics_router
+from src.modules.api_data_layer import api_data_layer_router
+from src.modules.notifications import notification_module_router
+from src.modules.user import user_module_router, auth_router
+from src.infrastructure.websocket import socketio_app
+from src.infrastructure.websocket import socket_dispacher
+from dotenv import load_dotenv
+
+load_dotenv()
+MetadataRepository()
+socket_dispacher
+app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
+@app.get("/")
+async def health_check():
+    return {
+        "Status":"OK",
+        "Message":"Access /docs to more information"    
+    }
+app.include_router(auth_router)
+app.include_router(api_analytics_router)
+app.include_router(api_data_layer_router)
+app.include_router(notification_module_router)
+app.include_router(user_module_router)
+
+app.mount("/",socketio_app)
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+\end{verbatim}
+
 \subsection{Infraestrutura}\label{subsec:infra}
+
 A infraestrutura e composta de 4 sub-módulos, Autenticação, WebSocket, Conexão com o banco de dados e Gerenciamento de Threads.
 
 \subsubsection{Authetication}\label{subsubsec:auth}
@@ -16,6 +79,7 @@ A infraestrutura e composta de 4 sub-módulos, Autenticação, WebSocket, Conex�
 A implementação da autenticação do sistema foi baseada na documentação oficial do FastAPI, portanto foi adotada uma abordagem baseada em tokens JWT (JSON Web Tokens). JWT é um padrão amplamente aceito para transmitir informações entre partes de maneira segura. A estrutura de um JWT é codificada e pode ser verificada para assegurar que os dados não foram alterados durante a transmissão. 
 
 O ponto de entrada para a autenticação é o \texttt{o\_auth2\_password\_bearer}, uma instância do OAuth2PasswordBearer que é designada para obter o token a partir do cabeçalho da requisição. O método \texttt{auth\_middleware} foi definido como um middleware assíncrono, que depende deste bearer token. Esse middleware é utilizado nos controllers para verificar se a requisição recebida tem ou não permissão para acessar as informações.
+
 
 Dentro deste middleware, a função \texttt{decode\_jwt\_token} é invocada para decodificar e validar o token JWT fornecido.
 
@@ -311,5 +375,362 @@ class MongoDBIOT(BaseDB, metaclass=Singleton):
 \end{verbatim}
 
 Classes semelhantes, seguindo o mesmo formato, foram criadas para outros contextos, como o acesso ao banco de dados pela API, garantindo uma estrutura organizada e eficiente de conexão e manipulação dos dados.
+
+\subsection{Arquivos comuns}\label{subsec:commum}
+
+Dentro da estrutura da API, uma pasta denominada \texttt{common} foi implementada com o intuito de centralizar componentes reutilizáveis, abrangendo múltiplos módulos e camadas. Esta organização foi estabelecida para maximizar a eficiência do desenvolvimento e a consistência do código.
+
+\subsubsection{Modelos de Dados}
+A seção de modelos de dados na pasta \texttt{common} abriga diversas classes que definem a estrutura dos dados utilizados. Classes que especificam usuários e dados de sensores estão presentes. 
+%TODO ref pydantic,
+Para exemplificar temos a  classeNotificationSensorResponse, que é responsável por definir o modelo de dados que é retornado quando a API recebe uma requisição solicitando as notificações de um determinado usuário. Destaca-se o uso do \texttt{BaseModel} na sistema de herança, do \texttt{Pydantic}, necessário para definir os tipos de retorno dentro do FastAPI. Além disso é utilizado a função \texttt{Field}, também do \texttt{Pydantic}, para indicar com o três pontos que é um atributo obrigatório de ser informado na construção da classe.
+
+\begin{verbatim}
+class NotificationSensorResponse(BaseModel):
+    data:list[dict] = Field(...)
+    total_count:int = Field(...)
+\end{verbatim}
+
+%TODO Ref para o uso de result para comunicação entre camadas
+Outros modelops de dados importantes são as classes de exceções e uma classe denominada \texttt{Result}, responsável pelo tráfego de dados entre as diferentes camadas da aplicação, mostrado na implementação do modulo da API em X.%TODO ref para a parte da implementação do modulo com controller, service e etc...
+Exemplo de classe que define uma exceção do sistema.
+\begin{verbatim}
+class CustomBaseException(Exception):
+    def __init__(self, message:str, exception, *args: object) -> None:
+        self.message = message,
+        self.exception = exception
+        super().__init__(*args)
+
+class GenericException(CustomBaseException):
+    def __init__(self,
+        message:str =   "An error has occurred",
+        exception = None) -> None:
+
+        super().__init__(message, exception)
+\end{verbatim}
+
+
+Classe \texttt{Result} usado para comunicação entre camadas dos módulos do sistema. O \texttt{TypeVar} é utilizado para indicar um tipo genérico para o atributo \texttt{data} da classe.
+
+\begin{verbatim}
+from typing import TypeVar, Generic
+from src.common.models.exceptions.unauthorized import CustomBaseException
+
+T = TypeVar('T')
+class Result(Generic[T]):
+    def __init__(self, status:bool, data:T|None, exception:CustomBaseException|None):
+        self.status = status
+        self.data = data
+        self.exception = exception
+\end{verbatim}
+
+Destaca-se também o uso da classe \texttt{Singleton}, utilizada quando a existe a necessidade de garantir que apenas umas instância de determina classe será utilizada.
+
+\begin{verbatim}
+class Singleton(type):
+    _instances = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+\end{verbatim}
+
+%TODO referencia para boas praticas - justificando a aplicação gerir o ID e nao o próprio banco
+Por último, é destacado a classe \texttt{PyObjectId}, utilizada para definir um tipo para o atributo ID das classes que representam modelos do banco de dados. Os métodos definidos para essa classe são usados internamente pelo \texttt{FastAPi} e pelo \texttt{Pydantic}.
+
+Essa classe é necessária para que o ID possa ser corretamente convertido para texto, e retornado nas requisições. Além disso, o uso dessa classe viabiliza a manipulação do ID quando necessário, deixando a gestão dos identificadores únicos para a aplicação e não para o banco de dados, como uma boa prática para desenvolvimento de sistemas.
+
+\begin{verbatim}
+class PyObjectId(ObjectId):
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, v):
+        if not ObjectId.is_valid(v):
+            raise ValueError("Invalid object id")
+        return ObjectId(v)
+
+    @classmethod
+    def __modify_schema__(cls, field_schema):
+        field_schema.update(type="string")
+\end{verbatim}
+
+\subsubsection{Funções Helpers}
+
+A seção de funções \textit{helpers} na pasta \texttt{common} foi construída para conter métodos que sejam comum em diferentes módulos do sistema, evitando a duplicação de código e padronizando o funcionamento.
+
+%TODO ref para o datatype na subsections eguinte de constantes
+Um exemplo dessas funções é a conversão de \texttt{Datatype} para coleções do MongoDB. O código a seguir ilustra este processo:
+
+\begin{verbatim}
+def sensor_name_to_processed_collection(
+    sensor_name:Datatype)->str:
+    
+    sensor = (sensor_name.name).capitalize()
+    return IOT_AGGREGATION_COLLECTION.replace("NAME", sensor)
+
+... (outras funções relacionadas)
+\end{verbatim}
+
+Estas funções são empregadas para determinar os nomes corretos das coleções em de acordo com o tipo de dado a ser tratado e manipulado pelos modulos. Funções como \texttt{sensor\_name\_to\_processed\_collection} e \texttt{sensor\_name\_to\_raw\_data\_collection} convertem entre nomes de sensores e nomes de coleções. 
+%TODO ref para o datatype na subsections eguinte de constantes
+Adicionalmente, uma série de funções foi desenvolvida para mapear o nome processado da coleção, de volta para o \texttt{Datatype} correspondente, garantindo uma manipulação de dados mais segura e coerente.
+
+
+\subsubsection{Constantes}
+%TODO ref para websocker room
+Por fim, a seção de constantes armazena uma série de valores fixos que são usados em várias partes do sistema. Isso inclui nomes de bancos de dados, tipos de alertas, salas de websocket, e outros que forem necessários.
+
+Dentre as constantes destaca-se a \texttt{DataType}, que é um \textit{enum} que padroniza os tipos de dados que podem ser recebidos dos sensores. Esta padronização é empregada em diversos módulos para assegurar que os dados sejam recebidos, processados, armazenados e retornados de maneira consistente e correta.
+
+\begin{verbatim}
+from enum import Enum
+
+class Datatype(Enum):
+    PRESSURE = "PRESSURE"
+    TEMPERATURE = "TEMPERATURE"
+    VOLTAGE = "VOLTAGE"
+    CURRENT = "CURRENT"
+    SPEED = "SPEED"
+    ACCELERATION = "ACCELERATION"
+    DISTANCE = "DISTANCE"
+    HUMIDITY = "HUMIDITY"
+    FORCE = "FORCE"
+    PRODUCTION_COUNTER = "PRODUCTION_COUNTER"
+\end{verbatim}
+
+\subsection{Módulos}\label{subsec:modules}
+%TODO singla HTTP
+
+\subsubsection{Controller}\label{subsubsec:controller}
+A implementação dos módulos da API passa pela construção de três camadas essenciais. O controller para receber as requisições HTTP, enviar as informações recebidas para a camada de serviço, e realizar o retorno adequado, com as informações formatadas, e código HTTP correto.
+
+%TODO Singla IOT
+Para exemplificar o funcionamento do controller, um exemplo específico será apresentado. O seguinte fragmento de código representa o router da API para os dados dos sensores IoT (\textit{Internet of Things}):
+
+\begin{verbatim}
+iot_data_router = APIRouter(tags=["IOT Data"], dependencies=[Depends(auth_middleware)])
+
+service = ServiceIOT()
+
+@iot_data_router.get("/realtime")
+async def real_time_iot(): 
+    def get_real_time_data():
+        sensor = SensorValue()
+        while True:
+            time.sleep(1)
+            lista_json = [machine.to_json() for machine in sensor.machine_list]
+            last_data = json.dumps(lista_json)
+            yield bytes(last_data, "utf-8")
+
+    return StreamingResponse(
+        get_real_time_data(),
+        media_type="application/octet-stream")
+\end{verbatim}
+
+%TODO adicionar referencia para a implementação da autenticação
+Neste exemplo, o controller faz uso do \texttt{APIRouter} para criar rotas associadas aos dados da IoT. Um middleware de autenticação é aplicado como uma dependência, como mostrado no detalhamento da autenticação em ref X, garantindo que apenas usuários autenticados possam acessar essas rotas. Nesse caso, ao aplicar o middleware na criação do \texttt{iot\_data\_router}, é garantido que todos os \texttt{endpoints} criados a partir dele precisem de autenticação.
+
+Logo abaixo é criada uma instância do serviço que deve ser utilizado pelos \texttt{endpoints} para responder as requisições recebidas.
+
+%TODO adicionar referencia para a implementação do modulo de recebimento de dados
+A rota \texttt{/realtime} é designada para fornecer dados em tempo real. Uma função interna, \texttt{get\_real\_time\_data}, é definida e responsável por coletar esses dados do \texttt{SensorValue}, explicado em ref X. Nesse endpoint, a API pega os valores atuais e retorna uma \texttt{StreamingResponse}, que envia os dados em tempo real como um fluxo contínuo.
+
+As outras rotas, como \texttt{/machines\_in\_sensor} e \texttt{/graph\_info}, operam de maneira semelhante, mas com diferentes responsabilidades. Elas fazem chamadas para o \texttt{ApiRepository} para recuperar informações específicas e retorná-las ao cliente. Caso ocorra uma exceção ou erro, um \texttt{HTTPException} é lançado com um código de status HTTP apropriado e uma mensagem de erro detalhada.
+
+Nesses dois endpoints é importante destacar a especificação do \texttt{response\_model}, para que ocorra validações automáticas pelo framework antes do dado ser retornado, garantido a consistência nos dados retornados.
+
+\begin{verbatim}
+@iot_data_router.get("/machines_in_sensor", response_model=list[MachinesSensor])
+async def get_machines_in_sensor():
+    result = await service.get_all_machines_processed_info()
+    if result.status:
+        return result.data
+    
+    raise HTTPException(status_code=500, detail=result.exception.message)
+
+@iot_data_router.get("/graph_info", response_model=list[ProcessedData])
+async def get_graph_info(machine:str, sensor:Datatype, initial_date:datetime, end_date:datetime):
+    result = await service.get_processed_data(
+        machine=machine,
+        data_type=sensor,
+        initial_date=initial_date,
+        end_date=end_date)
+    
+    if result.status:
+        return result.data
+    
+    raise HTTPException(status_code=500, detail=result.exception.message)
+\end{verbatim}
+
+\subsubsection{Service}\label{subsubsec:service}
+A camada de serviço serve para aplicar as devidas regras antes de retornar os dados para a camada de controle ~\ref{subsubsec:controller}. Pode acessar a camada de repositório para realizar a leitura ou escrita de dados, e deve retornar os dados para a camada de controle usando a classe \texttt{Result}, mostrada na seção ~\ref{subsec:commum}, para que possa ser identificado corretamente o resultado do processamento realizado, e o retorno adequado seja dados para o cliente que realizou a requisição. 
+
+Para uma compreensão mais profunda, um exemplo específico da implementação da camada de serviço segue abaixo:
+
+\begin{verbatim}
+class ServiceIOT:
+    def __init__(self):
+        self.__repository = RepositoryIOT()
+        self.__database__ = MongoDB()
+        self.appMetadata = MetadataRepository()
+            
+    async def get_processed_data(self,
+        machine:str,
+        data_type:Datatype,
+        initial_date:datetime,
+        end_date:datetime)-> Result[list[ProcessedData]]:
+        try:
+            alert_parameter = await self.appMetadata.get_sensor_alert_value(
+            data_type)
+
+            processed_data = await self.__repository.read_iot_processed_data__(
+                machine=machine,
+                datatype=data_type,
+                initial_date=initial_date,
+                end_date=end_date,
+                sort_by_field="more_recent_register")
+            
+            for data in processed_data:
+                data["alert_parameter"] = alert_parameter
+            return Result[list[MachinesSensor]](
+                status=True,
+                data=processed_data,
+                exception=None)
+        except Exception as ex:
+            return Result[list[MachinesSensor]](
+                status=False,
+                data=None,
+                exception=GenericException(exception=ex))
+\end{verbatim}
+
+Nesta implementação, a classe \texttt{ServiceIOT} é inicializada com instâncias de \texttt{RepositoryIOT} e \texttt{MetadataRepository}, permitindo que o serviço acesse as camadas de repositório e metadados correspondentes.
+
+O método \texttt{get\_processed\_data} serve para obter dados processados com base em diversos parâmetros como máquina, tipo de dados e intervalo de datas. Inicialmente, um valor de alerta é recuperado do metadado do sensor para o tipo de dados fornecido. Posteriormente, os dados processados são lidos do repositório. A cada entrada de dados recuperada, o valor de alerta é adicionado como um novo campo. O método retorna um objeto \texttt{Result} encapsulando esses dados. O objeto \texttt{Result} é detalhado em X. %TODO ref para o result
+
+O método \texttt{get\_all\_machines\_processed\_info} recupera informações sobre todas as máquinas e sensores processados. Ele itera através das coleções de dados processados, agregando informações de máquinas e sensores. Em caso de sucesso, ele retorna um objeto \texttt{Result} contendo uma lista de máquinas e seus sensores correspondentes.
+
+\begin{verbatim}
+async def get_all_machines_processed_info(
+    self)-> Result[list[MachinesSensor]]:
+    try:
+        collection_list = 
+            await self.__repository.get_processed_data_collections()
+        machine_sensors: list[MachinesSensor] = []
+        for collection in collection_list:
+            machine_list = await self.__repository.get_distinct_machines_by_collection(collection)
+            sensor = processed_collection_to_sensor_name(collection)
+
+            for machine in machine_list:
+                matching_sensor = 
+                next((data for data in machine_sensors 
+                    if data.machine == machine), None)
+                if matching_sensor:
+                    matching_sensor.sensors.append(sensor)
+                else:
+                    machine_sensors.append(MachinesSensor(
+                        machine=machine,
+                        sensors=[sensor]))
+        
+        return Result[list[MachinesSensor]](
+            status=True,
+            data=machine_sensors,
+            exception=None)
+    except Exception as ex:
+        print(ex)
+        return Result[bool](
+            status=False,
+            data=None,
+            exception=GenericException(exception=ex)) 
+\end{verbatim}
+
+O último método, \texttt{read\_raw\_data\_by\_id}, serve para ler dados brutos com base em um identificador e tipo de dados. Ele acessa o repositório correspondente para recuperar os dados e retorna um objeto \texttt{Result} contendo esses dados ou uma exceção, se aplicável.
+\begin{verbatim}
+async def read_raw_data_by_id(self,
+    raw_data_id:str,
+    datatype:Datatype) -> Result:
+    try:
+        collection = sensor_name_to_raw_data_collection(datatype)
+        result = await self.__repository.read_raw_data(collection,raw_data_id)
+        return Result(status=True, data=result, exception=None) 
+    except Exception as ex:
+        return Result[bool](
+            status=False,
+            data=None,
+            exception=GenericException(exception=ex)) 
+
+\end{verbatim}
+Esta implementação exemplifica como a camada de serviço interage com as camadas de repositório e acessa metadados metadados, e como ela prepara os dados para serem enviados de volta ao controller, garantindo assim um fluxo de dados coeso e eficiente através das diversas camadas da aplicação.
+
+\subsubsection{Respository}\label{subsubsec:repository}
+Por fim a camada a camada de repositório é responsável por ter acesso ao banco de dados e realizar as operações de leitura e escrita de acordo com as necessidades. Essa camada instancia uma conexão com banco de dados, e seus métodos utilizam os métodos base definidos pela infraestrutura de conexão com o banco, em ~\ref{subsubsec:DatabaseImpl}, para realizar a operações de acordo com o contexto daquele modulo.
+
+O código a seguir fornece um exemplo da implementação dessa camada:
+
+\begin{verbatim}
+class RepositoryIOT:
+    def __init__(self):
+        self.__database__ = MongoDB()
+    
+    async def get_processed_data_collections(self):
+        collection_list = 
+            await self.__database__.list_collections_by_db(
+            IOT_PROCESSED_DATA)
+    
+        return collection_list
+        
+    async def get_distinct_machines_by_collection(self, collection:str):
+        machine_list = 
+            await self.__database__.get_distinct_property(
+                IOT_PROCESSED_DATA,
+                collection,
+                "machine")
+
+        return machine_list
+    
+    async def read_raw_data(self, collection:str, raw_data_id:str):
+        result = await self.__database__.read_data(
+            IOT_DATABASE,
+            collection,
+            {"_id":ObjectId(raw_data_id)})
+
+        return result
+    
+    async def read_iot_processed_data__(self, machine:str, datatype:Datatype, 
+        initial_date:datetime, end_date:datetime, 
+        sort_by_field:str) -> list[ProcessedData]:
+        
+        try:
+            collection = sensor_name_to_processed_collection(datatype)
+            query = {
+                "machine":machine,
+                sort_by_field:{
+                    "$gte":initial_date,
+                    "$lte":end_date
+                }
+            }
+            result = await self.__database__.get_data_between_dates(
+                IOT_PROCESSED_DATA,
+                collection,query)
+            return result
+        except Exception as ex:
+            print(ex)
+            raise ex
+\end{verbatim}
+
+Na inicialização da classe \texttt{RepositoryIOT}, uma conexão com o MongoDB é instanciada.
+
+O método \texttt{get\_processed\_data\_collections} é utilizado para listar todas as coleções de dados processados do banco de dados \texttt{IOT\_PROCESSED\_DATA}. Este método faz uma chamada direta ao método de listagem de coleções fornecido pela classe \texttt{MongoDB}.
+
+O método \texttt{get\_distinct\_machines\_by\_collection} é responsável por recuperar uma lista de máquinas distintas para uma determinada coleção. Ele faz isso através do método \texttt{get\_distinct\_property} do banco de dados.
+
+O método \texttt{read\_raw\_data} serve para ler dados brutos de uma coleção específica, utilizando o ID dos dados como parâmetro de pesquisa. Ele faz uma chamada ao método \texttt{read\_data} da classe \texttt{MongoDB}, fornecendo os parâmetros necessários para a leitura dos dados.
+
+Por fim, o método \texttt{read\_iot\_processed\_data\_\_} é utilizado para ler dados processados com base em diversos critérios como máquina, tipo de dados e intervalo de datas. Uma query é construída para esse fim e passada ao método \texttt{get\_data\_between\_dates} da classe \texttt{MongoDB}.
+
+Cada um desses métodos auxilia na manutenção de uma separação clara de responsabilidades, permitindo que a camada de serviço mantenha um foco estrito na lógica de negócios, enquanto a camada de repositório gerencia as operações do banco de dados.
+
 
 
