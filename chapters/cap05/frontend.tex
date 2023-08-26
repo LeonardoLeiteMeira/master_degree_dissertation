@@ -1,19 +1,22 @@
 \section[Implementação do frontend]{Implementação do frontend}
 %TODO referencia para o Next
-A implementação da interface de usuário, foi desenvolvida de acordo com a arquitetura exposta na seção X. O desenvolvimento do \textit{frontend} é segmentado em várias partes, que incluem a organização das páginas do sistema conforme a estrutura pré definida do Next.js, a estruturação dos \textit{layouts} do sistema, o gerenciamento de dados acessados pelos componentes, a configuração para acesso externo, a manipulação e o acesso às imagens (\textit{assets}), e a construção dos componentes individuais.
+%TODO referencia para a arquitetura do front
+A implementação da interface de usuário, foi desenvolvida de acordo com a arquitetura exposta na seção X. O desenvolvimento do \textit{frontend} é segmentado em várias partes, que incluem a organização das páginas do sistema conforme a estrutura pré definida do Next.js, o gerenciamento de dados acessados pelos componentes, a configuração para acesso externo, a manipulação e o acesso às imagens (\textit{assets}), e a construção dos componentes individuais.
 
 É relevante notar que, para manter a conformidade com as melhores práticas e simplificar o desenvolvimento, as configurações padrão do Next.js foram mantidas.
 
 \subsection{Paginas do sistema}\label{subsec:}
-Por se tratar de um framework, o NextJs tem uma estrutura pré definida para criação das páginas do sistema assim como suas rotas. Dentro dos arquivos do framework, a pasta \textit{pages} é utilizada para armazenar cada uma das páginas do sistema, sendo cada arquivo uma página, e o nome do arquivo sendo a rota. A configuração das páginas acorre por arquivos com nomes específicos, no caso \textit{\_app.tsx} e \textit{\_document.tsx}.
+%TODO ref para rotas do next JS
+Por se tratar de um framework, o NextJs tem uma estrutura pré definida para criação das páginas do sistema assim como suas rotas. Dentro dos arquivos do framework, a pasta \textit{pages} é utilizada para armazenar cada uma das páginas do sistema, sendo cada arquivo uma página, e o nome do arquivo sendo a rota para acesso. A configuração das páginas acorre por arquivos com nomes específicos, no caso \textit{\_app.tsx} e \textit{\_document.tsx}.
 
-\subsubsection{Paginas de configuração}\label{subsec:}
+\subsubsection{Paginas de configuração}\label{subsec:configPage}
 %TODO REF para o app da doc do next
 Em relação as páginas de configuração temos primeiro a \textit{\_app.tsx}. Esse arquivo tem a responsabilidade de configurar e gerenciar contextos, estilização global e a localização de datas, ou seja, aspectos globais de toda a aplicação.
 
 %TODO REF para a doc LocalizationProvider
 %TODO REF para a doc Dayjs
-O código começa pela importação de diversos módulos e bibliotecas, o que inclui contextos específicos como \texttt{OpenContext} e \texttt{PrivateContext}, e o suporte para localização de datas com \texttt{LocalizationProvider} e \texttt{AdapterDayjs}.
+%TODO REF para a implementação dos contextos
+O código começa pela importação de diversos módulos e bibliotecas, o que inclui contextos específicos como \texttt{OpenContext} e \texttt{PrivateContext}, que são explicados melhor em \ref{label}, e o suporte para localização de datas com \texttt{LocalizationProvider} e \texttt{AdapterDayjs}.
 
 O \texttt{LocalizationProvider} e \texttt{AdapterDayjs} são de bibliotecas que têm o objetivo de fornecer funcionalidades de localização e formatação de datas. O \texttt{LocalizationProvider} atua como um encapsulador para o sistema de datas, permitindo a integração com diferentes bibliotecas de gerenciamento de datas. Neste caso, o \texttt{AdapterDayjs} é utilizado como o adaptador para a biblioteca Day.js, permitindo que as datas sejam manipuladas e formatadas de maneira eficiente e compatível com diversos locais geográficos e formatos. Com essas bibliotecas fica mais fácil gerenciar datas para a construção dos filtros do dashboard, explicados em X. %TODO ref para a funcionalidade de filtrar por data 
 
@@ -99,7 +102,7 @@ export default function Document() {
 \end{verbatim}
 
 \subsubsection{Paginas do sistema}\label{subsec:}
-As páginas do sistema se dividem em dois tipos, privadas e publica, sendo que publica é apenas a página de login. Essa página está no arquivo \texttt{index.tsx}, sendo a rota raiz do sistema. 
+As páginas do sistema se dividem em dois tipos, privadas e publica, sendo que publica é apenas a página de login. Essa página pública está no arquivo \texttt{index.tsx}, sendo a rota raiz do sistema. 
 
 %TODO Ref para a tag head do next 
 Neste arquivo, apenas configurações \texttt{meta} e o componente \texttt{Login} são invocados. O elemento \texttt{Head} é utilizado para definir configurações globais do HTML, como o título da página e metadados. 
@@ -134,7 +137,7 @@ Dentro do dashboard, existe a páginas principal, em \texttt{/index.tsx}, com a 
 
 Este arquivo segue à mesma lógica de design observada na página de login, mantendo a separação entre as configurações da página e a lógica dos componentes invocados.
 
-O componente \texttt{Dashboard} se baseia em composição, delegando diversas responsabilidades a componentes individuais. O componente \texttt{DashboardLayout} é utilizado como um contêiner que define a estrutura global da página, oferecendo um layout consistente também para as outras páginas do dashboard. Dentro deste layout, vários outros componentes são chamados para realizar funções específicas.
+O componente \texttt{Dashboard} se baseia em composição, delegando diversas responsabilidades a componentes individuais. O componente \texttt{DashboardLayout} é utilizado como um contêiner que define a estrutura global da página, oferecendo um layout consistente também para as outras páginas do dashboard. Dentro deste componente, vários outros são chamados para realizar funções específicas.
 
 O \texttt{DashboardHeader} é responsável pela exibição do cabeçalho da página, fornecendo o acesso aos filtros para visualização das informações. Segue-se o componente \texttt{SensorsValues}, que é designado para mostrar os valores dos sensores em tempo real.
 
@@ -161,21 +164,402 @@ As outras páginas do dashboard também foram construídas usando a lógica de c
 \end{enumerate}
 
 
-\subsection{Layouts}\label{subsec:}
-- Mostrar que existem dois layouts
+\subsection{Gerencia dos dados do sistema}\label{subsec:contextApi}
 
-\subsection{Gerencia dos dados do sistema}\label{subsec:}
-- Criação da camada de dados com o Context API
+%TODO ref para a doc do react, na pagina de context api
+%TODO ref para a doc do react
+Um dos pontos importantes no desenvolvimento do frontend é o gerenciamento de estados globais, que são informações ou comportamentos compartilhados entre componentes não relacionados. Dentro desse projeto, a Context API foi utilizada para este propósito, senso uma solução nativa do React que se destaca pela sua facilidade de implementação e utilização. Esse recurso permite que dados sejam passados de forma eficiente em toda a árvore de componentes, eliminando a necessidade de passar manualmente propriedades através de níveis intermediários.
 
-\subsection{Acesso externo}\label{subsec:}
-- Axios e fetch
-- Acesso externo a API
-- WebSocket
+Não apenas estados de dados, mas também estados comportamentais, como o estado de login do usuário e o estado do menu lateral (aberto ou fechado), foram gerenciados por meio do Context API. A camada de dados foi construída de tal forma que todas as informações necessárias para o funcionamento do sistema, que dependem de um valor global, foram incluídas.
 
-\subsection{Acesso Imagens}\label{subsec:}
-- Imagens de maneira mais facil com aquele const 
+Os contextos criados para o gerenciamento de estados são os seguintes:
+\begin{enumerate}
+    \item \texttt{SnackbarContext}: Utilizado para o gerenciamento de mensagens e alertas no sistema, facilitando o acesso a função que exibe alertas e sua configuração em todo o sistema.
+    \item \texttt{AuthContext}: Encarregado de gerenciar o estado de autenticação do usuário. %ref para impl da auth
+    \item \texttt{ThemeContext}: Responsável pela gestão do tema visual da aplicação. ref para o MUI5
+    \item \texttt{NotificationContext}: Utilizado para o gerenciamento, leitura e recebimento de notificações no sistema.
+    \item \texttt{LegacyContext}: Gerencia informações de parada das máquinas, após serem lidas do backend.%TODO ref para implementação do backend
+    \item \texttt{IotContext}: Utilizado para o gerenciamento de estados relacionados aos dispositivos IoT no sistema.
+    \item \texttt{DrawerContext}: Encarregado de gerenciar o estado do menu lateral (aberto ou fechado), e disponibilizar em todas as páginas do sistema que utilizam o menu lateral.
+\end{enumerate}
 
-\subsection{Construção dos componentes}\label{subsec:}
-- Recharts
-- Material UI
-- Days JS
+Cada contexto foi concebido com uma função específica, de modo a permitir uma separação clara das responsabilidades. Utilizando a arquitetura mostra em X, esse modelo de gerenciamento de dados no frontend fica simples e escalável, como especificado no requisitos.%TODO Ref para os requisitos
+
+\subsubsection{Gerencia de diferentes contextos}\label{subsubsec:difContexts}
+Para tratar da complexidade gerada pela variedade de contextos necessários no sistema, optou-se por instanciar esses contextos por meio de componentes específicos. Esses componentes foram projetados para encapsular diferentes grupos de contextos, de acordo com as necessidades de acesso.
+
+Dois componentes principais foram desenvolvidos: \texttt{OpenContext} e \texttt{PrivateContext}. O primeiro é responsável por instanciar os contextos que estão disponíveis para qualquer indivíduo que acessar o sistema. O segundo é encarregado de instanciar contextos que só podem ser acessados por usuários autenticados. A criação de um contexto é exemplificado melhor em ~\ref{subsubsec:contextCreation}.
+
+Esses componentes são usados no arquivo \texttt{\_\_app.tsx}, que é o arquivo de configuração inicial do Next.js, como explicado em ~\ref{subsec:configPage}, de modo a tornar os contextos acessíveis em toda a árvore de componentes da aplicação.
+
+A seguir, é apresentado o código que ilustra como esses componentes foram implementados:
+
+\begin{verbatim}
+interface Props{
+    children:React.ReactNode
+}
+
+function OpenContext({children}:Props){
+    return (
+        <SnackbarContextProvider>
+            <AuthContextProvider>
+                <ThemeContextProvider>
+                        {children}
+                </ThemeContextProvider>
+            </AuthContextProvider>
+        </SnackbarContextProvider>
+    )
+}
+
+function PrivateContext({children}:Props){
+    return(
+        <>
+            <NotificationProvider>
+                <LegacyContext>
+                    <IotContext>
+                        <DrawerContextProvider>
+                            {children}
+                        </DrawerContextProvider>
+                    </IotContext>
+                </LegacyContext>
+            </NotificationProvider>
+        </> 
+    )
+}
+\end{verbatim}
+
+Desta forma, os contextos são adequadamente isolados e gerenciados, garantindo que os dados e funcionalidades corretos estejam disponíveis para os usuários, de acordo com seu nível de acesso.
+
+
+\subsubsection{Criação de um contexto}\label{subsubsec:contextCreation}
+Para a criação de um contexto, primeiro é necessário a definição correta dos tipos, mandatório devido ao uso do \texttt{Typescript}. Para cada contexto, uma interface de propriedades (\texttt{Props}) e um valor padrão (\texttt{DEFAULT\_VALUE}) são criados. 
+
+Para mostrar a criação de um contexto dentro do projeto será usado como exemplo  o contexto \texttt{DrawerContext}, responsável por gerenciar o estado do drawer da aplicação. O código a seguir exemplifica como este contexto foi criado:
+
+\begin{verbatim}
+import { createContext, useContext, useState } from "react"
+
+interface Props {
+    open:boolean
+    setOpen:React.Dispatch<React.SetStateAction<boolean>>
+}
+
+const DEFAULT_VALUE = {
+    open:false,
+    setOpen:()=>{}
+}
+
+const DrawerContext = createContext<Props>(DEFAULT_VALUE)
+
+function DrawerContextProvider({ children }:{children:React.ReactNode}){
+    const [open, setOpen] = useState<boolean>(false)
+
+    return (
+        <DrawerContext.Provider value={{open,setOpen}}>
+            {children}
+        </DrawerContext.Provider>
+    )
+}
+
+export default function useDrawer(){
+    return useContext(DrawerContext)
+}
+
+export {DrawerContextProvider};
+\end{verbatim}
+
+%TODO ref para o create context
+Neste exemplo, o contexto \texttt{DrawerContext} é criado utilizando a função \texttt{createContext} do React. A interface \texttt{Props} define os tipos para o estado aberto do drawer (\texttt{open}) e a função para definir esse estado (\texttt{setOpen}). Um valor padrão (\texttt{DEFAULT\_VALUE}) é estabelecido para inicializar o contexto. 
+
+O componente \texttt{DrawerContextProvider} utiliza o estado React local para gerenciar o valor do estado \texttt{open}. Este valor e a função \texttt{setOpen} são então disponibilizados para todos os componentes filhos por meio do \texttt{DrawerContext.Provider}. Dessa forma, o componente \texttt{DrawerContextProvider} é usado no gerenciamento dos contexto, como explicado em ~\ref{subsubsec:difContexts}, para tornar acessível toda a informação para a árvore de componentes inteira.
+
+A função \texttt{useDrawer} é uma função personalizada que facilita o acesso ao contexto \texttt{DrawerContext} em qualquer parte da aplicação. Dentro do react, funções com o 'use' na frente são denominadas \texttt{hooks}, como pode ser visto na documentação oficial em X. %TODO Ref para a documentação oficial
+
+Dessa forma, o contexto foi criado e pode ser utilizado para gerenciar o estado de aberto e fechado do menu lateral em toda a aplicação.
+
+Esse modelo de criação de criação de contextos se repete para todos os outros contextos, com a adição do acesso ao backend, que é explicado em ~\ref{subsec:api_access}.
+
+\subsection{Acesso externo}\label{subsec:api_access}
+Para a interação com dados armazenados e gerenciados pelo backend, foi estabelecida uma camada de acesso externo no frontend. Essa camada serve como um ponto centralizado para todas as requisições de rede e é necessário para a leitura e manipulação de dados que estão fora do escopo do frontend, portanto lida com as requisições HTTP, conexão WebSocket e recebimento de dados via stream.
+
+Os diversos contextos criados no sistema, conforme descritos em ~\ref{subsubsec:contextCreation}, utilizam essa camada de acesso externo para carregar os dados necessários. Na inicialização de cada contexto, chamadas de função para esta camada são realizadas, se necessário. Essas chamadas são responsáveis por fazer requisições ao backend e por receber as informações retornadas.
+
+No exemplo abaixo é feito o uso do hook useEffect para chamar uma função que acessa a camada de acesso externo para carregar dados referentes aos sensores, sendo eles os dados em tempo real, e dados dos gráficos, assim que o contexto é inicializado.%TODO ref para o useEffect
+
+\begin{verbatim}
+const fetchSensorData = useCallback(async()=>{
+    await Promise.all([
+        getRealTimeDataData(reciveRealTimeData),
+        fetchGraphData(),
+    ])
+},[])
+
+useEffect(()=>{
+    fetchSensorData()
+},[])
+\end{verbatim}
+
+
+\subsubsection{Requisições HTTP}\label{subsubsec:httpRequest}
+%TODO ref para o axios
+A biblioteca Axios foi empregada para facilitar a realização das requisições ao backend. Esta biblioteca proporciona uma interface simples e eficiente para criação de requisições HTTP, e foi integrada nas funções da camada de acesso externo. Essa biblioteca possibilita uma configuração inicial para ser utilizada em todas as requisições realizadas.
+
+%TODO ref para a parte do axis que explica sobre inteceptor
+Na configuração utilizada, é lido das variáveis de ambiente do sistema, o endereço do backend e a url para adicionar as configurações a rota base, para onde todas as requisição devem ir. Outra configuração aplicada é a adição do interceptor no momento que a requisição é realizada, adicionando no header a configuração necessária para a autenticação, fazendo a leitura do access token do local storage, e adicionando no formato correto para leitura do backend em requisições que precisam de autenticação.
+
+\begin{verbatim}
+const baseUrl = process.env.NEXT_PUBLIC_API_URL
+const apiRoute = process.env.NEXT_PUBLIC_API_ROUTE
+
+const baseApi = axios.create({
+  baseURL: `http://${baseUrl}${apiRoute}`
+});
+
+baseApi.interceptors.request.use(function (config) {
+    let token = localStorage.getItem("access_token")
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
+  }, function (error) {
+    return Promise.reject(error);
+});
+\end{verbatim}
+
+As funções dessa camada utiliza essa configuração base para realizar a busca dos dados no backend. Na função abaixo é exemplificado um dessas funções da mama de acesso externo para buscar os dados de um determinado gráfico. A função utiliza a configuração base do \texttt{axios} junto com uma url especifica para acesso ao endpoint desejado para buscar as informações. Se o retorno estiver com o \texttt{status code} igual a 200 significa que a requsição foi bem sucedida, então os dados são retornados para o contexto que fez a chamada dessa função. O contexto recebe os dados e disponibiliza para toda a aplicação, como explicado em ~\ref{subsec:contextApi}.
+
+\begin{verbatim}
+async function getGraphData(
+  machine:string,
+  type:SensorType,
+  startDate:Dayjs,
+  endDate:Dayjs):Promise<Array<MachineGraphAggregateData>>{
+  try{
+    let url = "/iot/graph_info"+get_graph_query(
+      machine,
+      type,
+      startDate,
+      endDate)
+    let response = await baseApi.get(url)
+    if(response.status === 200){
+      return response.data
+    }
+    throw("Erro to access graph - "+response.status)
+  }catch(ex){
+    throw("Erro to access graph - "+ex)
+  }
+}
+\end{verbatim}
+
+
+\subsubsection{Conexão WebSocket}\label{subsec:websocketConncetion}
+Além das requisições HTTP, a camada de acesso externo também gerencia a conexão WebSocket. Especificamente, o contexto de notificações faz uso dessa conexão para receber e gerir notificações em tempo real.
+
+%TODO ref para a biblioteca socket.io-client
+A gestão da conexão WebSocket é realizada por meio da classe \textit{CustomSocketConnection}. Esta classe é projetada como um singleton, garantindo que uma única instância seja criada e reutilizada em toda a aplicação. Ela é responsável por inicializar e manter o objeto \texttt{Socket}, que é parte da biblioteca \textit{socket.io-client}.
+
+\begin{verbatim}
+class CustomSocketConnection{
+  private static _instance:CustomSocketConnection|null = null
+  private _socketio: Socket|null = null
+
+  private constructor() {
+      if (CustomSocketConnection._instance === null) {
+          CustomSocketConnection._instance = this;
+      }
+  }
+
+  public static getInstance(): CustomSocketConnection {
+      if (!CustomSocketConnection._instance) {
+          CustomSocketConnection._instance = new CustomSocketConnection();
+      }
+      return CustomSocketConnection._instance;
+  }
+
+  get socketio(){
+    if(this._socketio===null){
+      let token = localStorage.getItem("access_token")
+      let url = process.env.NEXT_PUBLIC_API_URL??"localhost"
+      this._socketio = io(url, { autoConnect: false, auth: { "Authorization": token } })
+    }
+    return this._socketio
+  }
+}
+\end{verbatim}
+
+O método \texttt{getInstance()} assegura que apenas uma instância da classe seja criada. Essa instância é armazenada como um atributo estático e é retornada sempre que solicitada. 
+
+Uma instância da classe \textit{CustomSocketConnection} é utilizada no contexto de notificações. Através dessa instância, o contexto consegue receber mensagens do servidor, manipulá-las e, em seguida, disponibilizá-las para toda a aplicação. 
+
+%TODO ref para o local storage
+A classe também inclui um mecanismo de autenticação. O token de acesso é recuperado do armazenamento do local storage e é utilizado como parte do cabeçalho de autenticação durante o processo de conexão.
+
+Dentro do contexto de notificações, o atributo Socket da classe é utilizada na inicialização do contexto para realizar a conexão. A instancia da classe é armazenada em uma constante, e em seguinda três funções são cadastradas em eventos de conexão, recebimento de notificação e disconexão. A função que trata o evento de receber uma nova notificação, envia o dado para uma função auxiliar que tem  o objetivo de analizar o dado recebido e atualizar a lista de notificações que aparecem na tela.
+
+\begin{verbatim}
+useEffect(() => {
+  const socket = CustomSocketConnection.getInstance()
+  function onConnect () {
+      console.log(`Connected with id: ${socket.socketio.id}`);
+      console.log(`Connection Status: ${socket.socketio.connected}`);
+  }
+
+  function newNotification(data:any){
+      console.log("Socket Io Notification", data);
+      checkNewNotification(data);
+  }
+
+  function disconnect(data:any) {
+      console.log("Socket Io disconnect", data);
+      console.log("Connection Status");
+  }
+
+  socket.socketio.on('connect', onConnect);
+  socket.socketio.on('Notification', newNotification);
+  socket.socketio.on('disconnect', disconnect);
+
+  return () => {
+      socket.socketio.off('connect', onConnect);
+      socket.socketio.off('Notification', newNotification);
+      socket.socketio.off('disconnect', disconnect);
+  };
+}, [notifications]);
+\end{verbatim}
+
+Dessa forma a camada de acesso externo disponibiliza um meio de conexão Web Socket para ser usado para receber novas notificações enquanto o usuário está conectado ao sistema.
+
+\subsubsection{Recebendo dados via Stream}\label{subsec:streamData}
+
+Em relação a camada de acesso externo, o último tipo de conexão é o recebimento de dados via stream. Este mecanismo permite a atualização constante dos dados recebidos, garantindo assim um fluxo contínuo de informações atualizadas para a aplicação. Especificamente, essa conexão é usada para disponibilizar os dados dos sensores que são recebidos no backend, como explicado em X.%TODO ref para a implementação do modulo de recebimento de dados
+
+%TODO ref para a função fetch se exitir
+O recebimento de dados via stream é implementado usando a função \textit{fetch}, nativa do JavaScript. Essa função é responsável por realizar a requisição ao endpoint correspondente e obter o fluxo de dados em tempo real.
+
+%TODO ref para JSON - silga JSON
+A função \texttt{readStream} é utilizada para interpretar os dados do stream. Essa função recebe o leitor do corpo da resposta, e retorna os dados convertidos para o formato \texttt{JSON}.
+
+\begin{verbatim}
+async function readStream(
+  reader:ReadableStreamDefaultReader<Uint8Array> | undefined) {
+  let result = await reader?.read()
+  if (!result?.done) {
+      let value = result?.value
+      if(value){
+          const jsonData = parseBytesToJson(value)        
+          return jsonData
+      }
+  }
+  return false
+
+}
+\end{verbatim}
+
+A função \texttt{getRealTimeDataData} é a responsável por iniciar o processo de streaming de dados. É nessa função que o contexto de dados dos sensores IoT faz a chamada e, consequentemente, recebe e envia os dados para a função recebida como parametro.
+
+Como a função não faz o uso da estrtura do axios explicado em ~\ref{subsubsec:httpRequest}, é necessário realizar a configuração de autenticação da mesma que foi explicado anteriormente na estrutura.
+
+%TODO ref para JSON - silga JSON
+Após realizar a requisição, o leitor dos dados é lido do corpo da resposta da requisição, e passado para a função \texttt{readStream}, explicada anteriormente, para ser interpretada e convertida para \texttt{JSON}.
+
+\begin{verbatim}
+async function getRealTimeDataData(setData: UpdateDataFromStream) {
+  try{
+    let token = localStorage.getItem("access_token")
+    let url = baseApi.getUri()
+    let response = await fetch(`${url}/iot/realtime`,{headers:{
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+    },});
+
+    const reader = response?.body?.getReader();
+    let result:Array<MachineRealTimeData>|boolean = await readStream(reader)
+    if(typeof(result) === "boolean"){
+        throw "Error to read stream data"
+    }
+    do{
+      if (Array.isArray(result)) {
+          const typedResult = result as MachineRealTimeData[];
+          setData(typedResult);
+      }
+      result = await readStream(reader)
+    }while(result!==false)
+  }catch(ex){
+    console.error(ex)
+    throw ex
+  }
+}
+\end{verbatim}
+
+A função \texttt{getRealTimeDataData} fica sendo executada enquanto a conexão está aberta e não ocorre nenhum erro. O método \texttt{setData} é então chamado para enviar o resultado da leitura para o contexto que realizou a chamada da função.
+
+Dentro do contexto de dados dos sensores IOT, a função \texttt{setData} passada como parâmetro, apenas atualiza o estado global para atualizar a informação em todos os componentes que fazem uso dela.
+
+\subsection{Construção dos componentes}\label{subsec:componentization}
+
+%TODO ref para a doc do react 
+Na implementação do sistema, foi utilizada a lógica de construção de componentes para compor a telas. A modularidade e reutilização de código são fatores críticos que motivam essa escolha. 
+
+%TODO ref para explicação de contextAPI
+%TODO ref para algo sobre evitar a passagem de muitos dados na arvores do react
+Os componentes acessam dados diretamente dos contextos, conforme discuto em X. Este método facilita a passagem de dados e permite que os componentes sejam mais específicos em sua função, além de evitar a passagem de muitas propriedades na árvore de componentes.
+
+%TODO ref MUI5
+%TODO singla MUI5
+A base para os componentes menores foi extraída da biblioteca Material UI 5 (MUI5). Isso inclui elementos como botões, contêineres, caixas de texto e outros. Um exemplo prático é o menu lateral nas páginas do dashboard, onde o componente Drawer do MUI5 foi empregado. 
+
+%TODO sigla mui5
+%TODO ref grid mui5
+Um componete que merece destaque é o \texttt{Grid} do Material UI 5. A utilização do Grid permitiu uma organização espacial dos elementos da interface do usuário de maneira simples. Esse sistema de grid oferece uma abordagem flexível para alocar espaço, alinhar conteúdo e lidar com variações de tela, o que é especialmente útil em aplicações web com muitas informações e diferentes componentes em tela. No menu lateral por exemplo, foi utilizado o componente \texttt{Grid} para organizar as informações do menu e definir o posicionamento de acordo com o estado de aberto ou fechado.
+
+\begin{verbatim}
+<Grid 
+  container
+  direction="column"
+  justifyContent="space-between"
+  alignItems={open?"center":"start"}
+  height={"97vh"}
+>
+  <Grid 
+    container
+    item
+    direction="column"
+    justifyContent="space-between"
+    alignItems={open?"center":"start"}
+  >
+    // Conteúdo
+  </Grid>
+</Grid>
+\end{verbatim}
+
+O uso do Grid, portanto, contribuiu para a coesão do layout, fornecendo uma estrutura sólida sobre a qual outros componentes poderiam ser organizados de forma simples, e fácil de entender, cumprindo requisitos de facilitar a manutenção.%TODO ref pra os requisitos
+
+%TODO ref para o modulo de processamento
+Por outro lado, para a construção dos gráficos, a biblioteca Recharts foi utilizada. O gráfico mostrado no dashboard com a informações geradas pelo modulo de processamento, detalhado REF X, é composto por gráficos Scatter, Area, Bar e Line, permitindo assim uma análise multifacetada das informações geradas. 
+
+%TODO ref date picker
+%TODO ref MUI5
+Para componentes que necessitam de manipulação de datas, a biblioteca Days Js foi integrada. Um caso de uso é o componente de filtro de data para exibição de gráficos, que também emprega o DatePicker do MUI5 para uma interface de usuário mais intuitiva. A biblioteca Days Js facilita a manipulação da entrada e saída de dados de data.
+
+\begin{verbatim}
+  <DatePicker
+  value={dateFilter.startDate}
+  onChange={(value)=>onChangeDate(value, "startDate")}
+  label="Data inicial"
+  />
+\end{verbatim}
+
+\begin{verbatim}
+const onChangeDate = (newDate:Dayjs|null, 
+  dateField:"startDate"|"endDate")=>{
+  if(newDate!==null){
+    setIsDataUpdated(false)
+    if(dateField==="endDate"){
+      setDateFilter(oldValue=>({...oldValue,"endDate": newDate}))
+    }else{
+      setDateFilter(oldValue=>({...oldValue,"startDate": newDate}))
+    }
+  }
+}
+\end{verbatim}
+
+

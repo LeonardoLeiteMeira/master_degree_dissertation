@@ -502,9 +502,22 @@ class Datatype(Enum):
 \end{verbatim}
 
 \subsection{Módulos}\label{subsec:modules}
-%TODO singla HTTP
+A API foi estruturada em módulos, cada um com responsabilidade para gerenciar um determinado contexto. Abaixo são listados os módulos desenvolvidos ~\ref{subsubsec:auth}.
+
+\begin{enumerate}
+    \item \textbf{IOT Analytics}: Modulo responsável por gerenciar o acesso as informações dos sensores, tanto os dados em tempo real via stream, quanto as informações processadas pelo modulo de processamento de dados, explicado em ~\ref{sec:ImplModuloProcessamento}.
+    \item \textbf{Notifications}: Modulo responsável por gerenciar o acesso as notificações.
+    \item \textbf{User}: Modulo responsável por gerir as informações dos usuários do sistema, e realização da autenticação explicada em ~\ref{subsubsec:auth}.
+    \item \textbf{Downtime Analytics}: Modulo usado para disponibilizar os dados de teste da paragem das maquinas. Esse modulo alimenta a tela que exibe as informações de paragem das maquinas.
+
+\end{enumerate}
+
+
+%TODO sigla HTTP
+Cada modulo seguiu um padrão de ter uma camada para o recebimento  das requisições HTTP, o \texttt{controller}, outra para tratar a requisição de acordo com as regras de negócio, o \texttt{service}, e o \texttt{repositoy}, para disponibilizar métodos de acesso e manipulação das informações no banco de dados.
 
 \subsubsection{Controller}\label{subsubsec:controller}
+%TODO singla HTTP
 A implementação dos módulos da API passa pela construção de três camadas essenciais. O controller para receber as requisições HTTP, enviar as informações recebidas para a camada de serviço, e realizar o retorno adequado, com as informações formatadas, e código HTTP correto.
 
 %TODO Singla IOT
