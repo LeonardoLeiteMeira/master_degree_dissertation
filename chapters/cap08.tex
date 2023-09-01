@@ -1,23 +1,118 @@
-\chapter{Conclusão e Trabalhos Futuros}\label{cap:conclusions}
+\chapter{Conclusão e Trabalhos Futuros}\label{chap:conclusion_and_future_work}
 
-The conclusions should synthesize and provide a single view to the work developed. It can be done a brief reference to similar work of others and to the knowledge that emerged from it, as well as future work suggestions. The consistency of the document implies that the conclusions should be coherent with the main ideas in the introduction.
+Este capítulo representa a etapa final da presente dissertação e tem como objetivo proporcionar uma síntese do trabalho realizado. O capítulo está estruturado em diversas seções, que incluem um "Resumo" do projeto, uma discussão sobre as "Limitações do Sistema" e finalmente, "Sugestões para Trabalhos Futuros". 
 
-\subsection[Resumo]{Resumo}
+A construção do sistema é considerada bem-sucedida, servindo como um marco inicial para futuras implementações e adaptações. Os próximos passos para o avanço deste projeto incluem a colocação do sistema em um ambiente de produção, seguida pela coleta de feedback de usuários. Esta abordagem permitirá um processo incremental de aprendizagem, no qual o sistema será constantemente aprimorado com base nas experiências adquiridas e nas necessidades identificadas. 
 
-\subsection[Limitações do sistema]{Limitações do sistema}
-(Adicionar novas camadas de dados e paginas no dashboard pode ser demorado)?
+Ao longo das próximas seções, o sistema será resumidos, avaliadas as suas limitações e identificada as direções para futuras investigações e melhorias no sistema. Desta forma, este capítulo serve como uma recapitulação e um ponto de partida para futuras iniciativas que buscam tornar o sistema cada vez mais eficaz.
 
-\subsection[Sugestões para trabalhos futuros]{Sugestões para trabalhos futuros}
 
-- melhorias de código
-- Monitoramento do funcionamento do sistema e logs
-    - Log para recebimento dos dados e quando para de receber
-    - Log para a analise estatistica
-    - Log para erros no recebimento dos dados
-- Deixar os parâmetros para alertas do sistema dinâmicos, podendo ser alterados pelos usuários adm
-- Generalização para outros contextos - destacando a tendência crescente de coleta e análise de dados na indústria
-- Melhoria da performance para grande numero de maquinas e graficos exibidos na tela ao mesmo tempo.
-- Upgrade para next 13 e 14. Pois com isso podemos ter o beneficio dos server componentes, o que melhoraia a performace da aplicação - Os graficos podem ser carregados como server componentes com cache equivalente ao intervalo que o modulo de processamento roda, otimizando assim o frontend da aplicação
+\section{Resumo}\label{sec:summary}
+
+Nesta dissertação, foi desenvolvido um sistema multifuncional destinado à coleta, armazenamento, processamento e visualização de dados gerados por sensores. Utilizou-se Python para a criação da API e do módulo de processamento, MongoDB para o gerenciamento do banco de dados e NextJs para a construção do painel de controle, conhecido como \emph{dashboard}.
+
+Os dados foram recebidos através de uma conexão multicast estabelecida pelo módulo de recebimento de dados. Uma vez recebidos, os dados foram imediatamente submetidos a uma análise preliminar para identificar qualquer condição que pudesse acionar um alerta. Caso um alerta fosse gerado, os usuários eram notificados, permitindo intervenções rápidas e eficazes.
+
+Para a análise de dados históricos, empregou-se o método BoxPlot no módulo de processamento. Esta análise objetivou a identificação de padrões e anomalias nos dados coletados ao longo do tempo, fornecendo insights valiosos para a operação e manutenção das máquinas monitoradas.
+
+%TODO Sigla JWT
+A API desempenhou um papel crucial no sistema, gerenciando o acesso aos dados. A segurança foi assegurada através da implementação de autenticação por JWT (JSON Web Token), e vários \emph{endpoints} foram desenvolvidos para permitir um acesso eficaz aos dados.
+
+O \emph{frontend}, por sua vez, foi responsável por exibir informações em tempo real, alertas gerados e dados processados em forma de gráficos. Este painel se mostrou uma ferramenta indispensável para a interpretação rápida e eficiente dos dados coletados e analisados pelo sistema.
+
+\section{Limitações do Sistema}\label{sec:limitations}
+
+Apesar dos avanços alcançados com o desenvolvimento do sistema em questão, algumas limitações foram identificadas que poderiam influenciar sua eficácia e aplicabilidade em diferentes contextos.
+
+Primeiramente, identifica-se que o módulo de recebimento de dados necessita ser adaptado especificamente para cada contexto operacional. Esta exigência pode comprometer a portabilidade do sistema, exigindo ajustes manuais sempre que uma nova aplicação é considerada.
+
+Em segundo lugar, existem restrições em relação à estrutura dos dados recebidos, pois para o funcionamento eficaz do módulo de recebimento de dados e da funcionalidade de alerta, é necessário que os dados recebidos possuam um campo de identificação e um valor numérico correspondente. A ausência deste último impede que os alertas sejam identificados e torna o módulo de processamento ineficaz para a análise desses dados.
+
+Por último, o sistema foi projetado e testado em um ambiente com uma quantidade limitada de máquinas conectadas. Não foram realizados testes para avaliar o desempenho do sistema sob a carga de uma grande quantidade de máquinas e sensores enviando dados simultaneamente. Portanto, para cenários com maior escala, adaptações podem ser necessárias para assegurar o desempenho e a eficácia do sistema.
+
+
+\section{Sugestões para Trabalhos Futuros}\label{sec:future_work}
+
+Com base nas observações e análises realizadas ao longo deste projeto, existem diversos trabalhos que podem ser feitos no sistema para pesquisa e desenvolvimento futuro.
+
+
+\subsection{Monitoramento e Logs}
+
+O monitoramento abrangente do sistema e a manutenção de logs de atividades são aspectos cruciais para a sustentabilidade e escalabilidade do sistema. A ausência de um sistema de logs bem estruturado pode resultar em dificuldades na identificação e resolução de problemas que podem surgir durante o funcionamento do sistema em tempo real. Nesse contexto, três áreas principais são identificadas onde o monitoramento e os logs poderiam fornecer insights valiosos para aprimoramento contínuo.
+
+\subsubsection{Log para Recebimento de Dados}
+
+Seria vantajoso manter um registro abrangente das transações de dados entre os sensores e o módulo de recebimento de dados. Esses logs poderiam incluir informações como data e hora da transação, identificação do sensor, e qualquer anomalia ou falha durante o processo de recebimento. Isso facilitaria a verificação da integridade dos dados recebidos e ajudaria na detecção precoce de possíveis problemas no hardware ou na conectividade da rede.
+
+\subsubsection{Log para Análise Estatística}
+
+O módulo de processamento de dados, responsável pela análise estatística, também seria beneficiado por um sistema de logs. Detalhes sobre a execução do BoxPlot ou qualquer outra análise estatística poderiam ser registrados. Isso inclui informações como o número de pontos de dados analisados, quaisquer outliers detectados, e o tempo levado para a execução da análise. Com essas informações, seria possível refinar mais o algoritmo de análise e identificar áreas para otimização.
+
+
+\subsection{Parâmetros Dinâmicos para Alertas}
+
+Na versão atual do sistema, os parâmetros responsáveis por disparar alertas são definidos de forma estática, incorporados diretamente no código-fonte. Essa abordagem, embora funcional, apresenta limitações em termos de flexibilidade e adaptabilidade a diferentes cenários operacionais.
+
+Na configuração atual, qualquer alteração nos parâmetros de alerta exige uma intervenção direta no código, seguida de um processo de teste e implantação, que pode ser tanto demorado quanto propenso a erros. Além disso, a falta de flexibilidade limita a capacidade da empresa de adaptar-se rapidamente a novas condições operacionais.
+
+Seria vantajoso permitir que os parâmetros de alerta sejam configurados de forma dinâmica, através da interface de usuário do sistema. Uma funcionalidade que permita aos usuários ajustar os limiares de alerta e outros parâmetros relacionados poderia ser implementada. A possibilidade de fazer esses ajustes em tempo real, sem a necessidade de interromper o funcionamento do sistema, representaria um avanço significativo na usabilidade e adaptabilidade do sistema.
+
+Com a implementação de parâmetros dinâmicos, os usuários poderiam responder mais rapidamente às mudanças nas condições operacionais, como variações na carga de trabalho das máquinas ou atualizações nas políticas de segurança. Além disso, essa flexibilidade aumentaria a portabilidade do sistema, facilitando sua implantação em diversos ambientes industriais com requisitos distintos.
+
+\subsection{Generalização para Outros Contextos}
+
+O sistema desenvolvido foi projetado inicialmente para um ambiente industrial específico. Embora eficaz nesse contexto, a transferência direta do sistema para outras áreas industriais pode não ser trivial. Portanto, a generalização do sistema para outros contextos industriais é identificada como uma área de interesse para trabalhos futuros.
+
+O módulo de recebimento de dados atualmente requer personalização específica para cada contexto industrial. Além disso, o sistema foi projetado para analisar dados que contêm um campo de identificação e um valor numérico. A falta desses campos poderia dificultar ou inviabilizar a adaptação do sistema em ambientes que exigem o tratamento de diferentes tipos de dados.
+
+Pesquisas futuras poderiam explorar métodos para tornar o módulo de recebimento de dados e o módulo de processamento mais flexíveis e adaptáveis a diferentes tipos de dados e estruturas. Técnicas de aprendizado de máquina ou métodos estatísticos avançados poderiam ser aplicados para automatizar a detecção de eventos anômalos em diferentes cenários, sem a necessidade de programação manual extensiva.
+
+%TODO ref para industria 4.0
+%TODO ref para artigo que mostra que o uso de dados está mais critico e mandatório para as empresas
+A capacidade de adaptar o sistema para diferentes contextos industriais não só aumentaria sua aplicabilidade, mas também poderia levar a melhorias na eficiência de operações industriais em uma variedade de setores. Isso é particularmente relevante em um cenário em que a indústria 4.0 e a Internet das Coisas estão ganhando impulso, e a análise de dados em tempo real torna-se cada vez mais crítica para a competitividade empresarial.
+
+%++++++++++++++
+\subsection{Otimização de Performance}
+
+A capacidade do sistema de escalar e operar eficientemente sob carga elevada não foi amplamente testada. Em particular, há preocupações relativas ao desempenho quando um grande número de máquinas está conectado e enviando dados simultaneamente, bem como à capacidade do frontend de exibir múltiplos dados em tempo real.
+
+O sistema ainda não foi colocado em produção, portanto também não foi avaliado em um ambiente com tráfego elevado, tanto em termos de máquinas conectadas quanto de usuários acessando o dashboard. Portanto, os desafios associados à escalabilidade, como latência no recebimento de dados e possíveis gargalos na base de dados, ainda são desconhecidos.
+
+O frontend, construído em Next.js, tem o potencial para se tornar uma área de gargalo, especialmente quando exibe dados em tempo real para múltiplas máquinas. A utilização de tecnologias mais recentes, como os Server Components em versões mais recentes do Next.js, poderia contribuir para uma renderização mais eficiente e um melhor desempenho.
+
+Aprimoramentos na API e no módulo de processamento também são considerados para melhorar a eficiência global do sistema. Técnicas de cacheamento, balanceamento de carga e otimização de consultas ao banco de dados são algumas das estratégias que podem ser exploradas, caso problemas de performance venha acontecer.
+
+Para validar qualquer melhoria implementada, são necessários testes de performance, simulação de tráfego elevado e monitoramento em tempo real. Estes testes podem fornecer métricas objetivas para avaliar a eficácia das otimizações e identificar novas áreas para melhoria.
+
+A otimização de performance do sistema é uma área prioritária para trabalhos futuros, visando garantir que ele possa operar eficazmente sob diversas condições de carga, tanto em termos de entrada de dados quanto de interação do usuário.
+
+\subsection{Atualizações de Tecnologia}
+
+%TODO ref para a pagina de server components
+Dada a natureza em constante evolução do desenvolvimento de software, a atualização para tecnologias mais recentes é algo que não pode ser negligenciado. Em particular, versões mais recentes do Next.js, especificamente as versões 13 e 14, oferecem recursos que poderiam melhorar substancialmente o desempenho e a eficiência do sistema.
+
+Um dos recursos mais promissores disponíveis nas versões mais recentes do Next.js é o conceito de Server Components. Esses componentes permitem uma renderização mais eficiente dos elementos da interface do usuário, já que eles são processados no servidor e enviados para o cliente como HTML puro. Isso reduz a carga no navegador e pode melhorar significativamente a velocidade e a eficiência da aplicação.
+
+Além disso, a nova arquitetura oferece oportunidades mais robustas para cacheamento. Isso é particularmente útil no contexto deste sistema, onde o módulo de processamento roda em intervalos específicos. Os gráficos e outros elementos visuais podem ser cacheados no servidor, otimizando a experiência do usuário ao acessar dados atualizados.
+
+É importante notar que atualizações de tecnologia como essas exigem um período de transição e testes rigorosos para garantir que a compatibilidade entre os diferentes elementos do sistema seja mantida. Portanto, um plano de migração bem estruturado e fases de teste são essenciais para implementar com sucesso qualquer atualização.
+
+
+\subsection{Implantação e Feedback na Fábrica}
+
+Uma etapa crítica para a validação e o aprimoramento contínuo do sistema é a sua implantação em um ambiente industrial real, preferencialmente uma fábrica com operações que se alinham ao contexto para o qual o sistema foi projetado.
+
+A implantação em um ambiente de fábrica oferece a oportunidade de coletar feedback direto dos usuários finais e das partes interessadas. Esse feedback não é apenas instrumental para identificar áreas para melhoria imediata, mas também fornece insights sobre como o sistema se encaixa nas operações diárias e nas metas de longo prazo da organização.
+
+A vantagem de coletar feedback real reside na capacidade de realizar ajustes incrementais no sistema. Esses ajustes podem variar desde a correção de pequenos bugs até modificações mais significativas que podem melhorar a eficácia do sistema. O processo de ajuste é fundamental para alinhar o sistema às necessidades e expectativas dos usuários, bem como para otimizar o desempenho.
+
+
+Em suma, a implantação do sistema em um ambiente de fábrica não é um fim, mas sim um passo vital em um ciclo de desenvolvimento e aprimoramento contínuos. A coleta de feedback real e a capacidade de fazer ajustes incrementais são fundamentais para garantir que o sistema seja eficiente em um contexto industrial real.
+
+
+
+
+
 
 
 
