@@ -16,7 +16,7 @@ class SensorConnection:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 \end{verbatim}
 
-Para garantir que o sistema esteja constantemente ouvindo mensagens multicast dos sensores, o método \texttt{listen\_multicast\_messages} foi definido dentro dessa classe. Ele invoca a criação da conexão e inicia o processo de leitura de mensagens, gerenciando ainda possíveis desconexões e reestabelecendo a ligação quando necessário:
+Para garantir que o sistema esteja constantemente ouvindo mensagens multicast dos sensores, o método \texttt{listen\_multicast\_messages} foi definido dentro dessa classe. Ele começa com a criação da conexão e inicia o processo de leitura de mensagens, gerenciando ainda possíveis desconexões e reestabelecendo a ligação quando necessário:
 
 \begin{verbatim}
     async def listen_multicast_messages(self, save_data_func):
@@ -36,16 +36,18 @@ A seguir, cada uma das funções chamadas dentro desse método e detalhado.
 \subsubsection[Método create connection]{Método create connection}
 
 \begin{verbatim}
-    def __create_connection(self):
-        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+def __create_connection(self):
+    self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-        server_address = ('', SENSOR_MULTICAST_PORT)
-        self.sock.bind(server_address)
+    server_address = ('', SENSOR_MULTICAST_PORT)
+    self.sock.bind(server_address)
 
-        multicast_group = SENSOR_MULTICAST
-        group = socket.inet_aton(multicast_group)
-        mreq = struct.pack('4sL', group, socket.INADDR_ANY)
-        self.sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+    multicast_group = SENSOR_MULTICAST
+    group = socket.inet_aton(multicast_group)
+    mreq = struct.pack('4sL', group, socket.INADDR_ANY)
+    self.sock.setsockopt(socket.IPPROTO_IP,
+        socket.IP_ADD_MEMBERSHIP,
+        mreq)
 \end{verbatim}
 
 Inicialmente, o socket é configurado para permitir várias conexões em um único endereço. A opção \texttt{SO\_REUSEADDR} é definida com o valor 1, permitindo que mais de um socket se ligue a um mesmo endereço, o que é especialmente útil em contextos de conexões multicast:
@@ -211,7 +213,7 @@ class IotSensorConnection(IotSensorConnectionInterface):
 \end{verbatim}
 
 %TODO Referencia para o helper de threads
-Ao iniciar a conexão, utilizando o método \texttt{start\_connection}, é criada uma nova thread por meio da classe \texttt{ThreadManager}. Esta thread invoca o método \texttt{listen\_multicast\_messages} da classe \texttt{SensorConnection} que foi detalhado na seção ~\ref{subsec:Conexão e recebimento dos dados}. É necessário criar uma nova thread pois como esse modulo está junto com a API, e é necessário que os doi processos funcionem ao mesmo tempo, uma nova thread foi necessária para o funcionamento em paralelo de ambos.
+Ao iniciar a conexão, utilizando o método \texttt{start\_connection}, é criada uma nova thread por meio da classe \texttt{ThreadManager}. Esta thread invoca o método \texttt{listen\_multicast\_messages} da classe \texttt{SensorConnection} que foi detalhado na seção ~\ref{subsec:Conexão e recebimento dos dados}. É necessário criar uma nova thread pois como esse modulo está junto com a API, e é necessário que os dois processos funcionem ao mesmo tempo, uma nova thread foi necessária para o funcionamento em paralelo de ambos.
 
 \subsubsection{Verificação do formato dos dados}
 
@@ -246,8 +248,7 @@ def __parse_sensor_data_to_sensor_model(self, sensor_data:dict):
     )
 \end{verbatim}
 
-%TODO REFERENCIA PARA O PYDANTIC
-Este método tem a responsabilidade de receber os dados so sensor e converter para uma classe modelo, denominada \texttt{ConnectionModelToParse}, que utiliza o \texttt{Pydantic} para validar as informações. O uso do \texttt{Pydantic} é mostrado na seção ~\ref{sec:a}.
+Este método tem a responsabilidade de receber os dados so sensor e converter para uma classe modelo, denominada \texttt{ConnectionModelToParse}, que utiliza o \texttt{Pydantic} para validar as informações. A explicação do \texttt{Pydantic} é feita na seção ~\ref{subsubsec:dataModel}.
 
 \begin{verbatim}
 from datetime import datetime
@@ -302,11 +303,11 @@ class SensorsRepository:
 
 \subsubsection{Verificação de alertas}
 
-Dentro do método \texttt{update\_current\_sensor\_value}, primeiramente é verificado o tipo de alerta gerado com a o método  \texttt{\_\_get\_alert\_type}.
+Dentro do método \texttt{update\_current\_sensor\_value}, primeiramente é verificado o tipo de alerta gerado com o método  \texttt{\_\_get\_alert\_type}.
 %TODO Referencia para o helper de metadados com a leitura do parametro de alerta em get_sensor_alert_value
 Esse método realiza a leitura do parâmetro de acordo do com tipo do sensor dentro dos metadados do sistema, em que o acesso é explicado em ..., e com ele verifica o status de alerta. 
 
-O stats de alerta, definido pela função  \texttt{get\_alert\_status}, retorna como \texttt{OK} caso o valor do sensor seja menor que 90\% do valor definido com parâmetro, retorna como \texttt{WARNING} caso esse valor esteja entre 90\% e 100\%, e retorna como \texttt{PROBLEM} caso o valor retornado pelo sensor seja maior que 100\% do valor definido como parâmetro
+O status de alerta, definido pela função  \texttt{get\_alert\_status}, retorna como \texttt{OK} caso o valor do sensor seja menor que 90\% do valor definido com parâmetro, retorna como \texttt{WARNING} caso esse valor esteja entre 90\% e 100\%, e retorna como \texttt{PROBLEM} caso o valor retornado pelo sensor seja maior que 100\% do valor definido como parâmetro
 
 \begin{verbatim}
 def get_alert_status(self,sensor_value:int,
@@ -479,8 +480,7 @@ class MachinesSensorAlert(BaseModel):
     read_by:Optional[list[str]] = Field([])
 \end{verbatim}
 
-Importante destacar que dentro dessa instância que é mantida em memória, o atributo \texttt{read\_by} não é preenchido. Isso acontece pois esse atributo é usado para controlar os usuários que marcaram a notificação como lida, portanto é preenchida apenas no banco de dados. A implementação da parte de notificações que faz uso desse atributo pode ser lida na seção ....%TODO Referencia para a seção que mostra a implementação das notifcações
-
+Importante destacar que dentro dessa instância que é mantida em memória, o atributo \texttt{read\_by} não é preenchido. Isso acontece pois esse atributo é usado para controlar os usuários que marcaram a notificação como lida, e assim identificar notificações lidas pelo usuário. Portanto, esse atributo é preenchido apenas no banco de dados, pelo modulo de notificações da API, mostrada em X.%TODO ref para subsection modulos da impl da API
 
 A primeira etapa realizada por este método é identificar a posição (ou índice) da máquina dentro da lista de alertas \texttt{machines\_alert} usando o método \texttt{index}. Uma vez obtido o índice, o tipo do sensor é adicionado à lista de sensores em estado de alerta da máquina, representada pelo atributo \texttt{sensors}. Além disso, este sensor também é adicionado ao histórico de sensores em estado de alerta da máquina, indicado pelo atributo \texttt{sensors\_historical}. Finalmente, a máquina atualizada (com o novo sensor adicionado às suas listas de alerta e histórico) é reinserida na lista principal \texttt{machines\_alert} na mesma posição identificada anteriormente.
 

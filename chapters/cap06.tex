@@ -5,9 +5,12 @@
 \chapter{Características do Sistema do ponto de vista funcional}\label{cap:functions}
 %Adicionar capturas de tela e diagramas para exemplificar o uso
 
-Após o detalhamentos dos requisitos, da arquitetura escolhida para o sistema, das tecnologias utilizadas no projeto e do detalhamento da implementação de cada componente do sistema, esse capítulo é voltado para a explanação das funcionalidades que compõem a aplicação. O projeto abrange diversas componentes, incluindo uma camada de frontend, uma camada de backend, um módulo de recebimento de dados, um módulo de processamento de dados e o banco de dados, portanto, este capítulo tem como objetivo detalhar o funcionamento de cada funcionalidade do sistema, fornecendo uma visão abrangente de como cada componente interage e contribui para a operação do sistema como um todo.
+Após o detalhamentos dos requisitos, da arquitetura escolhida para o sistema, das tecnologias utilizadas no projeto e do detalhamento da implementação de cada componente do sistema, esse capítulo é voltado para as funcionalidades que compõem a aplicação. O projeto abrange diversas componentes, incluindo uma camada de frontend, uma camada de backend, um módulo de recebimento de dados, um módulo de processamento de dados e o banco de dados, portanto, este capítulo tem como objetivo detalhar o funcionamento de cada funcionalidade do sistema, fornecendo uma visão abrangente de como cada componente interage e contribui para a operação do sistema como um todo.
 
-Cada seção deste capítulo se dedicará a uma funcionalidade específica, examinando seu papel e operação em profundidade, bem como a interação entre diferentes componentes do sistema para sua realização. Dessa forma, será possível ter uma compreensão completa de como cada parte do sistema contribui para a funcionalidade geral e os objetivos do projeto.
+Cada seção deste capítulo se dedicará a uma funcionalidade específica, examinando seu papel e operação em profundidade, bem como a interação entre diferentes componentes do sistema para sua realização. 
+
+
+\section[Monitoramento em tempo real]{Monitoramento em tempo real}\label{sec:realtimeMonitoring}
 
 \begin{figure}[htbp]
 	\centering
@@ -16,9 +19,7 @@ Cada seção deste capítulo se dedicará a uma funcionalidade específica, exam
 	\label{fig:dashboradPage}
 \end{figure}
 
-\section[Monitoramento em tempo real]{Monitoramento em tempo real}\label{sec:realtimeMonitoring}
-
-No dashboard de interface do usuário, figura \ref{fig:dashboradPage}, são apresentados cartões individuais correspondentes a cada máquina monitorada. Em cada cartão, informações sensoriais específicas são exibidas. Um mecanismo de interface intuitivo, ativado pelo clique em uma seta direcional, permite ao usuário expandir as informações para visualizar dados de sensores adicionais de uma máquina específica. O cartão pode ser visto na figura \ref{fig:cardData}.
+No dashboard de interface do usuário são apresentados cartões individuais correspondentes a cada máquina monitorada, na figura \ref{fig:dashboradPage} pode ser visto essa página com um cartão da máquina \texttt{5. MACHINE\_STAMPING}. Em cada cartão, informações dos sensores são exibidas com a possibilidade de navegar entre elas com uma seta direcional. O cartão pode ser visto na figura \ref{fig:cardData}.
 
 \begin{figure}[htbp]
 	\centering
@@ -28,7 +29,7 @@ No dashboard de interface do usuário, figura \ref{fig:dashboradPage}, são apre
 \end{figure}
 
 %TODO ref para a impl da camada de acesso externo do front
-A obtenção desses dados em tempo real é efetuada através de um fluxo contínuo de dados, conhecido como \textit{streaming}. O frontend da aplicação faz uma requisição ao endpoint \texttt{iot/realtime}, o qual retorna esse fluxo de dados em tempo real. O acesso a essa informação ocorre como explicado em X. 
+A obtenção desses dados em tempo real é efetuada através de um fluxo contínuo de dados por \textit{streaming}. O frontend da aplicação faz uma requisição ao endpoint \texttt{iot/realtime}, o qual retorna esse fluxo de dados em tempo real. A disponibilização dessa informação ocorre como explicado em X. 
 
 %TODO ref para a impl do modulo de recebimento de dados
 Na camada de backend, o fluxo de dados é constantemente alimentado pela classe \texttt{SensorValue}, que por sua vez, é atualizada pelo módulo de recebimento de dados. Ao receber novas leituras dos sensores, o módulo executa validações apropriadas antes de atualizar os valores na classe \texttt{SensorValue}, como explicado em X. Uma vez atualizada, a API acessa esses novos valores e os insere no fluxo de dados transmitido ao usuário conectado.
@@ -53,7 +54,7 @@ Ao receber uma leitura marcada, o frontend atualiza o cartão de informação co
 \end{figure}
 
 %TODO ref sub modulo de recebimento de dados que cuida dos alertas
-O módulo de recebimento de dados, REF, mantém o controle do estado operacional de cada máquina que está enviando informações. Quando uma máquina sai de um estado de alerta, a ocorrência é registrada no banco de dados, com data de início e término do estado de alerta, junto com as informações referentes ao sensor e à máquina envolvida, como explicado em X. Posteriormente, uma mensagem é enviada aos usuários conectados utilizando a interface de \textit{WebSocket}, informando-os da mudança de estado e possibilitando uma resposta mais ágil. %TODO ref impl websocket
+O módulo de recebimento de dados, REF, mantém o controle do estado operacional de cada máquina que está enviando informações. Quando uma máquina sai de um estado de alerta, a ocorrência é registrada no banco de dados, com data de início e término do estado de alerta, junto com as informações referentes ao sensor e à máquina envolvida, como explicado em X. Posteriormente, uma mensagem é enviada aos usuários conectados utilizando a interface de \textit{WebSocket}, informando-os do mau funcionamento da maquina durante o período registrado pelo sistema. %TODO ref impl websocket
 
 As informações sobre a finalização de alertas podem ser acessadas pelos usuários através de notificações na interface do sistema, como pode ser visto na figura \ref{fig:notificationDrawer}. Ao clicar no ícone de notificação no menu lateral do \textit{dashboard}, o usuário pode visualizar essas notificações.
 
@@ -115,7 +116,7 @@ A funcionalidade de perfil de usuário foi desenvolvida com o objetivo de fornec
 %TODO ref para a parte de modulos da API
 Para ler e modificar os dados apresentados, o módulo \textit{User} da API é utilizado REF. Este módulo disponibiliza endpoints que permitem o acesso e a modificação dos dados armazenados, garantindo que as informações sejam atualizadas conforme as interações do usuário, como pode ser visto na figura \ref{fig:profilePage}.
 
-Um recurso adicional fornecido por esta tela é a opção de logout. Ao selecionar esta opção, todas as informações armazenadas do lado do cliente são limpas, efetuando assim a saída segura do usuário do sistema.
+Um recurso adicional fornecido por esta tela é a opção de logout. Ao selecionar esta opção, todas as informações armazenadas do lado do cliente são apagadas, efetuando assim a saída segura do usuário do sistema.
 
 \begin{figure}[htbp]
 	\centering

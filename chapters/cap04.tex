@@ -28,16 +28,16 @@ Nas seções seguintes, cada um desses componentes será explorado mais profunda
 
 \section[Arquitetura do backend]{Arquitetura backend}
 %TODO Sigla HTTP
-Nessa seção é abordado o funcionamento do backend. Ele está dividido em três partes, o module de recebimento dos dados dos sensores, o modulo de processamento onde é feita a agregação e analise estatística dos dados, e a API que gerencia o acesso as informações por meio de requisições HTTP.
+Nessa seção é abordado o funcionamento do backend. Ele está dividido em três partes, o modulo de recebimento dos dados dos sensores, o modulo de processamento onde é feita a agregação e analise estatística dos dados, e a API que gerencia o acesso as informações por meio de requisições HTTP.
 
 Em relação a organização dos repositórios, a API e o modulo de recebimento de dados ficam no mesmo repositório, facilitando a comunicação entre eles. Já o modulo de processamento está em um repositório a parte, sendo a sua única função sendo ler o banco de dados, processar os dados, e armazenar os resultados.
 
 \subsection{Modulo de Recebimento de dados}
-Para o modulo de recebimento de dados, inicialmente, destaca-se a classe \texttt{SensorConnection}, cuja principal função é gerenciar a conexão. Esta classe foi projetada para lidar com tarefas essenciais, como a inicialização e manutenção da conexão. Essa classe faz a transmissão dos dados recebidos à uma função designada \texttt{save\_data\_func}, assegurando que os dados sejam encaminhados para manipulação apropriada.
+Para o modulo de recebimento de dados, inicialmente, destaca-se a classe \texttt{SensorConnection}, cuja a função é gerenciar e manter a conexão com a rede de sensores. Essa classe faz a transmissão dos dados recebidos à uma função designada \texttt{save\_data\_func}, assegurando que os dados sejam encaminhados para manipulação apropriada.
 
 Na próxima parte da arquitetura, é utilizada a classe \texttt{IotSensorConnection}, que se origina da interface \texttt{IotSensorConnectionInterface}. Esta interface foi criada para garantir a adaptabilidade do sistema, facilitando a integração de diferentes tipos de recebimentos de dados, como por exemplo, uma classe destinada a gerar dados dos sensores em um ambiente de desenvolvimento, onde não há acesso ao sensor real. A classe \texttt{IotSensorConnection}, quando instanciada, é encarregada de estabelecer a conexão, e criar uma nova thread que opera como um ouvinte ativo, monitorando a chegada de novas informações. Ao perceber a recepção de novos dados, a classe direciona estas informações para uma terceira entidade, a qual detém a responsabilidade de aplicar as regras de negócio.
 
-Esta terceira entidade é a classe \texttt{SensorsRepository}, que quando acionada com dados oriundos dos sensores, tem a responsabilidade de avaliar a informação com base nos parâmetros estabelecidos, decidindo se é imperativo acionar um alerta, e tornar os dados do sensor acessíveis via API, garantindo que esses dados estejam disponíveis para serem transmitidos em tempo real, via stream, para todos os usuários conectados. Além do mais, o dado é salvo no banco de dados, especificamente na coleção de dados brutos do data lake, \texttt{Raw Data}. Uma vez salvos no banco de dados, estes dados brutos estão disponíveis para serem processados pelo módulo de agregação.
+Esta terceira entidade é a classe \texttt{SensorsRepository}, que quando acionada com dados oriundos dos sensores, tem a responsabilidade de avaliar a informação com base nos parâmetros estabelecidos, decidindo se é necessário acionar um alerta, e tornar os dados do sensor acessíveis via API, garantindo que esses dados estejam disponíveis para serem transmitidos em tempo real, via stream, para todos os usuários conectados. Além do mais, o dado é salvo no banco de dados, especificamente na coleção de dados brutos do data lake, \texttt{Raw Data}. Uma vez salvos no banco de dados, estes dados brutos estão disponíveis para serem processados pelo módulo de processamento.
 
 A disponibilização dos dados pela classe \texttt{SensorsRepository} acontece por meio da instancia da classe \texttt{SensorValue}, que com o método \texttt{update\_current\_sensor\_value} atualiza os dados em memoria que são acessados pelos usuários conectados.
 
@@ -59,7 +59,7 @@ O módulo de processamento de dados foi desenvolvido para garantir que os dados 
 
 O código é executado quando é invocada uma função específica encarregada de realizar uma série de operações. Primeiramente, uma lista é constituída contendo as coleções do banco de dados responsáveis pelo armazenamento tanto dos dados brutos quanto dos dados já processados. Simultaneamente, uma segunda lista é gerada, representando as máquinas que enviaram informações para o sistema.
 
-Com essas listas em mãos, inicia-se um procedimento iterativo. Para cada máquina identificada, os dados disponíveis são lidos, submetidos a um processo de análise estatística, após o qual os resultados obtidos são registrados na coleção de dados processados. Essa análise estatística adota o método do Box Plot.
+Com essas listas, inicia-se um procedimento iterativo, em que, para cada máquina identificada, os dados disponíveis são lidos, submetidos a um processo de análise estatística, após o qual os resultados obtidos são registrados na coleção de dados processados. Essa análise estatística adota o método do Box Plot.
 
 %TODO Referencia para um artigo explicando sobre boxPlot
 O Box Plot, também conhecido como diagrama de caixa, é uma ferramenta gráfica utilizada para representar a variação de dados observados de uma variável numérica por meio de quartis. Na figura ~\ref{fig:boxplot}, pode ser visto o retângulo formado pelo primeiro quartil (Q1), mediana e terceiro quartil (Q3), que fornecem uma noção sobre a centralidade e dispersão dos dados, enquanto as "antenas" estendem-se para mostrar a amplitude completa dos dados, ajudando assim na identificação de possíveis outliers.
@@ -137,10 +137,12 @@ Containers são tecnologias que permitem isolar aplicações em ambientes espec�
 %TODO Referencia para o docker
 Dentro do universo dos containers, o \textit{Docker} foi a ferramenta selecionada para este projeto. Diversos fatores influenciaram essa decisão, incluindo uma documentação abrangente, uma comunidade ativa e a presença de uma ampla variedade de conteúdos disponíveis. Além disso, o Docker simplifica a definição, criação e execução de containers, tornando-se uma solução robusta para a implantação de aplicações.
 
-O sistema adota diversos containers para organizar e gerenciar as várias partes da aplicação:
+O sistema adota alguns containers para organizar e gerenciar as várias partes da aplicação:
 \begin{itemize}
     \item \textbf{Frontend}: Um container dedicado ao frontend, construído com \textit{NextJs}.
-    \item \textbf{Backend}: Dividido em dois containers distintos, um abrange a API e o módulo de recebimento de dados, enquanto o segundo é voltado especificamente para o módulo de processamento.
+    \item \textbf{Backend}: Dividido em dois containers distintos:
+	\subitem Um que abrange a API e o módulo de recebimento de dados;
+	\subitem E outro que é voltado especificamente para o módulo de processamento de dados;
     \item \textbf{Banco de Dados}: Um container para o banco de dados MongoDB, garantindo isolamento e eficiência na gestão dos dados.
 \end{itemize}
 
@@ -162,12 +164,11 @@ A utilização de containers no projeto trouxe vantagens. Primeiramente, garanti
 
 %TODO referencia para o NGINX
 %TODO Sigla NGINX
-Dentro da arquitetura proposta, com containers executando diferentes partes da aplicação, 
-foi utilizado o \textit{NGINX} para ser o intermediário no tráfego de requisições, assegurando a distribuição correta para cada container. 
+Dentro da arquitetura proposta, com containers executando diferentes partes da aplicação, foi utilizado o \textit{NGINX} para ser o intermediário no tráfego de requisições, assegurando a distribuição correta das solicitações para cada container. 
 
 O método empregado para tal é o de proxy reverso. Em termos simples, o proxy reverso atua como uma interface entre o cliente e vários servidores, direcionando as solicitações dos clientes ao servidor adequado  (no contexto desse projeto, os containers), e assim, otimizando o uso dos recursos e garantindo uma resposta mais rápida e eficiente.
 
-No que se refere a requisições específicas, aquelas que envolvem retorno em formato de stream ou estabelecem uma conexão \textit{WebSocket}, as configurações específicas foram feitas na configuração do \textit{NGINX}, sendo essas detalhadas no capítulo ~\ref{cap:implementation},  dedicado à implementação. Ao receber uma requisição, o servidor \textit{NGINX} identifica, com base nela, qual container é o responsável pelo atendimento. Após essa identificação, são aplicadas as configurações adequadas, e a requisição é direcionada ao container correspondente para obter a resposta. Esse workflow pode ser visto na figura ~\ref{fig:nginx_workflow}.
+No que se refere a requisições específicas, aquelas que envolvem retorno em formato de stream ou estabelecem uma conexão \textit{WebSocket}, as configurações específicas foram feitas na configuração do \textit{NGINX}, sendo essas detalhadas no capítulo~\ref{cap:implementation},  dedicado à implementação. Ao receber uma requisição, o servidor \textit{NGINX} identifica, com base nela, qual container é o responsável pelo atendimento. Após essa identificação, são aplicadas as configurações adequadas, e a requisição é direcionada ao container correspondente para obter a resposta. Esse workflow pode ser visto na figura ~\ref{fig:nginx_workflow}.
 
 \begin{figure}[htbp]
 	\centering

@@ -1,24 +1,25 @@
 \chapter{Conclusão e Trabalhos Futuros}\label{chap:conclusion_and_future_work}
 
-Este capítulo representa a etapa final da presente dissertação e tem como objetivo proporcionar uma síntese do trabalho realizado. O capítulo está estruturado em diversas seções, que incluem um "Resumo" do projeto, uma discussão sobre as "Limitações do Sistema" e finalmente, "Sugestões para Trabalhos Futuros". 
+O capítulo está estruturado nas seções "Resumo" do projeto, uma discussão sobre as "Limitações do Sistema" e finalmente, "Sugestões para Trabalhos Futuros". 
 
 A construção do sistema é considerada bem-sucedida, servindo como um marco inicial para futuras implementações e adaptações. Os próximos passos para o avanço deste projeto incluem a colocação do sistema em um ambiente de produção, seguida pela coleta de feedback de usuários. Esta abordagem permitirá um processo incremental de aprendizagem, no qual o sistema será constantemente aprimorado com base nas experiências adquiridas e nas necessidades identificadas. 
 
-Ao longo das próximas seções, o sistema será resumidos, avaliadas as suas limitações e identificada as direções para futuras investigações e melhorias no sistema. Desta forma, este capítulo serve como uma recapitulação e um ponto de partida para futuras iniciativas que buscam tornar o sistema cada vez mais eficaz.
-
-
 \section{Resumo}\label{sec:summary}
+%TODO ref arquitetura
+Nesta dissertação, foi desenvolvido um sistema multifuncional destinado à coleta, armazenamento, processamento e visualização de dados gerados por sensores. Utilizou-se Python para a criação da API e do módulo de processamento, MongoDB para o gerenciamento do banco de dados e NextJs para a construção do painel de controle, conhecido como \emph{dashboard}. A arquitetura do sistema pode ser vista em X.
 
-Nesta dissertação, foi desenvolvido um sistema multifuncional destinado à coleta, armazenamento, processamento e visualização de dados gerados por sensores. Utilizou-se Python para a criação da API e do módulo de processamento, MongoDB para o gerenciamento do banco de dados e NextJs para a construção do painel de controle, conhecido como \emph{dashboard}.
+%TODO ref modulo de recebimento
+Os dados foram recebidos através de uma conexão multicast estabelecida pelo módulo de recebimento de dados REF X. Uma vez recebidos, os dados foram imediatamente submetidos a uma análise preliminar para identificar qualquer condição que pudesse acionar um alerta. Caso um alerta fosse gerado, os usuários eram notificados, permitindo intervenções rápidas e eficazes.
 
-Os dados foram recebidos através de uma conexão multicast estabelecida pelo módulo de recebimento de dados. Uma vez recebidos, os dados foram imediatamente submetidos a uma análise preliminar para identificar qualquer condição que pudesse acionar um alerta. Caso um alerta fosse gerado, os usuários eram notificados, permitindo intervenções rápidas e eficazes.
+%TODO ref modulo processamento
+Para a análise de dados históricos, empregou-se o método BoxPlot no módulo de processamento REF X. Esta análise objetivou a identificação de padrões e anomalias nos dados coletados ao longo do tempo, fornecendo insights valiosos para a operação e manutenção das máquinas monitoradas.
 
-Para a análise de dados históricos, empregou-se o método BoxPlot no módulo de processamento. Esta análise objetivou a identificação de padrões e anomalias nos dados coletados ao longo do tempo, fornecendo insights valiosos para a operação e manutenção das máquinas monitoradas.
+%TODO Sigla JWT, API
+%TODO ref impl API
+A API, descrita em X, desempenhou um papel crucial no sistema, gerenciando o acesso aos dados. A segurança foi assegurada através da implementação de autenticação por JWT (JSON Web Token), e vários \emph{endpoints} foram desenvolvidos para permitir um acesso eficaz aos dados.
 
-%TODO Sigla JWT
-A API desempenhou um papel crucial no sistema, gerenciando o acesso aos dados. A segurança foi assegurada através da implementação de autenticação por JWT (JSON Web Token), e vários \emph{endpoints} foram desenvolvidos para permitir um acesso eficaz aos dados.
-
-O \emph{frontend}, por sua vez, foi responsável por exibir informações em tempo real, alertas gerados e dados processados em forma de gráficos. Este painel se mostrou uma ferramenta indispensável para a interpretação rápida e eficiente dos dados coletados e analisados pelo sistema.
+%TODO ref impl front
+O \emph{frontend}, descrito em X,por sua vez, foi responsável por exibir informações em tempo real, alertas gerados e dados processados em forma de gráficos. Este painel se mostrou uma ferramenta indispensável para a interpretação rápida e eficiente dos dados coletados e analisados pelo sistema.
 
 \section{Limitações do Sistema}\label{sec:limitations}
 
@@ -46,14 +47,11 @@ A implementação de um sistema de manutenção preditiva baseado em inteligênc
 
 O monitoramento abrangente do sistema e a manutenção de logs de atividades são aspectos cruciais para a sustentabilidade e escalabilidade do sistema. A ausência de um sistema de logs bem estruturado pode resultar em dificuldades na identificação e resolução de problemas que podem surgir durante o funcionamento do sistema em tempo real. Nesse contexto, três áreas principais são identificadas onde o monitoramento e os logs poderiam fornecer insights valiosos para aprimoramento contínuo.
 
-\subsubsection{Log para Recebimento de Dados}
-
-Seria vantajoso manter um registro abrangente das transações de dados entre os sensores e o módulo de recebimento de dados. Esses logs poderiam incluir informações como data e hora da transação, identificação do sensor, e qualquer anomalia ou falha durante o processo de recebimento. Isso facilitaria a verificação da integridade dos dados recebidos e ajudaria na detecção precoce de possíveis problemas no hardware ou na conectividade da rede.
+Além disso, seria vantajoso manter um registro abrangente das transações de dados entre os sensores e o módulo de recebimento de dados. Esses logs poderiam incluir informações como data e hora da transação, identificação do sensor, e qualquer anomalia ou falha durante o processo de recebimento. Isso facilitaria a verificação da integridade dos dados recebidos e ajudaria na detecção precoce de possíveis problemas no hardware ou na conectividade da rede.
 
 \subsubsection{Log para Análise Estatística}
 
 O módulo de processamento de dados, responsável pela análise estatística, também seria beneficiado por um sistema de logs. Detalhes sobre a execução do BoxPlot ou qualquer outra análise estatística poderiam ser registrados. Isso inclui informações como o número de pontos de dados analisados, quaisquer outliers detectados, e o tempo levado para a execução da análise. Com essas informações, seria possível refinar mais o algoritmo de análise e identificar áreas para otimização.
-
 
 \subsection{Parâmetros Dinâmicos para Alertas}
 
@@ -67,7 +65,7 @@ Com a implementação de parâmetros dinâmicos, os usuários poderiam responder
 
 \subsection{Generalização para Outros Contextos}
 
-O sistema desenvolvido foi projetado inicialmente para um ambiente industrial específico. Embora eficaz nesse contexto, a transferência direta do sistema para outras áreas industriais pode não ser trivial. Portanto, a generalização do sistema para outros contextos industriais é identificada como uma área de interesse para trabalhos futuros.
+O sistema desenvolvido foi projetado inicialmente para um ambiente industrial específico. Embora eficaz nesse contexto, a transferência direta do sistema para outras áreas industriais pode não ser trivial. Portanto, a generalização do sistema para outros contextos é identificada como uma área de interesse para trabalhos futuros.
 
 O módulo de recebimento de dados atualmente requer personalização específica para cada contexto industrial. Além disso, o sistema foi projetado para analisar dados que contêm um campo de identificação e um valor numérico. A falta desses campos poderia dificultar ou inviabilizar a adaptação do sistema em ambientes que exigem o tratamento de diferentes tipos de dados.
 
@@ -77,7 +75,6 @@ Pesquisas futuras poderiam explorar métodos para tornar o módulo de recebiment
 %TODO ref para artigo que mostra que o uso de dados está mais critico e mandatório para as empresas
 A capacidade de adaptar o sistema para diferentes contextos industriais não só aumentaria sua aplicabilidade, mas também poderia levar a melhorias na eficiência de operações industriais em uma variedade de setores. Isso é particularmente relevante em um cenário em que a indústria 4.0 e a Internet das Coisas estão ganhando impulso, e a análise de dados em tempo real torna-se cada vez mais crítica para a competitividade empresarial.
 
-%++++++++++++++
 \subsection{Otimização de Performance}
 
 A capacidade do sistema de escalar e operar eficientemente sob carga elevada não foi amplamente testada. Em particular, há preocupações relativas ao desempenho quando um grande número de máquinas está conectado e enviando dados simultaneamente, bem como à capacidade do frontend de exibir múltiplos dados em tempo real.
@@ -99,7 +96,7 @@ Dada a natureza em constante evolução do desenvolvimento de software, a atuali
 
 Um dos recursos mais promissores disponíveis nas versões mais recentes do Next.js é o conceito de Server Components. Esses componentes permitem uma renderização mais eficiente dos elementos da interface do usuário, já que eles são processados no servidor e enviados para o cliente como HTML puro. Isso reduz a carga no navegador e pode melhorar significativamente a velocidade e a eficiência da aplicação.
 
-Além disso, a nova arquitetura oferece oportunidades mais robustas para cacheamento. Isso é particularmente útil no contexto deste sistema, onde o módulo de processamento roda em intervalos específicos. Os gráficos e outros elementos visuais podem ser cacheados no servidor, otimizando a experiência do usuário ao acessar dados atualizados.
+Além disso, a nova arquitetura oferece oportunidades mais robustas para cacheamento. Isso é particularmente útil no contexto deste sistema, onde o módulo de processamento roda em intervalos específicos, portanto os gráficos e outros elementos visuais podem ser cacheados no servidor, otimizando a experiência do usuário ao acessar dados atualizados.
 
 É importante notar que atualizações de tecnologia como essas exigem um período de transição e testes rigorosos para garantir que a compatibilidade entre os diferentes elementos do sistema seja mantida. Portanto, um plano de migração bem estruturado e fases de teste são essenciais para implementar com sucesso qualquer atualização.
 

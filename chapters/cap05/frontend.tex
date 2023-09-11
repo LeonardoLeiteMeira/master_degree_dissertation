@@ -1,7 +1,7 @@
 \section[Implementação do frontend]{Implementação do frontend}
 %TODO referencia para o Next
 %TODO referencia para a arquitetura do front
-A implementação da interface de usuário, foi desenvolvida de acordo com a arquitetura exposta na seção X. O desenvolvimento do \textit{frontend} é segmentado em várias partes, que incluem a organização das páginas do sistema conforme a estrutura pré definida do Next.js, o gerenciamento de dados acessados pelos componentes, a configuração para acesso externo, a manipulação e o acesso às imagens (\textit{assets}), e a construção dos componentes individuais.
+A implementação da interface de usuário, foi desenvolvida de acordo com a arquitetura exposta na seção X. O desenvolvimento do \textit{frontend} é segmentado em várias partes, que incluem a organização das páginas do sistema conforme a estrutura pré definida do Next.js, o gerenciamento de dados acessados pelos componentes, a configuração para acesso externo, e a construção dos componentes individuais.
 
 É relevante notar que, para manter a conformidade com as melhores práticas e simplificar o desenvolvimento, as configurações padrão do Next.js foram mantidas.
 
@@ -326,7 +326,7 @@ baseApi.interceptors.request.use(function (config) {
 });
 \end{verbatim}
 
-As funções dessa camada utiliza essa configuração base para realizar a busca dos dados no backend. Na função abaixo é exemplificado um dessas funções da mama de acesso externo para buscar os dados de um determinado gráfico. A função utiliza a configuração base do \texttt{axios} junto com uma url especifica para acesso ao endpoint desejado para buscar as informações. Se o retorno estiver com o \texttt{status code} igual a 200 significa que a requsição foi bem sucedida, então os dados são retornados para o contexto que fez a chamada dessa função. O contexto recebe os dados e disponibiliza para toda a aplicação, como explicado em ~\ref{subsec:contextApi}.
+As funções dessa camada utiliza essa configuração base para realizar a busca dos dados no backend. Na função abaixo é exemplificado um dessas funções de acesso externo para buscar os dados de um determinado gráfico. A função utiliza a configuração base do \texttt{axios} junto com uma url especifica para acesso ao endpoint desejado para buscar as informações. Se o retorno estiver com o \texttt{status code} igual a 200 significa que a requsição foi bem sucedida, então os dados são retornados para o contexto que fez a chamada dessa função. O contexto recebe os dados e disponibiliza para toda a aplicação, como explicado em ~\ref{subsec:contextApi}.
 
 \begin{verbatim}
 async function getGraphData(

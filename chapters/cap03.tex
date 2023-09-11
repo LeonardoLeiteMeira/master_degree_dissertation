@@ -32,7 +32,7 @@ Ao receber os dados enviados pelos sensores, os sistema deve exibir em tela os v
 Cada sensor deverá ter um valor máximo ideal para o funcionamento. Ele servirá de parâmetro para entender se o valor lido pelo sensor indica um bom ou mal funcionamento da máquina.
 
 \subsubsection{FR5 - O sistema deve identificar sempre que um valor lido pelo sensor não estiver abaixo do valor ideal}
-Esse requisito refere-se à capacidade do sistema de detectar, de forma automática, toda vez que o sensor indicar um valor que não esteja abaixo dO limite pré definido. Isto é, se o valor ideal for X, e o sensor ler um valor maior ou igual a X, o sistema reconhecerá esta situação.
+Esse requisito refere-se à capacidade do sistema de detectar, de forma automática, toda vez que o sensor indicar um valor que não esteja abaixo do limite pré definido. Isto é, se o valor ideal for X, e o sensor ler um valor maior ou igual a X, o sistema reconhecerá esta situação.
 
 \subsubsection{FR6 - O sistema deve registrar sempre que um valor lido pelo sensor não estiver de acordo com o valor ideal}
 Esse requisito implica que o sistema deve manter um registro de todos os momentos em que o valor detectado pelo sensor não estiver abaixo do valor ideal armazenado.
@@ -89,7 +89,7 @@ A arquitetura do sistema deve ser modular, possibilitando a integração e a adi
 
 %TODO sigla SOLID
 \subsubsection{NFR6 - Manutenibilidade}
-Priorizando a longevidade e facilidade de manutenção, o sistema deve ser desenvolvido seguindo boas práticas de programação e os princípios do SOLID. Isso facilitará futuras modificações, expansões e a correção de eventuais problemas.
+Priorizando a longevidade e facilidade de manutenção, o sistema deve ser desenvolvido seguindo boas práticas de programação e modularização do sistema. Isso facilitará futuras modificações, expansões e a correção de eventuais problemas.
 
 \subsubsection{NFR7 - Escalabilidade de sensores e máquinas}
 O design do sistema deve ser capaz de lidar com um crescente volume de sensores e máquinas, garantindo que não haja degradação de performance ou falhas quando a demanda por recursos aumentar.
@@ -106,11 +106,11 @@ A interface do sistema e seus componentes devem ser projetados considerando prin
 %- Recebimento dos dados pelo protocolo feito pelo outro professor
 %- protocolo esse que decodifico as informações e disponibilizo para uso
 
-%TODO Referencia para o outro projeto com os sensores e protocolos
-Dentro do contexto do projeto, a forma como os dados dos sensores são coletados e armazenados influenciam muito no funcionamento do sistema, pois é a partir deles que todo o sistema é estruturado. Dessa forma foi utilizado como base um protocolo desenvolvido em outro projeto, que transmite todas as informações necessárias para o contexto desse projeto. Dentro do sistema em questão, ficou a responsabilidade de implementar o decodificador para o determinado protocolo.
+%TODO Referencia para o outro projeto com os sensores e protocolos - Referenciar o Attract 
+%TODO Sigla Attract
+Dentro do contexto do projeto, a forma como os dados dos sensores são coletados e armazenados influenciam muito no funcionamento do sistema, pois é a partir deles que todo o sistema é estruturado. Dessa forma foi utilizado como base um protocolo desenvolvido em outro projeto dentro do mesmo contexto do \texttt{Projeto Attract}, que transmite todas as informações necessárias para o contexto desse projeto. Dentro do sistema em questão, ficou a responsabilidade de implementar o decodificador para o determinado protocolo.
 
-%TODO Sigla IPB
-O protocolo utilizado foi desenvolvido dentro do mesmo contexto desse projeto, dentro do IPB, para atender uma demanda da mesma empresa, portanto ele se tornou a opção mais ideal, otimizando a comunicação entre os sensores e o sistema. O formato é estruturado de forma a representar as informações pertinentes à máquina, ao tipo de comunicação, ao sensor e ao significado dos dados transmitidos, seguindo o seguinte formato:
+O formato do protocolo é estruturado de forma a representar as informações pertinentes à máquina, ao tipo de comunicação, ao sensor e ao significado dos dados transmitidos, seguindo o seguinte formato:
 
 \subsubsection{Machine ID (2 bytes)}
 
@@ -168,11 +168,11 @@ Este campo representa os dados transmitidos pelo sensor. A especificação exata
 
 
 \section[Processo de desenvolvimento do software]{Processo de desenvolvimento do software}
-Com a definição clara dos requisitos do sistema e da forma como os dados lidos pelos sensores são transmitidos, foi definido o processo de como o projeto seria desenvolvido. Esse processo de desenvolvimento passa pela definição das histórias de usuário, organização das atividades, organização da documentação, configuração dos repositórios no GitHub e reuniões periódicas com o professor e com a empresa para discutir o andamento.
+Com a definição clara dos requisitos do sistema e da forma como os dados lidos pelos sensores são transmitidos, foi definido o processo de como o projeto seria desenvolvido. Esse processo de desenvolvimento passa pela definição das histórias de usuário, organização das atividades, organização da documentação, configuração dos repositórios no GitHub e reuniões periódicas com o professor orientador e com a empresa para discutir o andamento.
 
 \subsection{Histórias de Usuário}
 %TODO artigo falando sobre desenvolvimento agil e-ou historias de usuario
-No desenvolvimento ágil de software, uma das abordagens mais centradas no usuário entendimento das funcionalidades do sistema e dos requisitos é a utilização de \textit{histórias de usuário} (ou \textit{user stories} em inglês). Estas são descrições curtas, simples e informais do ponto de vista de um usuário final, capturando o que eles necessitam ou desejam fazer no software.
+No desenvolvimento ágil de software, uma das abordagens mais centradas no usuário entendimento das funcionalidades do sistema e dos requisitos é a utilização de \textit{histórias de usuário}. Estas são descrições curtas, simples e informais do ponto de vista de um usuário final, capturando o que eles necessitam ou desejam fazer no software.
 
 A estrutura típica de uma história de usuário é: "Como [tipo de usuário], eu quero [uma ação] para que [um benefício/resultado]". Esta estrutura ajuda a manter o foco nas necessidades e desejos do usuário, em vez de mergulhar prematuramente em soluções técnicas ou detalhes de implementação.
 
@@ -195,7 +195,6 @@ Com essa definição de historias de usuário, foi definido os seguintes itens q
     \item As a user, I should be able to view the system information (dashboards) on different screen sizes so that I can display the information in different contexts.
 \end{enumerate}
 
-%TODO algo sobre critérios de aceite
 Cada uma dessas historias de usuário foi detalhada melhor na organização das tarefas, incluindo uma descrição mais completa, possíveis regras de negócio, quais requisitos, funcionais e não funcionais, ela se referencia, e também critérios de aceite. A organização das atividades está detalhada na seção \ref{sec:taskOrganization}.
 
 
@@ -257,7 +256,7 @@ Para ilustrar este processo, é detalhado a história de usuário número 1.
             \begin{itemize}
                 \item Desenhar a interface da tela de login.
                 \item Construção da interface de login no repositório.
-                \item Implementar a lógica de criação de3 usuário com hash de senha.
+                \item Implementar a lógica de criação de usuário com hash de senha.
                 \item Implementar a lógica de autenticação no backend com JWT Token.
                 \item Testar a segurança e eficácia da funcionalidade de login.
                 \item Testar se a API está retornando os códigos HTTP corretamente.
@@ -284,17 +283,17 @@ Além disso, o design interno de cada página é fundamentado na estrutura do ma
 %TODO colocar referencia para o github
 A escolha da plataforma para gerenciamento dos repositórios do projeto foi o GitHub, uma das mais renomadas e amplamente adotadas plataformas de controle de versão baseada em Git disponíveis atualmente. A decisão de utilizar o GitHub foi pautada em alguns fatores. Primeiramente, a plataforma oferece uma interface intuitiva e um conjunto robusto de ferramentas que facilitam o acompanhamento do progresso do código, bem como a colaboração entre diferentes membros da equipe. Além disso, o GitHub é amplamente reconhecido por sua comunidade ativa, o que se traduz em uma vasta gama de recursos, tutoriais e suporte disponível, essencial para resolver possíveis dúvidas e desafios. Ademais, a integração com outras ferramentas e plataformas é facilmente realizável caso fosse necessário, permitindo um fluxo de trabalho contínuo e otimizado. Por fim, o compromisso do GitHub com a segurança, garantindo a integridade do código e dos dados do projeto, reforçou nossa decisão em adotá-lo como a solução de controle de versão para o projeto desenvolvido. 
 
-Nesse contexto, os repositórios criados para esse projeto foram \texttt{backend}, que armazena o código referente a API do sistema, outro chamado \texttt{frontend}, que armazena o código do dashboard que é exibido na web, e outro chamado \texttt{iot\_sensors\_data\_aggregation}, responsável por armazenar o código que realiza a agregação dos dados recebidos pelos sensores.
+Nesse contexto, os repositórios criados para esse projeto foram \texttt{backend}, que armazena o código referente a API do sistema, outro chamado \texttt{frontend}, que armazena o código do dashboard que é exibido na web, e outro chamado \texttt{iot\_sensors\_data\_aggregation}, responsável por armazenar o código que realiza a agregação dos dados recebidos pelos sensores, o Modulo de Processamento dos Dados.
 
 
 \subsection{Reuniões periódicas}
-O desenvolvimento do projeto foi acompanhado por reuniões para garantir seu alinhamento com os objetivos do projeto. Reuniões semanais com o professor orientador foram estabelecidas, garantindo uma constante revisão, momento para tirar dúvidas, e realizar o detalhamento de atividades. Estes encontros proporcionaram um feedback contínuo, possibilitando a correção de trajetória e o foco no progresso desejado para o projeto. Paralelamente, reuniões mensais foram conduzidas com a empresa financiadora do projeto, para apresentar o que estava sendo construído, pegar feedbacks, orientações sobre funcionalidades desejadas, e também entender melhor como funciona a empresa e suas necessidades.
+O desenvolvimento do projeto foi acompanhado por reuniões para garantir seu alinhamento com os objetivos do projeto. Reuniões semanais com o professor orientador foram estabelecidas, garantindo uma constante revisão, momento para tirar dúvidas, e realizar o detalhamento de atividades. Estes encontros proporcionaram um feedback contínuo, possibilitando a correção de trajetória e o foco no progresso desejado para o projeto. Paralelamente, reuniões mensais foram conduzidas com a empresa interessada, para apresentar o que estava sendo construído, pegar feedbacks, orientações sobre funcionalidades desejadas, e também entender melhor como funciona a empresa e suas necessidades.
 
 Esses encontros desempenharam um papel fundamental na integração entre a pesquisa acadêmica e as necessidades práticas da indústria, buscando que as soluções desenvolvidas se mantivessem pertinentes e aplicáveis ao contexto empresarial. Este sistema de supervisão foi crucial para manter o projeto em seu curso, balanceando as necessidades acadêmicas com a aplicabilidade industrial dentro do contexto da empresa.
 
 
 \section[Tecnologias]{Tecnologias}
-A seleção de tecnologias foi realizada para atender a requisitos específicos de escalabilidade e sustentabilidade a longo prazo. Dado que o sistema é primariamente voltado para armazenamento e gestão de dados, foi antecipada sua utilização como referência para futuros projetos de características similares. Por isso, a ênfase recaiu sobre tecnologias modernas, amplamente reconhecidas e com robusto suporte na comunidade de desenvolvimento.
+A seleção de tecnologias foi realizada para atender a requisitos específicos de escalabilidade e sustentabilidade a longo prazo. Dado que o sistema é primariamente voltado para armazenamento e gestão de dados, foi antecipada sua utilização como referência para futuros projetos de características similares, por isso, a ênfase recaiu sobre tecnologias modernas, amplamente reconhecidas e com robusto suporte na comunidade de desenvolvimento.
 
 Nesse contexto, o MongoDB foi escolhido como nossa solução de banco de dados não relacional, devido à sua flexibilidade e performance. Python foi adotado como linguagem para o backend, devido à sua versatilidade e ampla biblioteca. O framework FastAPI, por sua vez, foi empregado para a elaboração da API, graças à sua eficiência e facilidade de integração. No âmbito do frontend, a linguagem JavaScript foi complementada pelo framework NextJs, reconhecido por sua otimização e recursos avançados. Para garantir uma integração fluida e modulada dos componentes do sistema, foi utilizado ao uso de containers Docker, enquanto o gerenciamento eficiente do servidor web foi assegurado pelo NGINX.
 
@@ -319,7 +318,7 @@ Na etapa de implementação do backend, decidiu-se empregar a linguagem Python, 
 \subsection{NextJs}
 %TODO colocar referencia para a documentação do Next
 %TODO colocar referencia para a documentação do React
-Para a arquitetura do frontend, optou-se pelo uso do Next.js, um framework que aprimora significativamente a interação com o React, tal como enfatizado na própria documentação oficial do React. O suporte comunitário é uma de suas principais características, sendo amplamente complementado por uma oferta de materiais educativos disponíveis na internet - desde tutoriais a artigos de blog e vídeos instrucionais - os quais contribuíram de maneira essencial para o processo de aprendizado.
+Para a arquitetura do frontend, optou-se pelo uso do Next.js, um framework que aprimora significativamente a interação com a biblioteca React do JavaScript, tal como enfatizado na própria documentação oficial do React. O suporte comunitário é uma de suas principais características, sendo amplamente complementado por uma oferta de materiais educativos disponíveis na internet - desde tutoriais a artigos de blog e vídeos instrucionais - os quais contribuíram de maneira essencial para o processo de aprendizado.
 
 No escopo desse projeto, paralelamente ao Next.js, incorporou-se o TypeScript, que por sua natureza de tipagem estática, proporciona uma manutenção do código mais intuitiva, incrementando sua legibilidade, simplificando sua compreensão e gerenciamento.
 
@@ -341,4 +340,4 @@ A ampla documentação disponível, juntamente com uma comunidade ativa, proporc
 %TODO colocar referencia para a artigos sobre a eficiência do NGINX
 Para a parte de gestão das solicitações web, adotou-se o NGINX como servidor web. O NGINX é reconhecido por sua alta performance, confiabilidade e flexibilidade, sendo uma escolha adequada em ambientes de produção que demandam baixa latência, tratamento eficiente de um grande número de conexões simultâneas, e com capacidade de servir conteúdo estático de maneira extremamente rápida. Essas características tornam-no particularmente adequado para sistemas que visam escalabilidade e robustez. 
 
-A vasta documentação e os extensos recursos da comunidade foram essenciais para aprofundar o entendimento e aplicar as melhores práticas no contexto do projeto. Ao se considerar a necessidade de uma entrega consistente e otimizada do conteúdo ao usuário final, bem como uma configuração segura e eficaz do proxy, o NGINX emergiu como a escolha preeminente para esta dissertação de mestrado.
+A vasta documentação e os extensos recursos da comunidade foram essenciais para aprofundar o entendimento e aplicar as melhores práticas no contexto do projeto. Ao se considerar a necessidade de uma entrega consistente e otimizada do conteúdo ao usuário final, bem como uma configuração segura e eficaz do proxy, o NGINX se mostrou como a escolha preeminente para esta dissertação de mestrado.

@@ -1,7 +1,7 @@
 \section[Implementação do banco de dados]{Implementação do banco de dados}
 
 
-Dentro da implementação do sistema, o MongoDB foi usado para armazenar todas as informações do sistema. Este banco de dados, orientado a documentos, permitiu uma organização flexível dos dados, facilitando o armazenamento de diferentes dados que podem ser recebidos pelo modulo de recebimento de dados, e facilitando a criação de camadas de processamento. A estruturação dos bancos de dados e suas respectivas coleções foi pensada para facilitar tanto a inserção quanto a consulta de informações.
+Dentro da implementação do sistema, o MongoDB foi usado para armazenar todas as informações do sistema. Este banco de dados não relacional, permitiu uma organização flexível dos dados, facilitando o armazenamento de diferentes dados que podem ser recebidos pelo modulo de recebimento de dados, e facilitando a criação de camadas de processamento. A estruturação dos bancos de dados e suas respectivas coleções foi pensada para facilitar tanto a inserção quanto a consulta de informações.
 
 Em relação à organização dos dados, os seguintes bancos de dados foram criados:
 
@@ -19,7 +19,7 @@ Em relação à organização dos dados, os seguintes bancos de dados foram cria
     \item \textbf{Metadados}: Dedicado à armazenagem de metadados do sistema. Até o momento, a única coleção presente é a "AlertParameter", que reúne parâmetros utilizados para gerar alertas associados a cada sensor.
 \end{itemize}
 
-Com esta estruturação, busca-se não apenas organizar de forma lógica os dados, mas também otimizar operações de consulta e garantir uma expansão simplificada à medida que novas necessidades de armazenamento emergem no sistema. 
+Com esta estruturação, busca-se não apenas organizar de forma lógica os dados, mas também otimizar operações de consulta e garantir uma expansão simplificada à medida que é necessário armazenar novos dados no sistema.
 
 A implementação do acesso ao banco de dados está detalhada na seção de implementação da API, em ~\ref{subsubsec:DatabaseImpl}.
 

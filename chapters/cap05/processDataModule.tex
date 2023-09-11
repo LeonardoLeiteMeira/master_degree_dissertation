@@ -117,7 +117,9 @@ async def read_more_recente_data(self,
     date_time_field:str):
     try:
         temp_client = self.client
-        cursor = temp_client[IOT_PROCESSED_DATA][collection].find({"machine":machine}).sort([(date_time_field,pymongo.DESCENDING)])
+        cursor = temp_client[IOT_PROCESSED_DATA][collection]
+            .find({"machine":machine})
+            .sort([(date_time_field,pymongo.DESCENDING)])
         result:list = await cursor.to_list(None)
         return result[0] if len(result)!= 0 else None
     except Exception as ex:
@@ -136,7 +138,7 @@ def __build_query_with_limit_of_data(machine:str)->dict:
 \end{verbatim}
 
 
-No entanto, se dados processados recentes forem encontrados, a função a ser utilizada é a \texttt{\_\_build\_query\_with\_range\_of\_data()}. Esta função considera o registro processado mais recente e calcula um intervalo de tempo (\texttt{date\_limit\_to\_process\_data}) adicionando o período de agregação, definido por \texttt{AGGREGATION\_PERIOD\_IN\_HOURS}, à data desse registro mais recente. A \textit{query} gerada busca registros com \textit{timestamps} dentro desse intervalo de tempo e que correspondam à máquina especificada, com um limite máximo de 
+No entanto, se dados processados recentes forem encontrados, o que é esperado, a função a ser utilizada é a \texttt{\_\_build\_query\_with\_range\_of\_data()}. Esta função considera o registro processado mais recente e calcula um intervalo de tempo (\texttt{date\_limit\_to\_process\_data}) adicionando o período de agregação, definido por \texttt{AGGREGATION\_PERIOD\_IN\_HOURS}, à data desse registro mais recente. A \textit{query} gerada busca registros com \textit{timestamps} dentro desse intervalo de tempo e que correspondam à máquina especificada, com um limite máximo de 
 registros definido por \texttt{MAX\_VALUE\_BY\_PERIOD}.
 
 \begin{verbatim}
