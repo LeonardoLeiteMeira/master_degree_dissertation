@@ -102,7 +102,7 @@ async def __start_read_messages(self, save_data_func):
             break
 \end{verbatim}
 
-Após as configurações realizads, as mensagens são continuamente lidas e processadas pela função \texttt{\_\_start\_read\_messages}. Durante este processo, cada mensagem é processada pelo método \texttt{\_\_parse\_multicast\_message}, e se estiver no formato correto, é passada para uma função que irá salvar e disponibilizar para API enviar por streaming para os usuários conectados.
+Após as configurações realizads, as mensagens são continuamente lidas e processadas pela função \texttt{\_\_start\_read\_messages}. Durante este processo, cada mensagem é processada pelo método \texttt{\_\_parse\_multicast\_message}, e se estiver no formato correto, é passada para uma função que irá salvar e disponibilizar para \gls{API} enviar por streaming para os usuários conectados.
 
 Se ocorrer algum problema na execução desse método, ele é finalizado e volta para o \texttt{listen\_multicast\_messages}, onde o socket é fechado e uma nova conexão é estabelecida pelo método \texttt{\_\_reconnect}.
 
@@ -213,7 +213,7 @@ class IotSensorConnection(IotSensorConnectionInterface):
 \end{verbatim}
 
 %TODO Referencia para o helper de threads
-Ao iniciar a conexão, utilizando o método \texttt{start\_connection}, é criada uma nova thread por meio da classe \texttt{ThreadManager}. Esta thread invoca o método \texttt{listen\_multicast\_messages} da classe \texttt{SensorConnection} que foi detalhado na seção ~\ref{subsec:Conexão e recebimento dos dados}. É necessário criar uma nova thread pois como esse modulo está junto com a API, e é necessário que os dois processos funcionem ao mesmo tempo, uma nova thread foi necessária para o funcionamento em paralelo de ambos.
+Ao iniciar a conexão, utilizando o método \texttt{start\_connection}, é criada uma nova thread por meio da classe \texttt{ThreadManager}. Esta thread invoca o método \texttt{listen\_multicast\_messages} da classe \texttt{SensorConnection} que foi detalhado na seção ~\ref{subsec:Conexão e recebimento dos dados}. É necessário criar uma nova thread pois como esse modulo está junto com a \gls{API}, e é necessário que os dois processos funcionem ao mesmo tempo, uma nova thread foi necessária para o funcionamento em paralelo de ambos.
 
 \subsubsection{Verificação do formato dos dados}
 
@@ -415,7 +415,7 @@ class MachineData(BaseModel):
     sensor_data:list[IotData] = Field([])
 \end{verbatim}
 
-Dessa forma, o repositório envia as informações para esse método, e com a verificação adequada, é mantido os dados mais atualizados em memoria, e disponível para ser utilizado pela API, possibilitando o acesso em tempo real dos dados dos sensores.
+Dessa forma, o repositório envia as informações para esse método, e com a verificação adequada, é mantido os dados mais atualizados em memoria, e disponível para ser utilizado pela \gls{API}, possibilitando o acesso em tempo real dos dados dos sensores.
 
 
 \subsubsection{Verificação de notificação}
@@ -480,7 +480,7 @@ class MachinesSensorAlert(BaseModel):
     read_by:Optional[list[str]] = Field([])
 \end{verbatim}
 
-Importante destacar que dentro dessa instância que é mantida em memória, o atributo \texttt{read\_by} não é preenchido. Isso acontece pois esse atributo é usado para controlar os usuários que marcaram a notificação como lida, e assim identificar notificações lidas pelo usuário. Portanto, esse atributo é preenchido apenas no banco de dados, pelo modulo de notificações da API, mostrada em X.%TODO ref para subsection modulos da impl da API
+Importante destacar que dentro dessa instância que é mantida em memória, o atributo \texttt{read\_by} não é preenchido. Isso acontece pois esse atributo é usado para controlar os usuários que marcaram a notificação como lida, e assim identificar notificações lidas pelo usuário. Portanto, esse atributo é preenchido apenas no banco de dados, pelo modulo de notificações da \gls{API}, mostrada em X.%TODO ref para subsection modulos da impl da \gls{API}
 
 A primeira etapa realizada por este método é identificar a posição (ou índice) da máquina dentro da lista de alertas \texttt{machines\_alert} usando o método \texttt{index}. Uma vez obtido o índice, o tipo do sensor é adicionado à lista de sensores em estado de alerta da máquina, representada pelo atributo \texttt{sensors}. Além disso, este sensor também é adicionado ao histórico de sensores em estado de alerta da máquina, indicado pelo atributo \texttt{sensors\_historical}. Finalmente, a máquina atualizada (com o novo sensor adicionado às suas listas de alerta e histórico) é reinserida na lista principal \texttt{machines\_alert} na mesma posição identificada anteriormente.
 

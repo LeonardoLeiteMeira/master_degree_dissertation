@@ -1,29 +1,26 @@
 \section[Implementação da API]{Implementação da API}
-%Sigla API
-Como explicado na seção sobre a arquitetura ~\ref{subsec:apiArchitecture}, a API possui um divisão por módulos, e cada modulo segue uma estrutura pré definida, com uma camada de controller, responsável por receber as requisições HTTP, uma camada de service, responsável por tratar os dados e regras de negócio, e uma camada de respository, responsável por gerenciar o acesso ao banco de dados daquele modulo. 
+Como explicado na seção sobre a arquitetura ~\ref{subsec:apiArchitecture}, a \gls{API} possui um divisão por módulos, e cada modulo segue uma estrutura pré definida, com uma camada de controller, responsável por receber as requisições \gls{HTTP}, uma camada de service, responsável por tratar os dados e regras de negócio, e uma camada de respository, responsável por gerenciar o acesso ao banco de dados daquele modulo. 
 
-Além disso, a API possui também partes que são comuns a todos os módulos. A infraestrutura que tem a função de disponibilizar uma interface de acesso ao banco de dados, uma interface de acesso para envio de mensagens web socket, os meios de autenticação, e o gerenciador de threads. Os códigos comuns, que armazenam constantes, funções comuns que precisam ser padronizadas, e modelos de dados.
+Além disso, a \gls{API} possui também partes que são comuns a todos os módulos. A infraestrutura que tem a função de disponibilizar uma interface de acesso ao banco de dados, uma interface de acesso para envio de mensagens web socket, os meios de autenticação, e o gerenciador de threads. Os códigos comuns, que armazenam constantes, funções comuns que precisam ser padronizadas, e modelos de dados.
 
 Portanto, essa seção irá abordar cada uma dessas partes, passando primeiro pelas partes comuns do sistema e depois será mostrado como foi desenvolvido um modulo completo.
 
 \subsection{Inicialização}\label{subsec:main}
-A inicialização do sistema acontece por meio do arquivo \texttt{main.py}, que serve como o ponto de entrada para inicializar a API e o modulo de processamento de dados.
+A inicialização do sistema acontece por meio do arquivo \texttt{main.py}, que serve como o ponto de entrada para inicializar a \gls{API} e o modulo de processamento de dados.
 %TODO ref para o fastapi
-%TODO Sigla cors
-A biblioteca \texttt{FastAPI} é utilizada para criar a aplicação principal, aqui referida como \texttt{app}. O middleware \texttt{CORSMiddleware} é adicionado à aplicação \texttt{FastAPI}, permitindo uma configuração de CORS (Cross-Origin Resource Sharing) abrangente. Esta configuração faz com que a API possa ser acessada por diferentes origens.
+A biblioteca \texttt{FastAPI} é utilizada para criar a aplicação principal, aqui referida como \texttt{app}. O middleware \texttt{CORSMiddleware} é adicionado à aplicação \texttt{FastAPI}, permitindo uma configuração de \gls{CORS} (Cross-Origin Resource Sharing) abrangente. Esta configuração faz com que a \gls{API} possa ser acessada por diferentes origens.
 
-A importação do módulo \texttt{API\_data\_layer} não apenas incorpora as rotas relacionadas a esse módulo, mas também inicializa o módulo de recebimento de dados. Isso implica que a inicialização deste módulo ocorre simultaneamente ao carregamento da API, porem em uma thread separada, como detalhado em ~\ref{subsec:}.%TODO ref para a implementação do modulo de processamento de dados
+A importação do módulo \texttt{API\_data\_layer} não apenas incorpora as rotas relacionadas a esse módulo, mas também inicializa o módulo de recebimento de dados. Isso implica que a inicialização deste módulo ocorre simultaneamente ao carregamento da \gls{API}, porem em uma thread separada, como detalhado em ~\ref{subsec:}.%TODO ref para a implementação do modulo de processamento de dados
 
 Para o gerenciamento de metadados, uma instância do \texttt{MetadataRepository} é criada durante a inicialização. Este componente é essencial para o carregamento dos metadados que são utilizados em diferentes partes do sistema, como constantes e parâmetros de alarme.
 
-%TODO sigla API
 %TODO ref par o include router
-As rotas da API são então incluídas na aplicação principal através do método \texttt{include\_router} para diferentes módulos, como autenticação, análise de API, camada de dados, notificações e usuários.
+As rotas da \gls{API} são então incluídas na aplicação principal através do método \texttt{include\_router} para diferentes módulos, como autenticação, análise de API, camada de dados, notificações e usuários.
 
 Adicionalmente, o WebSocket é montado na raiz da aplicação através do objeto \texttt{socketio\_app}, possibilitando a comunicação em tempo real entre o servidor e os clientes. A implementação da conexão websocket pode ser vista em ~\ref{subsec:}.%TODO ref para a implementação da classe de conexão websocket
 
-%TODO singla ASGI
-A execução do arquivo se conclui com a inicialização do servidor \texttt{Uvicorn}, definindo o host e a porta para escuta. \texttt{Uvicorn} é um servidor ASGI (\textit{Asynchronous Server Gateway Interface}) que serve como a interface entre o código da aplicação e o servidor web. Ele é responsável por hospedar a aplicação \texttt{FastAPI} e escutar por conexões de entrada no host e na porta especificados. A escolha deste servidor foi pautada na recomendação da documentação do FastAPI.%TODO ref para a doc do fast api
+
+A execução do arquivo se conclui com a inicialização do servidor \texttt{Uvicorn}, definindo o host e a porta para escuta. \texttt{Uvicorn} é um servidor \gls{ASGI} que serve como a interface entre o código da aplicação e o servidor web. Ele é responsável por hospedar a aplicação \texttt{FastAPI} e escutar por conexões de entrada no host e na porta especificados. A escolha deste servidor foi pautada na recomendação da documentação do FastAPI.%TODO ref para a doc do fast api
 
 \begin{verbatim}
 from fastapi import FastAPI
@@ -75,13 +72,12 @@ A infraestrutura e composta de 4 sub-módulos, Autenticação, WebSocket, Conex�
 \subsubsection{Authetication}\label{subsubsec:auth}
 %TODO referencia para JWT
 %TODO referencia para auth do fastAPI
-%TODO sigla JWT
-A implementação da autenticação do sistema foi baseada na documentação oficial do FastAPI, portanto foi adotada uma abordagem baseada em tokens JWT (JSON Web Tokens). JWT é um padrão amplamente aceito para transmitir informações entre partes de maneira segura. A estrutura de um JWT é codificada e pode ser verificada para assegurar que os dados não foram alterados durante a transmissão. 
+A implementação da autenticação do sistema foi baseada na documentação oficial do FastAPI, portanto foi adotada uma abordagem baseada em tokens \gls{JWT}. O \gls{JWT} é um padrão amplamente aceito para transmitir informações entre partes de maneira segura. A estrutura de um \gls{JWT} é codificada e pode ser verificada para assegurar que os dados não foram alterados durante a transmissão. 
 
 O ponto de entrada para a autenticação é o \texttt{o\_auth2\_password\_bearer}, uma instância do OAuth2PasswordBearer que é designada para obter o token a partir do cabeçalho da requisição. O método \texttt{auth\_middleware} foi definido como um middleware assíncrono, que depende deste bearer token. Esse middleware é utilizado nos controllers para verificar se a requisição recebida tem ou não permissão para acessar as informações.
 
 
-Dentro deste middleware, a função \texttt{decode\_jwt\_token} é invocada para decodificar e validar o token JWT fornecido.
+Dentro deste middleware, a função \texttt{decode\_jwt\_token} é invocada para decodificar e validar o token \gls{JWT} fornecido.
 
 \begin{verbatim}
 o_auth2_password_bearer = OAuth2PasswordBearer(tokenUrl="/user/login")
@@ -98,7 +94,7 @@ async def auth_middleware(token:str = Depends(o_auth2_password_bearer))-> TokenP
         raise HTTPException(status_code=401, detail=Unauthorized().message)
 \end{verbatim}
 
-A função \texttt{decode\_jwt\_token} recebe um token como argumento e tenta decodificá-lo usando a chave secreta e o algoritmo especificados. Se o token for decodificado com sucesso e for do tipo "\texttt{access\_token}". Caso contrário, diferentes tipos de exceções podem ser levantadas, por exemplo, se o token estiver expirado ou se houver algum erro nas operações de JWT.
+A função \texttt{decode\_jwt\_token} recebe um token como argumento e tenta decodificá-lo usando a chave secreta e o algoritmo especificados. Se o token for decodificado com sucesso e for do tipo "\texttt{access\_token}". Caso contrário, diferentes tipos de exceções podem ser levantadas, por exemplo, se o token estiver expirado ou se houver algum erro nas operações de \gls{JWT}.
 
 \begin{verbatim}
 def decode_jwt_token(token:str)->Result[TokenPayload|None]:
@@ -234,13 +230,12 @@ def __decode_token(self,token:str)->dict:
 A implementação da conexão via WebSocket foi feita utilizando a biblioteca socket.io, que possui diversos recursos prontos que facilitam a gestão de conexões Web Socket, com por exemplo a criação de salas para disparo de notificações.
 
 %TODO se der tempo mudar a implementação para ver a autenticação
-A estrutura adotada para a gestão de conexões Web Socket foi feita de forma que o cliente deve efetuar uma requisição websocket ao \textit{endpoint} raiz da API para ser registrado em uma sala virtual específica. Após a conclusão bem-sucedida dessa solicitação, o cliente passa a receber todas as mensagens direcionadas à sala na qual foi cadastrado.
+A estrutura adotada para a gestão de conexões Web Socket foi feita de forma que o cliente deve efetuar uma requisição websocket ao \textit{endpoint} raiz da \gls{API} para ser registrado em uma sala virtual específica. Após a conclusão bem-sucedida dessa solicitação, o cliente passa a receber todas as mensagens direcionadas à sala na qual foi cadastrado.
 
 A implementação atual contempla apenas uma sala, destinada especificamente ao envio de notificações relacionadas ao funcionamento das máquinas. Esta sala é identificada pelo identificador \texttt{NOTIFICATION\_ROOM}. Essa constante armazena o valor "\texttt{Notification}", que é o nome da sala a ser conectada.
 
-%TODO Sigla ASGI
 %TODO Ref para a explicação de ASGI
-O modo assíncrono "asgi" selecionado para a criação do servidor, e as origens permitidas para \textit{CORS} definidas como vazias.
+O modo assíncrono \gls{ASGI} selecionado para a criação do servidor, e as origens permitidas para \textit{CORS} definidas como vazias.
 
 \begin{verbatim}
 socket_io_server = AsyncServer(async_mode="asgi",
@@ -256,9 +251,8 @@ async def connect(sid, environ, auth):
     socket_io_server.enter_room(sid, NOTIFICATION_ROOM)
 \end{verbatim}
 
-%TODO Sigla ASGI
 %TODO Ref para a explicação da main.py
-O objeto \texttt{socket\_io\_server} é responsável por gerenciar a comunicação \textit{WebSocket}, enquanto o \texttt{socketio\_app} cria uma aplicação \textit{ASGI} que interage com o servidor \textit{WebSocket}, e é adicionado ao servidor FastAPI. Adicionalmente, uma instância da classe \texttt{WebSocketDispatcher} foi criada para facilitar o envio de notificações através do \textit{WebSocket}.
+O objeto \texttt{socket\_io\_server} é responsável por gerenciar a comunicação \textit{WebSocket}, enquanto o \texttt{socketio\_app} cria uma aplicação \gls{ASGI} que interage com o servidor \textit{WebSocket}, e é adicionado ao servidor FastAPI. Adicionalmente, uma instância da classe \texttt{WebSocketDispatcher} foi criada para facilitar o envio de notificações através do \textit{WebSocket}.
 
 No evento de conexão, denominado \texttt{connect}, um cliente é automaticamente adicionado à sala \texttt{NOTIFICATION\_ROOM}.
 
@@ -284,7 +278,7 @@ A classe \texttt{WebSocketDispatcher} é utilizada pelo modulo de recebimento do
 
 \subsubsection{Gerenciamento de Threads para Tarefas Assíncronas}\label{subsubsec:ThreadManager}
 
-Na arquitetura do sistema, foi identificada a necessidade de realizar tarefas de forma concorrente, sem bloquear a execução da API. Essas tarefas são a execução do modulo de recebimento de dados, e a checagem dos metadados do sistema. Ambas tarefas devem ser executadas em paralelo com a execução da API, sem influenciar na sua execução. Portanto, para atingir esse objetivo, um gerenciador de threads, denominado \texttt{ThreadManager}, foi implementado.
+Na arquitetura do sistema, foi identificada a necessidade de realizar tarefas de forma concorrente, sem bloquear a execução da \gls{API}. Essas tarefas são a execução do modulo de recebimento de dados, e a checagem dos metadados do sistema. Ambas tarefas devem ser executadas em paralelo com a execução da \gls{API}, sem influenciar na sua execução. Portanto, para atingir esse objetivo, um gerenciador de threads, denominado \texttt{ThreadManager}, foi implementado.
 
 %TODO Ref para a biblioteca asyncio
 A classe \texttt{ThreadManager} é projetada seguindo o padrão Singleton, assegurando que apenas uma instância seja criada, evitando assim conflitos ou redundâncias no gerenciamento das threads. Uma lista denominada \texttt{threads} é inicializada para armazenar todas as threads criadas, enquanto um loop de eventos assíncronos, atribuído à variável \texttt{loop}, é criado utilizando a biblioteca \texttt{asyncio}.
@@ -374,19 +368,19 @@ class MongoDBIOT(BaseDB, metaclass=Singleton):
         super().__init__()
 \end{verbatim}
 
-Classes semelhantes, seguindo o mesmo formato, foram criadas para outros contextos, como o acesso ao banco de dados pela API, garantindo uma estrutura organizada e eficiente de conexão e manipulação dos dados.
+Classes semelhantes, seguindo o mesmo formato, foram criadas para outros contextos, como o acesso ao banco de dados pela \gls{API}, garantindo uma estrutura organizada e eficiente de conexão e manipulação dos dados.
 
 \subsection{Arquivos comuns}\label{subsec:commum}
 
-Dentro da estrutura da API, uma pasta denominada \texttt{common} foi implementada com o intuito de centralizar componentes reutilizáveis, abrangendo múltiplos módulos e camadas. Esta organização foi estabelecida para maximizar a eficiência do desenvolvimento e a consistência do código.
+Dentro da estrutura da \gls{API}, uma pasta denominada \texttt{common} foi implementada com o intuito de centralizar componentes reutilizáveis, abrangendo múltiplos módulos e camadas. Esta organização foi estabelecida para maximizar a eficiência do desenvolvimento e a consistência do código.
 
 \subsubsection{Modelos de Dados}\label{subsubsec:dataModel}
 A seção de modelos de dados na pasta \texttt{common} abriga diversas classes que definem a estrutura dos dados utilizados. Classes que especificam usuários e dados de sensores estão presentes, e fazem o uso da biblioteca \texttt{Pydantic} para definir os modelos e criar validações dos dados.
 
 %TODO ref pydantic,
-\texttt{Pydantic} é uma biblioteca de validação de dados que adiciona tipagem estática no Python para validar que os dados recebidos correspondem a um determinado formato ou esquema. Quando usada para a construção da API, \texttt{Pydantic} contribui para a verificação automática e coerente dos dados enviados por meio de solicitações HTTP, e manipulações realizadas no banco de dados. Esta abordagem reduz a necessidade de codificação manual para validações de dados, acelerando assim o tempo de desenvolvimento e aumentando a robustez do código.
+\texttt{Pydantic} é uma biblioteca de validação de dados que adiciona tipagem estática no Python para validar que os dados recebidos correspondem a um determinado formato ou esquema. Quando usada para a construção da \gls{API}, \texttt{Pydantic} contribui para a verificação automática e coerente dos dados enviados por meio de solicitações \gls{HTTP}, e manipulações realizadas no banco de dados. Esta abordagem reduz a necessidade de codificação manual para validações de dados, acelerando assim o tempo de desenvolvimento e aumentando a robustez do código.
 
-Para exemplificar temos a  classeNotificationSensorResponse, que é responsável por definir o modelo de dados que é retornado quando a API recebe uma requisição solicitando as notificações de um determinado usuário. Destaca-se o uso do \texttt{BaseModel} na sistema de herança, do \texttt{Pydantic}, necessário para definir os tipos de retorno dentro do FastAPI. Além disso é utilizado a função \texttt{Field}, também do \texttt{Pydantic}, para indicar com o três pontos que é um atributo obrigatório de ser informado na construção da classe.
+Para exemplificar temos a  classeNotificationSensorResponse, que é responsável por definir o modelo de dados que é retornado quando a \gls{API} recebe uma requisição solicitando as notificações de um determinado usuário. Destaca-se o uso do \texttt{BaseModel} na sistema de herança, do \texttt{Pydantic}, necessário para definir os tipos de retorno dentro do FastAPI. Além disso é utilizado a função \texttt{Field}, também do \texttt{Pydantic}, para indicar com o três pontos que é um atributo obrigatório de ser informado na construção da classe.
 
 \begin{verbatim}
 class NotificationSensorResponse(BaseModel):
@@ -395,7 +389,7 @@ class NotificationSensorResponse(BaseModel):
 \end{verbatim}
 
 %TODO Ref para o uso de result para comunicação entre camadas
-Outros modelops de dados importantes são as classes de exceções e uma classe denominada \texttt{Result}, responsável pelo tráfego de dados entre as diferentes camadas da aplicação, mostrado na implementação do modulo da API em X.%TODO ref para a parte da implementação do modulo com controller, service e etc...
+Outros modelops de dados importantes são as classes de exceções e uma classe denominada \texttt{Result}, responsável pelo tráfego de dados entre as diferentes camadas da aplicação, mostrado na implementação do modulo da \gls{API} em X.%TODO ref para a parte da implementação do modulo com controller, service e etc...
 Exemplo de classe que define uma exceção do sistema.
 \begin{verbatim}
 class CustomBaseException(Exception):
@@ -439,7 +433,7 @@ class Singleton(type):
 \end{verbatim}
 
 %TODO referencia para boas praticas - justificando a aplicação gerir o ID e nao o próprio banco
-Por último, é destacado a classe \texttt{PyObjectId}, utilizada para definir um tipo para o atributo ID das classes que representam modelos do banco de dados. Os métodos definidos para essa classe são usados internamente pelo \texttt{FastAPi} e pelo \texttt{Pydantic}.
+Por último, é destacado a classe \texttt{PyObjectId}, utilizada para definir um tipo para o atributo ID das classes que representam modelos do banco de dados. Os métodos definidos para essa classe são usados internamente pelo \texttt{FastAPI} e pelo \texttt{Pydantic}.
 
 Essa classe é necessária para que o ID possa ser corretamente convertido para texto, e retornado nas requisições. Além disso, o uso dessa classe viabiliza a manipulação do ID quando necessário, deixando a gestão dos identificadores únicos para a aplicação e não para o banco de dados, como uma boa prática para desenvolvimento de sistemas.
 
@@ -504,7 +498,7 @@ class Datatype(Enum):
 \end{verbatim}
 
 \subsection{Módulos}\label{subsec:modules}
-A API foi estruturada em módulos, cada um com responsabilidade para gerenciar um determinado contexto. Abaixo são listados os módulos desenvolvidos.
+A \gls{API} foi estruturada em módulos, cada um com responsabilidade para gerenciar um determinado contexto. Abaixo são listados os módulos desenvolvidos.
 
 \begin{enumerate}
     \item \textbf{IOT Analytics}: Modulo responsável por gerenciar o acesso as informações dos sensores, tanto os dados em tempo real via stream, quanto as informações processadas pelo modulo de processamento de dados, explicado em ~\ref{sec:ImplModuloProcessamento}.
@@ -514,16 +508,13 @@ A API foi estruturada em módulos, cada um com responsabilidade para gerenciar u
 
 \end{enumerate}
 
-
-%TODO sigla HTTP
-Cada modulo seguiu um padrão de ter uma camada para o recebimento  das requisições HTTP, o \texttt{controller}, outra para tratar a requisição de acordo com as regras de negócio, o \texttt{service}, e o \texttt{repositoy}, para disponibilizar métodos de acesso e manipulação das informações no banco de dados.
+Cada modulo seguiu um padrão de ter uma camada para o recebimento  das requisições \gls{HTTP}, o \texttt{controller}, outra para tratar a requisição de acordo com as regras de negócio, o \texttt{service}, e o \texttt{repositoy}, para disponibilizar métodos de acesso e manipulação das informações no banco de dados.
 
 \subsubsection{Controller}\label{subsubsec:controller}
-%TODO singla HTTP
-O controller tem a função de receber as requisições HTTP, enviar as informações recebidas para a camada de serviço, e realizar o retorno adequado, com as informações formatadas, e código HTTP correto.
+O controller tem a função de receber as requisições \gls{HTTP}, enviar as informações recebidas para a camada de serviço, e realizar o retorno adequado, com as informações formatadas, e código \gls{HTTP} correto.
 
-%TODO Singla IOT
-Para exemplificar o funcionamento do controller, um exemplo específico será apresentado. O seguinte fragmento de código representa o router da API para os dados dos sensores IoT (\textit{Internet of Things}):
+
+Para exemplificar o funcionamento do controller, um exemplo específico será apresentado. O seguinte fragmento de código representa o router da \gls{API} para os dados dos sensores \gls{IoT}:
 
 \begin{verbatim}
 iot_data_router = APIRouter(tags=["IOT Data"], dependencies=[Depends(auth_middleware)])
@@ -552,7 +543,7 @@ Logo abaixo é criada uma instância do serviço que deve ser utilizado pelos \t
 
 %TODO adicionar referencia para a implementação do modulo de recebimento de dados
 A rota \texttt{/realtime} é designada para fornecer dados em tempo real. Uma função interna, \texttt{get\_real\_time\_data}, é 
-responsável por coletar esses dados do \texttt{SensorValue}, explicado em ref X. Nesse endpoint, a API pega os valores atuais e retorna uma \texttt{StreamingResponse}, que envia os dados em tempo real como um fluxo contínuo.
+responsável por coletar esses dados do \texttt{SensorValue}, explicado em ref X. Nesse endpoint, a \gls{API} pega os valores atuais e retorna uma \texttt{StreamingResponse}, que envia os dados em tempo real como um fluxo contínuo.
 
 As outras rotas, como \texttt{/machines\_in\_sensor} e \texttt{/graph\_info}, operam de maneira semelhante, mas com diferentes responsabilidades. Elas fazem chamadas para a instancia de \texttt{ServiceIOT} para recuperar informações específicas e retorná-las ao cliente. Caso ocorra uma exceção ou erro, um \texttt{HTTPException} é lançado com um código de status HTTP apropriado e uma mensagem de erro detalhada.
 

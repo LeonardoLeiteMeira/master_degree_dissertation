@@ -168,15 +168,15 @@ As outras páginas do dashboard também foram construídas usando a lógica de c
 
 %TODO ref para a doc do react, na pagina de context api
 %TODO ref para a doc do react
-Um dos pontos importantes no desenvolvimento do frontend é o gerenciamento de estados globais, que são informações ou comportamentos compartilhados entre componentes não relacionados. Dentro desse projeto, a Context API foi utilizada para este propósito, senso uma solução nativa do React que se destaca pela sua facilidade de implementação e utilização. Esse recurso permite que dados sejam passados de forma eficiente em toda a árvore de componentes, eliminando a necessidade de passar manualmente propriedades através de níveis intermediários.
+Um dos pontos importantes no desenvolvimento do frontend é o gerenciamento de estados globais, que são informações ou comportamentos compartilhados entre componentes não relacionados. Dentro desse projeto, a Context \gls{API} foi utilizada para este propósito, senso uma solução nativa do React que se destaca pela sua facilidade de implementação e utilização. Esse recurso permite que dados sejam passados de forma eficiente em toda a árvore de componentes, eliminando a necessidade de passar manualmente propriedades através de níveis intermediários.
 
-Não apenas estados de dados, mas também estados comportamentais, como o estado de login do usuário e o estado do menu lateral (aberto ou fechado), foram gerenciados por meio do Context API. A camada de dados foi construída de tal forma que todas as informações necessárias para o funcionamento do sistema, que dependem de um valor global, foram incluídas.
+Não apenas estados de dados, mas também estados comportamentais, como o estado de login do usuário e o estado do menu lateral (aberto ou fechado), foram gerenciados por meio do Context \gls{API}. A camada de dados foi construída de tal forma que todas as informações necessárias para o funcionamento do sistema, que dependem de um valor global, foram incluídas.
 
 Os contextos criados para o gerenciamento de estados são os seguintes:
 \begin{enumerate}
     \item \texttt{SnackbarContext}: Utilizado para o gerenciamento de mensagens e alertas no sistema, facilitando o acesso a função que exibe alertas e sua configuração em todo o sistema.
     \item \texttt{AuthContext}: Encarregado de gerenciar o estado de autenticação do usuário. %ref para impl da auth
-    \item \texttt{ThemeContext}: Responsável pela gestão do tema visual da aplicação. ref para o MUI5
+    \item \texttt{ThemeContext}: Responsável pela gestão do tema visual da aplicação. %TODO ref para o MUI5
     \item \texttt{NotificationContext}: Utilizado para o gerenciamento, leitura e recebimento de notificações no sistema.
     \item \texttt{LegacyContext}: Gerencia informações de parada das máquinas, após serem lidas do backend.%TODO ref para implementação do backend
     \item \texttt{IotContext}: Utilizado para o gerenciamento de estados relacionados aos dispositivos IoT no sistema.
@@ -302,7 +302,7 @@ useEffect(()=>{
 
 \subsubsection{Requisições HTTP}\label{subsubsec:httpRequest}
 %TODO ref para o axios
-A biblioteca Axios foi empregada para facilitar a realização das requisições ao backend. Esta biblioteca proporciona uma interface simples e eficiente para criação de requisições HTTP, e foi integrada nas funções da camada de acesso externo. Essa biblioteca possibilita uma configuração inicial para ser utilizada em todas as requisições realizadas.
+A biblioteca Axios foi empregada para facilitar a realização das requisições ao backend. Esta biblioteca proporciona uma interface simples e eficiente para criação de requisições \gls{HTTP}, e foi integrada nas funções da camada de acesso externo. Essa biblioteca possibilita uma configuração inicial para ser utilizada em todas as requisições realizadas.
 
 %TODO ref para a parte do axis que explica sobre inteceptor
 Na configuração utilizada, é lido das variáveis de ambiente do sistema, o endereço do backend e a url para adicionar as configurações a rota base, para onde todas as requisição devem ir. Outra configuração aplicada é a adição do interceptor no momento que a requisição é realizada, adicionando no header a configuração necessária para a autenticação, fazendo a leitura do access token do local storage, e adicionando no formato correto para leitura do backend em requisições que precisam de autenticação.
@@ -353,7 +353,7 @@ async function getGraphData(
 
 
 \subsubsection{Conexão WebSocket}\label{subsec:websocketConncetion}
-Além das requisições HTTP, a camada de acesso externo também gerencia a conexão WebSocket. Especificamente, o contexto de notificações faz uso dessa conexão para receber e gerir notificações em tempo real.
+Além das requisições \gls{HTTP}, a camada de acesso externo também gerencia a conexão WebSocket. Especificamente, o contexto de notificações faz uso dessa conexão para receber e gerir notificações em tempo real.
 
 %TODO ref para a biblioteca socket.io-client
 A gestão da conexão WebSocket é realizada por meio da classe \textit{CustomSocketConnection}. Esta classe é projetada como um singleton, garantindo que uma única instância seja criada e reutilizada em toda a aplicação. Ela é responsável por inicializar e manter o objeto \texttt{Socket}, que é parte da biblioteca \textit{socket.io-client}.
@@ -504,12 +504,11 @@ Na implementação do sistema, foi utilizada a lógica de construção de compon
 Os componentes acessam dados diretamente dos contextos, conforme discuto em X. Este método facilita a passagem de dados e permite que os componentes sejam mais específicos em sua função, além de evitar a passagem de muitas propriedades na árvore de componentes.
 
 %TODO ref MUI5
-%TODO singla MUI5
-A base para os componentes menores foi extraída da biblioteca Material UI 5 (MUI5). Isso inclui elementos como botões, contêineres, caixas de texto e outros. Um exemplo prático é o menu lateral nas páginas do dashboard, onde o componente Drawer do MUI5 foi empregado. 
 
-%TODO sigla mui5
+A base para os componentes menores foi extraída da biblioteca \gls{MUI5}. Isso inclui elementos como botões, contêineres, caixas de texto e outros. Um exemplo prático é o menu lateral nas páginas do dashboard, onde o componente Drawer do \gls{MUI5} foi empregado. 
+
 %TODO ref grid mui5
-Um componete que merece destaque é o \texttt{Grid} do Material UI 5. A utilização do Grid permitiu uma organização espacial dos elementos da interface do usuário de maneira simples. Esse sistema de grid oferece uma abordagem flexível para alocar espaço, alinhar conteúdo e lidar com variações de tela, o que é especialmente útil em aplicações web com muitas informações e diferentes componentes em tela. No menu lateral por exemplo, foi utilizado o componente \texttt{Grid} para organizar as informações do menu e definir o posicionamento de acordo com o estado de aberto ou fechado.
+Um componete que merece destaque é o \texttt{Grid} do \gls{MUI5}. A utilização do Grid permitiu uma organização espacial dos elementos da interface do usuário de maneira simples. Esse sistema de grid oferece uma abordagem flexível para alocar espaço, alinhar conteúdo e lidar com variações de tela, o que é especialmente útil em aplicações web com muitas informações e diferentes componentes em tela. No menu lateral por exemplo, foi utilizado o componente \texttt{Grid} para organizar as informações do menu e definir o posicionamento de acordo com o estado de aberto ou fechado.
 
 \begin{verbatim}
 <Grid 
@@ -538,7 +537,7 @@ Por outro lado, para a construção dos gráficos, a biblioteca Recharts foi uti
 
 %TODO ref date picker
 %TODO ref MUI5
-Para componentes que necessitam de manipulação de datas, a biblioteca Days Js foi integrada. Um caso de uso é o componente de filtro de data para exibição de gráficos, que também emprega o DatePicker do MUI5 para uma interface de usuário mais intuitiva. A biblioteca Days Js facilita a manipulação da entrada e saída de dados de data.
+Para componentes que necessitam de manipulação de datas, a biblioteca Days Js foi integrada. Um caso de uso é o componente de filtro de data para exibição de gráficos, que também emprega o DatePicker do \gls{MUI5} para uma interface de usuário mais intuitiva. A biblioteca Days Js facilita a manipulação da entrada e saída de dados de data.
 
 \begin{verbatim}
   <DatePicker

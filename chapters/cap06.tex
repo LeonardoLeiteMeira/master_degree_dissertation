@@ -32,7 +32,7 @@ No dashboard de interface do usuário são apresentados cartões individuais cor
 A obtenção desses dados em tempo real é efetuada através de um fluxo contínuo de dados por \textit{streaming}. O frontend da aplicação faz uma requisição ao endpoint \texttt{iot/realtime}, o qual retorna esse fluxo de dados em tempo real. A disponibilização dessa informação ocorre como explicado em X. 
 
 %TODO ref para a impl do modulo de recebimento de dados
-Na camada de backend, o fluxo de dados é constantemente alimentado pela classe \texttt{SensorValue}, que por sua vez, é atualizada pelo módulo de recebimento de dados. Ao receber novas leituras dos sensores, o módulo executa validações apropriadas antes de atualizar os valores na classe \texttt{SensorValue}, como explicado em X. Uma vez atualizada, a API acessa esses novos valores e os insere no fluxo de dados transmitido ao usuário conectado.
+Na camada de backend, o fluxo de dados é constantemente alimentado pela classe \texttt{SensorValue}, que por sua vez, é atualizada pelo módulo de recebimento de dados. Ao receber novas leituras dos sensores, o módulo executa validações apropriadas antes de atualizar os valores na classe \texttt{SensorValue}, como explicado em X. Uma vez atualizada, a \gls{API} acessa esses novos valores e os insere no fluxo de dados transmitido ao usuário conectado.
 
 
 \section[Alertas e notificações]{Alertas e notificações}\label{sec:alertsAndNotifications}
@@ -73,7 +73,7 @@ Portanto, ao iniciar uma sessão no sistema, as notificações anteriores são c
 
 O módulo de processamento de dados é responsável pela análise estatística dos dados históricos. Seguindo o parâmetro padrão do sistema, todos os dias à meia-noite, os dados brutos não processados são lidos e analisados. O resultado da análise é então armazenado no banco de dados para consultas futuras, como explicado em X. %TODO ref modulo de processamento
 
-A possibilidade de acessar esses dados analíticos é providenciada pela API, especificamente pelo módulo "IOT Analytics". A requisição para obter essas informações deve ser autenticada, conforme descrito na seção "Módulos da API".%TODO ref impl API
+A possibilidade de acessar esses dados analíticos é providenciada pela \gls{API}, especificamente pelo módulo "IOT Analytics". A requisição para obter essas informações deve ser autenticada, conforme descrito na seção "Módulos da API".%TODO ref impl API
 
 A representação visual dessas análises é efetuada por meio de gráficos que agregam quatro métricas principais resultantes do processamento. Dessa forma é exibido no gráfico:
 
@@ -96,7 +96,7 @@ Portanto, a imagem \ref{fig:graphData} mostra como fica a visualização dessas 
 \section[Exibição dos dados referente a paragem das máquinas]{Exibição dos dados referente a paragem das máquinas}\label{sec:downtime}
 
 %TODO ref para a parte que explica melhor sobre isso XX
-Esta funcionalidade é dedicada à exibição de dados relacionados às paragens das máquinas, armazenados previamente no banco de dados. Como esclarecido na seção XX, a funcionalidade tem o objetivo de demonstrar como seriam apresentados esses dados, caso fossem recebidos pelo sistema de forma similar aos dados dos sensores. A fonte dos dados para a elaboração desses gráficos provém de três planilhas recebidas no início do desenvolvimento do projeto, em que as informações foram salvas no banco de dados. Esses dados são acessados pelo frontend por meio do módulo \texttt{downtime\_analytics} da API.
+Esta funcionalidade é dedicada à exibição de dados relacionados às paragens das máquinas, armazenados previamente no banco de dados. Como esclarecido na seção XX, a funcionalidade tem o objetivo de demonstrar como seriam apresentados esses dados, caso fossem recebidos pelo sistema de forma similar aos dados dos sensores. A fonte dos dados para a elaboração desses gráficos provém de três planilhas recebidas no início do desenvolvimento do projeto, em que as informações foram salvas no banco de dados. Esses dados são acessados pelo frontend por meio do módulo \texttt{downtime\_analytics} da \gls{API}.
 
 Os gráficos gerados para representar esses dados são apresentados na forma de gráficos de coluna. Cada gráfico exibe um título correspondente à planilha da qual os dados foram extraídos. A legenda do gráfico indica a porcentagem que cada parada específica representa em relação ao total de paragens.
 
@@ -114,7 +114,7 @@ Os gráficos de coluna fornecem uma maneira eficaz de comparar as diferentes par
 A funcionalidade de perfil de usuário foi desenvolvida com o objetivo de fornecer aos usuários acesso aos seus dados pessoais armazenados no sistema. Além da visualização dessas informações, esta tela permite também a realização de modificações, incluindo a alteração de senha, e-mail e outros dados pessoais como nome, sobrenome e descrição.
 
 %TODO ref para a parte de modulos da API
-Para ler e modificar os dados apresentados, o módulo \textit{User} da API é utilizado REF. Este módulo disponibiliza endpoints que permitem o acesso e a modificação dos dados armazenados, garantindo que as informações sejam atualizadas conforme as interações do usuário, como pode ser visto na figura \ref{fig:profilePage}.
+Para ler e modificar os dados apresentados, o módulo \textit{User} da \gls{API} é utilizado REF. Este módulo disponibiliza endpoints que permitem o acesso e a modificação dos dados armazenados, garantindo que as informações sejam atualizadas conforme as interações do usuário, como pode ser visto na figura \ref{fig:profilePage}.
 
 Um recurso adicional fornecido por esta tela é a opção de logout. Ao selecionar esta opção, todas as informações armazenadas do lado do cliente são apagadas, efetuando assim a saída segura do usuário do sistema.
 

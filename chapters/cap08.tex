@@ -6,7 +6,7 @@ A construção do sistema é considerada bem-sucedida, servindo como um marco in
 
 \section{Resumo}\label{sec:summary}
 %TODO ref arquitetura
-Nesta dissertação, foi desenvolvido um sistema multifuncional destinado à coleta, armazenamento, processamento e visualização de dados gerados por sensores. Utilizou-se Python para a criação da API e do módulo de processamento, MongoDB para o gerenciamento do banco de dados e NextJs para a construção do painel de controle, conhecido como \emph{dashboard}. A arquitetura do sistema pode ser vista em X.
+Nesta dissertação, foi desenvolvido um sistema multifuncional destinado à coleta, armazenamento, processamento e visualização de dados gerados por sensores. Utilizou-se Python para a criação da \gls{API} e do módulo de processamento, MongoDB para o gerenciamento do banco de dados e NextJs para a construção do painel de controle, conhecido como \emph{dashboard}. A arquitetura do sistema pode ser vista em X.
 
 %TODO ref modulo de recebimento
 Os dados foram recebidos através de uma conexão multicast estabelecida pelo módulo de recebimento de dados REF X. Uma vez recebidos, os dados foram imediatamente submetidos a uma análise preliminar para identificar qualquer condição que pudesse acionar um alerta. Caso um alerta fosse gerado, os usuários eram notificados, permitindo intervenções rápidas e eficazes.
@@ -14,9 +14,8 @@ Os dados foram recebidos através de uma conexão multicast estabelecida pelo m�
 %TODO ref modulo processamento
 Para a análise de dados históricos, empregou-se o método BoxPlot no módulo de processamento REF X. Esta análise objetivou a identificação de padrões e anomalias nos dados coletados ao longo do tempo, fornecendo insights valiosos para a operação e manutenção das máquinas monitoradas.
 
-%TODO Sigla JWT, API
 %TODO ref impl API
-A API, descrita em X, desempenhou um papel crucial no sistema, gerenciando o acesso aos dados. A segurança foi assegurada através da implementação de autenticação por JWT (JSON Web Token), e vários \emph{endpoints} foram desenvolvidos para permitir um acesso eficaz aos dados.
+A \gls{API}, descrita em X, desempenhou um papel crucial no sistema, gerenciando o acesso aos dados. A segurança foi assegurada através da implementação de autenticação por \gls{JWT}, e vários \emph{endpoints} foram desenvolvidos para permitir um acesso eficaz aos dados.
 
 %TODO ref impl front
 O \emph{frontend}, descrito em X,por sua vez, foi responsável por exibir informações em tempo real, alertas gerados e dados processados em forma de gráficos. Este painel se mostrou uma ferramenta indispensável para a interpretação rápida e eficiente dos dados coletados e analisados pelo sistema.
@@ -39,9 +38,9 @@ Com base nas observações e análises realizadas ao longo deste projeto, existe
 
 \subsection{Utilização de inteligencia artificial para predição}
 
-Dado que os dados lidos pelos sensores são armazenados no sistema, eles têm o potencial de revelar informações significativas sobre o funcionamento das máquinas. A aplicação de técnicas de inteligência artificial aos dados coletados foi identificada como a principal funcionalidade para a evolução do sistema, que pode se tornar uma ferramenta robusta para manutenção preditiva. Ao aplicar algoritmos de aprendizado de máquina aos dados armazenados, podem ser gerados modelos preditivos que antecipam falhas ou ineficiências em equipamentos industriais.
+Dado que os dados lidos pelos sensores são armazenados no sistema, eles têm o potencial de revelar informações significativas sobre o funcionamento das máquinas. A aplicação de técnicas de \gls{AI} aos dados coletados foi identificada como a principal funcionalidade para a evolução do sistema, que pode se tornar uma ferramenta robusta para manutenção preditiva. Ao aplicar algoritmos de aprendizado de máquina aos dados armazenados, podem ser gerados modelos preditivos que antecipam falhas ou ineficiências em equipamentos industriais.
 
-A implementação de um sistema de manutenção preditiva baseado em inteligência artificial poderia conferir uma vantagem competitiva significativa à empresa, não apenas melhoraria a eficiência operacional, mas também otimizaria a alocação de recursos para manutenção, resultando em redução de custos e aumento de produtividade. Portanto, a exploração futura de inteligência artificial para a análise de dados armazenados é fortemente recomendada para aprimorar a eficácia do sistema em estudo.
+A implementação de um sistema de manutenção preditiva baseado em \gls{AI} poderia conferir uma vantagem competitiva significativa à empresa, não apenas melhoraria a eficiência operacional, mas também otimizaria a alocação de recursos para manutenção, resultando em redução de custos e aumento de produtividade. Portanto, a exploração futura de \gls{AI} para a análise de dados armazenados é fortemente recomendada para aprimorar a eficácia do sistema em estudo.
 
 \subsection{Monitoramento e Logs}
 
@@ -83,7 +82,7 @@ O sistema ainda não foi colocado em produção, portanto também não foi avali
 
 O frontend, construído em Next.js, tem o potencial para se tornar uma área de gargalo, especialmente quando exibe dados em tempo real para múltiplas máquinas. A utilização de tecnologias mais recentes, como os Server Components em versões mais recentes do Next.js, poderia contribuir para uma renderização mais eficiente e um melhor desempenho.
 
-Aprimoramentos na API e no módulo de processamento também são considerados para melhorar a eficiência global do sistema. Técnicas de cacheamento, balanceamento de carga e otimização de consultas ao banco de dados são algumas das estratégias que podem ser exploradas, caso problemas de performance venha acontecer.
+Aprimoramentos na \gls{API} e no módulo de processamento também são considerados para melhorar a eficiência global do sistema. Técnicas de cacheamento, balanceamento de carga e otimização de consultas ao banco de dados são algumas das estratégias que podem ser exploradas, caso problemas de performance venha acontecer.
 
 Para validar qualquer melhoria implementada, são necessários testes de performance, simulação de tráfego elevado e monitoramento em tempo real. Estes testes podem fornecer métricas objetivas para avaliar a eficácia das otimizações e identificar novas áreas para melhoria.
 

@@ -15,29 +15,27 @@ O sistema é estruturado fundamentalmente em camadas distintas, o backend, o fro
 	\label{fig:systemAchitectureImage}
 \end{figure}
 
-%TODO Sigla api
-O backend funciona como o núcleo do sistema. Sua principal função é a de receber os dados, processá-los conforme as regras estabelecidas nos requisitos e histórias de usuários e, armazená-los de maneira segura no banco de dados. Além das funções de armazenamento e processamento, ao backend também é atribuída a responsabilidade de disponibilizar esses dados por meio de uma interface de programação de aplicações (API), que pode ser acessada utilizando métodos HTTP. Esta API age como um intermediário entre a lógica central do sistema e as interfaces com as quais o usuário final interage, o frontend.
+O backend funciona como o núcleo do sistema. Sua principal função é a de receber os dados, processá-los conforme as regras estabelecidas nos requisitos e histórias de usuários e, armazená-los de maneira segura no banco de dados. Além das funções de armazenamento e processamento, ao backend também é atribuída a responsabilidade de disponibilizar esses dados por meio de uma \gls{API}, que pode ser acessada utilizando métodos \gls{HTTP}. Esta \gls{API} age como um intermediário entre a lógica central do sistema e as interfaces com as quais o usuário final interage, o frontend.
 
 %TODO referencia para princípios de design e data visualization - Talvez referir a outra parte da dissertação que entra em mais detalhes
 Por outro lado, o frontend é caracterizado como a interface visual que o usuário final acessa. Serve como meio pelo qual os usuários interagem com o sistema, enviando e recebendo informações. Esta camada é projetada para acessar, recuperar e apresentar os dados processados e armazenados pelo backend de uma maneira intuitiva e amigável, utilizando princípios de design e data visualization.
 
-Como pode ser visto na figura ~\ref{fig:systemAchitectureImage}, na planta industrial, onde as máquinas com os sensores se encontram, os sensores enviam os dados para o sistema, que recebe eles por meio do modulo de recebimento de dados e os armazena no banco de dados. O modulo de processamento acessa os dados armazenados para realizar a agregação, e a API gerencia o acesso ao banco de dados, disponibilizando as informações para os usuários no frontend.
+Como pode ser visto na figura ~\ref{fig:systemAchitectureImage}, na planta industrial, onde as máquinas com os sensores se encontram, os sensores enviam os dados para o sistema, que recebe eles por meio do modulo de recebimento de dados e os armazena no banco de dados. O modulo de processamento acessa os dados armazenados para realizar a agregação, e a \gls{API} gerencia o acesso ao banco de dados, disponibilizando as informações para os usuários no frontend.
 
 Nas seções seguintes, cada um desses componentes será explorado mais profundamente, passando por suas especificidades e interações.
 
 
 \section[Arquitetura do backend]{Arquitetura backend}
-%TODO Sigla HTTP
-Nessa seção é abordado o funcionamento do backend. Ele está dividido em três partes, o modulo de recebimento dos dados dos sensores, o modulo de processamento onde é feita a agregação e analise estatística dos dados, e a API que gerencia o acesso as informações por meio de requisições HTTP.
+Nessa seção é abordado o funcionamento do backend. Ele está dividido em três partes, o modulo de recebimento dos dados dos sensores, o modulo de processamento onde é feita a agregação e analise estatística dos dados, e a \gls{API} que gerencia o acesso as informações por meio de requisições \gls{HTTP}.
 
-Em relação a organização dos repositórios, a API e o modulo de recebimento de dados ficam no mesmo repositório, facilitando a comunicação entre eles. Já o modulo de processamento está em um repositório a parte, sendo a sua única função sendo ler o banco de dados, processar os dados, e armazenar os resultados.
+Em relação a organização dos repositórios, a \gls{API} e o modulo de recebimento de dados ficam no mesmo repositório, facilitando a comunicação entre eles. Já o modulo de processamento está em um repositório a parte, sendo a sua única função sendo ler o banco de dados, processar os dados, e armazenar os resultados.
 
 \subsection{Modulo de Recebimento de dados}
 Para o modulo de recebimento de dados, inicialmente, destaca-se a classe \texttt{SensorConnection}, cuja a função é gerenciar e manter a conexão com a rede de sensores. Essa classe faz a transmissão dos dados recebidos à uma função designada \texttt{save\_data\_func}, assegurando que os dados sejam encaminhados para manipulação apropriada.
 
 Na próxima parte da arquitetura, é utilizada a classe \texttt{IotSensorConnection}, que se origina da interface \texttt{IotSensorConnectionInterface}. Esta interface foi criada para garantir a adaptabilidade do sistema, facilitando a integração de diferentes tipos de recebimentos de dados, como por exemplo, uma classe destinada a gerar dados dos sensores em um ambiente de desenvolvimento, onde não há acesso ao sensor real. A classe \texttt{IotSensorConnection}, quando instanciada, é encarregada de estabelecer a conexão, e criar uma nova thread que opera como um ouvinte ativo, monitorando a chegada de novas informações. Ao perceber a recepção de novos dados, a classe direciona estas informações para uma terceira entidade, a qual detém a responsabilidade de aplicar as regras de negócio.
 
-Esta terceira entidade é a classe \texttt{SensorsRepository}, que quando acionada com dados oriundos dos sensores, tem a responsabilidade de avaliar a informação com base nos parâmetros estabelecidos, decidindo se é necessário acionar um alerta, e tornar os dados do sensor acessíveis via API, garantindo que esses dados estejam disponíveis para serem transmitidos em tempo real, via stream, para todos os usuários conectados. Além do mais, o dado é salvo no banco de dados, especificamente na coleção de dados brutos do data lake, \texttt{Raw Data}. Uma vez salvos no banco de dados, estes dados brutos estão disponíveis para serem processados pelo módulo de processamento.
+Esta terceira entidade é a classe \texttt{SensorsRepository}, que quando acionada com dados oriundos dos sensores, tem a responsabilidade de avaliar a informação com base nos parâmetros estabelecidos, decidindo se é necessário acionar um alerta, e tornar os dados do sensor acessíveis via \gls{API}, garantindo que esses dados estejam disponíveis para serem transmitidos em tempo real, via stream, para todos os usuários conectados. Além do mais, o dado é salvo no banco de dados, especificamente na coleção de dados brutos do data lake, \texttt{Raw Data}. Uma vez salvos no banco de dados, estes dados brutos estão disponíveis para serem processados pelo módulo de processamento.
 
 A disponibilização dos dados pela classe \texttt{SensorsRepository} acontece por meio da instancia da classe \texttt{SensorValue}, que com o método \texttt{update\_current\_sensor\_value} atualiza os dados em memoria que são acessados pelos usuários conectados.
 
@@ -75,7 +73,7 @@ Ao adotar o Box Plot, o sistema garante uma compreensão robusta da distribuiç�
 
 
 \subsection{API}\label{subsec:apiArchitecture}
-A API foi estruturada em pequenos sub-módulos, cada um focado em um contexto específico. Esta modularização assegura que cada parte da API tenha uma única responsabilidade. Em cada módulo, há uma segmentação composta por: a camada de \textit{controller}, destinada a receber e gerenciar as requisições HTTP; a camada de serviço, que serve para processar a informação e aplicar as respectivas regras de negócio; e a camada de repositório, cujo papel é estabelecer uma ponte com o banco de dados, acessando e disponibilizando os dados necessários. A figura ~\ref{fig:api_organization} representa a organização de pastas que foi utilizada para essa arquitetura.
+A \gls{API} foi estruturada em pequenos sub-módulos, cada um focado em um contexto específico. Esta modularização assegura que cada parte da \gls{API} tenha uma única responsabilidade. Em cada módulo, há uma segmentação composta por: a camada de \textit{controller}, destinada a receber e gerenciar as requisições \gls{HTTP}; a camada de serviço, que serve para processar a informação e aplicar as respectivas regras de negócio; e a camada de repositório, cujo papel é estabelecer uma ponte com o banco de dados, acessando e disponibilizando os dados necessários. A figura ~\ref{fig:api_organization} representa a organização de pastas que foi utilizada para essa arquitetura.
 
 \begin{figure}[htbp]
 	\centering
@@ -84,9 +82,9 @@ A API foi estruturada em pequenos sub-módulos, cada um focado em um contexto es
 	\label{fig:api_organization}
 \end{figure}
 
-Quando uma solicitação é enviada à API, a primeira interação acontece com a camada de \textit{controller}. Uma vez recebida, essa requisição é direcionada à camada de serviço, onde as regras de negócio são aplicadas. A camada de serviço se comunica estreitamente com a camada de repositório, que detém a responsabilidade de acessar o banco de dados e trazer informações precisas, adequadas às demandas do módulo em questão.
+Quando uma solicitação é enviada à \gls{API}, a primeira interação acontece com a camada de \textit{controller}. Uma vez recebida, essa requisição é direcionada à camada de serviço, onde as regras de negócio são aplicadas. A camada de serviço se comunica estreitamente com a camada de repositório, que detém a responsabilidade de acessar o banco de dados e trazer informações precisas, adequadas às demandas do módulo em questão.
 
-Os módulos implementados na API com a lógica descrita são:
+Os módulos implementados na \gls{API} com a lógica descrita são:
 \begin{itemize}
 	\item \textbf{Downtime:} Responsável por gerenciar o acesso aos dados de paragem armazenados para teste no sistema.
 	\item \textbf{IOT Sensors:} Responsável por gerenciar o acesso aos dados referentes aos sensores das maquinas na fabrica.
@@ -94,7 +92,7 @@ Os módulos implementados na API com a lógica descrita são:
 	\item \textbf{User:} Responsável por gerenciar o acesso aos dados dos usuários, assim como realizar as operações de login e logout. 
 \end{itemize}
 
-Além dessas camadas modulares, existe uma área especifica na API para o armazenamento de códigos comuns a todos os módulos. Esta seção engloba diversas funções úteis, modelos de classes, valores constantes e configurações padrão. Tais elementos garantem uma maior coesão e reduzem a repetição de código, otimizando o desempenho geral. Dentre as configurações padrão, merecem destaque o inicializador que estabelece o acesso ao banco de dados, middleware de autenticação, conexão web socket para envio de notificações, e o inicializador de novas \textit{threads}. Este último é utilizada para operações assíncronas que são executadas em paralelo a operação da API, como aquelas executadas pelo módulo de recebimento de dados.
+Além dessas camadas modulares, existe uma área especifica na \gls{API} para o armazenamento de códigos comuns a todos os módulos. Esta seção engloba diversas funções úteis, modelos de classes, valores constantes e configurações padrão. Tais elementos garantem uma maior coesão e reduzem a repetição de código, otimizando o desempenho geral. Dentre as configurações padrão, merecem destaque o inicializador que estabelece o acesso ao banco de dados, middleware de autenticação, conexão web socket para envio de notificações, e o inicializador de novas \textit{threads}. Este último é utilizada para operações assíncronas que são executadas em paralelo a operação da \gls{API}, como aquelas executadas pelo módulo de recebimento de dados.
 
 \section[Arquitetura do frontend]{Arquitetura do frontend}
 %TODO referencia para a doc do next
@@ -117,7 +115,7 @@ A \textit{Context API} do React é empregada para gerir dados nos componentes, p
 	\label{fig:FrontendOrganization}
 \end{figure}
 
-Existe uma camada específica para acesso externo, que administra a comunicação com a API e as conexões \textit{WebSocket}. Esta é acessada apenas pelos contextos para atualização e recuperação de dados.
+Existe uma camada específica para acesso externo, que administra a comunicação com a \gls{API} e as conexões \textit{WebSocket}. Esta é acessada apenas pelos contextos para atualização e recuperação de dados.
 
 Por fim, há uma pasta dedicada para armazenar códigos recorrentes, contendo funções auxiliares, temas e \textit{assets}, facilitando o desenvolvimento e manutenção ao proporcionar uma estrutura clara e coesa.
 
@@ -141,7 +139,7 @@ O sistema adota alguns containers para organizar e gerenciar as várias partes d
 \begin{itemize}
     \item \textbf{Frontend}: Um container dedicado ao frontend, construído com \textit{NextJs}.
     \item \textbf{Backend}: Dividido em dois containers distintos:
-	\subitem Um que abrange a API e o módulo de recebimento de dados;
+	\subitem Um que abrange a \gls{API} e o módulo de recebimento de dados;
 	\subitem E outro que é voltado especificamente para o módulo de processamento de dados;
     \item \textbf{Banco de Dados}: Um container para o banco de dados MongoDB, garantindo isolamento e eficiência na gestão dos dados.
 \end{itemize}
@@ -163,7 +161,6 @@ A utilização de containers no projeto trouxe vantagens. Primeiramente, garanti
 \section{Web Server}\label{sec:webserver}
 
 %TODO referencia para o NGINX
-%TODO Sigla NGINX
 Dentro da arquitetura proposta, com containers executando diferentes partes da aplicação, foi utilizado o \textit{NGINX} para ser o intermediário no tráfego de requisições, assegurando a distribuição correta das solicitações para cada container. 
 
 O método empregado para tal é o de proxy reverso. Em termos simples, o proxy reverso atua como uma interface entre o cliente e vários servidores, direcionando as solicitações dos clientes ao servidor adequado  (no contexto desse projeto, os containers), e assim, otimizando o uso dos recursos e garantindo uma resposta mais rápida e eficiente.

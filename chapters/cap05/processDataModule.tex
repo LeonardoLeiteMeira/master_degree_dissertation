@@ -33,8 +33,7 @@ def get_tuples_with_raw_data_collections_and_processed_collections():
     return result
 \end{verbatim}
 
-%TODO Sigla API
-Para iniciar o processamento dos dados, a função \texttt{aggregation\_init()} é chamada, obtendo primeiramente a lista de tuplas que relaciona as coleções de dados brutos com as processadas. Após recuperar esta lista, ela inicializa um loop assíncrono, cujo objetivo é executar uma função de agregação até sua conclusão. Esse design assíncrono é necessário para garantir que o processamento possa realizar chamadas de funções assíncronas, dado que esse modulo é separado da API.
+Para iniciar o processamento dos dados, a função \texttt{aggregation\_init()} é chamada, obtendo primeiramente a lista de tuplas que relaciona as coleções de dados brutos com as processadas. Após recuperar esta lista, ela inicializa um loop assíncrono, cujo objetivo é executar uma função de agregação até sua conclusão. Esse design assíncrono é necessário para garantir que o processamento possa realizar chamadas de funções assíncronas, dado que esse modulo é separado da \gls{API}.
 
 \begin{verbatim}
 def aggregation_init():
@@ -263,9 +262,7 @@ def calc_box_plot(df:pd.DataFrame, machine:str):
     return box_plot
 \end{verbatim}
 
-
-%TODO singla IIQ
-Nessa função, o dataframe recebido contém uma série de valores que será utilizada para calcular os componentes do Box Plot. Primeiro, são determinados os valores da mediana e da média dos dados. Os quartis Q1 (primeiro quartil) e Q3 (terceiro quartil) são calculados utilizando a função \texttt{quantile()}, da bilbioteca pandas. A partir destes quartis, o IIQ (intervalo inter quartil) é determinado como a diferença entre Q3 e Q1.
+Nessa função, o dataframe recebido contém uma série de valores que será utilizada para calcular os componentes do Box Plot. Primeiro, são determinados os valores da mediana e da média dos dados. Os quartis Q1 (primeiro quartil) e Q3 (terceiro quartil) são calculados utilizando a função \texttt{quantile()}, da bilbioteca pandas. A partir destes quartis, o \gls{IQR} é determinado como a diferença entre Q3 e Q1.
 
 Para identificar os valores discrepantes, são calculados os limites inferior e superior. O limite inferior é obtido subtraindo-se \(1.5 \times \texttt{IIQ}\) de Q1 e o limite superior é obtido adicionando-se \(1.5 \times \texttt{IIQ}\) a Q3. Posteriormente, é feita uma seleção dos valores que estão entre os limites inferior e superior. A média destes valores selecionados é então calculada, resultando em \texttt{mean\_with\_selection}.
 
