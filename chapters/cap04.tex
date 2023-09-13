@@ -17,8 +17,8 @@ O sistema é estruturado fundamentalmente em camadas distintas, o backend, o fro
 
 O backend funciona como o núcleo do sistema. Sua principal função é a de receber os dados, processá-los conforme as regras estabelecidas nos requisitos e histórias de usuários e, armazená-los de maneira segura no banco de dados. Além das funções de armazenamento e processamento, ao backend também é atribuída a responsabilidade de disponibilizar esses dados por meio de uma \gls{API}, que pode ser acessada utilizando métodos \gls{HTTP}. Esta \gls{API} age como um intermediário entre a lógica central do sistema e as interfaces com as quais o usuário final interage, o frontend.
 
-%TODO referencia para princípios de design e data visualization - Talvez referir a outra parte da dissertação que entra em mais detalhes
-Por outro lado, o frontend é caracterizado como a interface visual que o usuário final acessa. Serve como meio pelo qual os usuários interagem com o sistema, enviando e recebendo informações. Esta camada é projetada para acessar, recuperar e apresentar os dados processados e armazenados pelo backend de uma maneira intuitiva e amigável, utilizando princípios de design e data visualization.
+%TODO artigo referencia para princípios de design e data visualization - Talvez referir a outra parte da dissertação que entra em mais detalhes
+Por outro lado, o frontend é caracterizado como a interface visual que o usuário final acessa. Serve como meio pelo qual os usuários interagem com o sistema, enviando e recebendo informações. Esta camada é projetada para acessar, recuperar e apresentar os dados processados e armazenados pelo backend de acordo com princípios de design e data visualization.
 
 Como pode ser visto na figura ~\ref{fig:systemAchitectureImage}, na planta industrial, onde as máquinas com os sensores se encontram, os sensores enviam os dados para o sistema, que recebe eles por meio do modulo de recebimento de dados e os armazena no banco de dados. O modulo de processamento acessa os dados armazenados para realizar a agregação, e a \gls{API} gerencia o acesso ao banco de dados, disponibilizando as informações para os usuários no frontend.
 
@@ -30,7 +30,7 @@ Nessa seção é abordado o funcionamento do backend. Ele está dividido em trê
 
 Em relação a organização dos repositórios, a \gls{API} e o modulo de recebimento de dados ficam no mesmo repositório, facilitando a comunicação entre eles. Já o modulo de processamento está em um repositório a parte, sendo a sua única função sendo ler o banco de dados, processar os dados, e armazenar os resultados.
 
-\subsection{Modulo de Recebimento de dados}
+\subsection{Modulo de Recebimento de dados}\label{subsec:receiveDataModuleArch}
 Para o modulo de recebimento de dados, inicialmente, destaca-se a classe \texttt{SensorConnection}, cuja a função é gerenciar e manter a conexão com a rede de sensores. Essa classe faz a transmissão dos dados recebidos à uma função designada \texttt{save\_data\_func}, assegurando que os dados sejam encaminhados para manipulação apropriada.
 
 Na próxima parte da arquitetura, é utilizada a classe \texttt{IotSensorConnection}, que se origina da interface \texttt{IotSensorConnectionInterface}. Esta interface foi criada para garantir a adaptabilidade do sistema, facilitando a integração de diferentes tipos de recebimentos de dados, como por exemplo, uma classe destinada a gerar dados dos sensores em um ambiente de desenvolvimento, onde não há acesso ao sensor real. A classe \texttt{IotSensorConnection}, quando instanciada, é encarregada de estabelecer a conexão, e criar uma nova thread que opera como um ouvinte ativo, monitorando a chegada de novas informações. Ao perceber a recepção de novos dados, a classe direciona estas informações para uma terceira entidade, a qual detém a responsabilidade de aplicar as regras de negócio.

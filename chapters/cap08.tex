@@ -5,20 +5,15 @@ O capítulo está estruturado nas seções "Resumo" do projeto, uma discussão s
 A construção do sistema é considerada bem-sucedida, servindo como um marco inicial para futuras implementações e adaptações. Os próximos passos para o avanço deste projeto incluem a colocação do sistema em um ambiente de produção, seguida pela coleta de feedback de usuários. Esta abordagem permitirá um processo incremental de aprendizagem, no qual o sistema será constantemente aprimorado com base nas experiências adquiridas e nas necessidades identificadas. 
 
 \section{Resumo}\label{sec:summary}
-%TODO ref arquitetura
-Nesta dissertação, foi desenvolvido um sistema multifuncional destinado à coleta, armazenamento, processamento e visualização de dados gerados por sensores. Utilizou-se Python para a criação da \gls{API} e do módulo de processamento, MongoDB para o gerenciamento do banco de dados e NextJs para a construção do painel de controle, conhecido como \emph{dashboard}. A arquitetura do sistema pode ser vista em X.
+Nesta dissertação, foi desenvolvido um sistema multifuncional destinado à coleta, armazenamento, processamento e visualização de dados gerados por sensores. Utilizou-se Python para a criação da \gls{API} e do módulo de processamento, MongoDB para o gerenciamento do banco de dados e NextJs para a construção do painel de controle, conhecido como \emph{dashboard}. A arquitetura do sistema pode ser vista em \ref{cap:development}.
 
-%TODO ref modulo de recebimento
-Os dados foram recebidos através de uma conexão multicast estabelecida pelo módulo de recebimento de dados REF X. Uma vez recebidos, os dados foram imediatamente submetidos a uma análise preliminar para identificar qualquer condição que pudesse acionar um alerta. Caso um alerta fosse gerado, os usuários eram notificados, permitindo intervenções rápidas e eficazes.
+Os dados foram recebidos através de uma conexão multicast estabelecida pelo módulo de recebimento de dados, mostrado em \ref{subsec:receiveDataModuleArch}. Uma vez recebidos, os dados foram imediatamente submetidos a uma análise preliminar para identificar qualquer condição que pudesse acionar um alerta. Caso um alerta fosse gerado, os usuários eram notificados, permitindo intervenções rápidas e eficazes.
 
-%TODO ref modulo processamento
-Para a análise de dados históricos, empregou-se o método BoxPlot no módulo de processamento REF X. Esta análise objetivou a identificação de padrões e anomalias nos dados coletados ao longo do tempo, fornecendo insights valiosos para a operação e manutenção das máquinas monitoradas.
+Para a análise de dados históricos, empregou-se o método BoxPlot no módulo de processamento, explicado em \ref{subsec:moduloProcessamento}. Esta análise objetivou a identificação de padrões e anomalias nos dados coletados ao longo do tempo, fornecendo insights valiosos para a operação e manutenção das máquinas monitoradas.
 
-%TODO ref impl API
-A \gls{API}, descrita em X, desempenhou um papel crucial no sistema, gerenciando o acesso aos dados. A segurança foi assegurada através da implementação de autenticação por \gls{JWT}, e vários \emph{endpoints} foram desenvolvidos para permitir um acesso eficaz aos dados.
+A \gls{API}, descrita em \ref{sec:api}, desempenhou um papel crucial no sistema, gerenciando o acesso aos dados. A segurança foi assegurada através da implementação de autenticação por \gls{JWT}, e vários \emph{endpoints} foram desenvolvidos para permitir um acesso eficaz aos dados.
 
-%TODO ref impl front
-O \emph{frontend}, descrito em X,por sua vez, foi responsável por exibir informações em tempo real, alertas gerados e dados processados em forma de gráficos. Este painel se mostrou uma ferramenta indispensável para a interpretação rápida e eficiente dos dados coletados e analisados pelo sistema.
+O \emph{frontend}, descrito em \label{sec:implFront},por sua vez, foi responsável por exibir informações em tempo real, alertas gerados e dados processados em forma de gráficos.
 
 \section{Limitações do Sistema}\label{sec:limitations}
 

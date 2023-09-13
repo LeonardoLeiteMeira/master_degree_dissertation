@@ -1,4 +1,4 @@
-\section[Implementação do frontend]{Implementação do frontend}
+\section[Implementação do frontend]{Implementação do frontend}\label{sec:implFront}
 %TODO referencia para o Next
 %TODO referencia para a arquitetura do front
 A implementação da interface de usuário, foi desenvolvida de acordo com a arquitetura exposta na seção X. O desenvolvimento do \textit{frontend} é segmentado em várias partes, que incluem a organização das páginas do sistema conforme a estrutura pré definida do Next.js, o gerenciamento de dados acessados pelos componentes, a configuração para acesso externo, e a construção dos componentes individuais.
@@ -10,7 +10,6 @@ A implementação da interface de usuário, foi desenvolvida de acordo com a arq
 Por se tratar de um framework, o NextJs tem uma estrutura pré definida para criação das páginas do sistema assim como suas rotas. Dentro dos arquivos do framework, a pasta \textit{pages} é utilizada para armazenar cada uma das páginas do sistema, sendo cada arquivo uma página, e o nome do arquivo sendo a rota para acesso. A configuração das páginas acorre por arquivos com nomes específicos, no caso \textit{\_app.tsx} e \textit{\_document.tsx}.
 
 \subsubsection{Paginas de configuração}\label{subsec:configPage}
-%TODO REF para o app da doc do next
 Em relação as páginas de configuração temos primeiro a \textit{\_app.tsx}. Esse arquivo tem a responsabilidade de configurar e gerenciar contextos, estilização global e a localização de datas, ou seja, aspectos globais de toda a aplicação.
 
 %TODO REF para a doc LocalizationProvider
@@ -273,7 +272,7 @@ Neste exemplo, o contexto \texttt{DrawerContext} é criado utilizando a função
 
 O componente \texttt{DrawerContextProvider} utiliza o estado React local para gerenciar o valor do estado \texttt{open}. Este valor e a função \texttt{setOpen} são então disponibilizados para todos os componentes filhos por meio do \texttt{DrawerContext.Provider}. Dessa forma, o componente \texttt{DrawerContextProvider} é usado no gerenciamento dos contexto, como explicado em ~\ref{subsubsec:difContexts}, para tornar acessível toda a informação para a árvore de componentes inteira.
 
-A função \texttt{useDrawer} é uma função personalizada que facilita o acesso ao contexto \texttt{DrawerContext} em qualquer parte da aplicação. Dentro do react, funções com o 'use' na frente são denominadas \texttt{hooks}, como pode ser visto na documentação oficial em X. %TODO Ref para a documentação oficial
+A função \texttt{useDrawer} é uma função personalizada que facilita o acesso ao contexto \texttt{DrawerContext} em qualquer parte da aplicação. Dentro do react, funções com o 'use' na frente são denominadas \texttt{hooks}, como pode ser visto na documentação oficial em X. %TODO Ref para a documentação react
 
 Dessa forma, o contexto foi criado e pode ser utilizado para gerenciar o estado de aberto e fechado do menu lateral em toda a aplicação.
 
@@ -435,8 +434,7 @@ Em relação a camada de acesso externo, o último tipo de conexão é o recebim
 %TODO ref para a função fetch se exitir
 O recebimento de dados via stream é implementado usando a função \textit{fetch}, nativa do JavaScript. Essa função é responsável por realizar a requisição ao endpoint correspondente e obter o fluxo de dados em tempo real.
 
-%TODO ref para JSON - silga JSON
-A função \texttt{readStream} é utilizada para interpretar os dados do stream. Essa função recebe o leitor do corpo da resposta, e retorna os dados convertidos para o formato \texttt{JSON}.
+A função \texttt{readStream} é utilizada para interpretar os dados do stream. Essa função recebe o leitor do corpo da resposta, e retorna os dados convertidos para o formato \gls{json}.
 
 \begin{verbatim}
 async function readStream(
@@ -458,8 +456,7 @@ A função \texttt{getRealTimeDataData} é a responsável por iniciar o processo
 
 Como a função não faz o uso da estrtura do axios explicado em ~\ref{subsubsec:httpRequest}, é necessário realizar a configuração de autenticação da mesma que foi explicado anteriormente na estrutura.
 
-%TODO ref para JSON - silga JSON
-Após realizar a requisição, o leitor dos dados é lido do corpo da resposta da requisição, e passado para a função \texttt{readStream}, explicada anteriormente, para ser interpretada e convertida para \texttt{JSON}.
+Após realizar a requisição, o leitor dos dados é lido do corpo da resposta da requisição, e passado para a função \texttt{readStream}, explicada anteriormente, para ser interpretada e convertida para \gls{json}.
 
 \begin{verbatim}
 async function getRealTimeDataData(setData: UpdateDataFromStream) {
