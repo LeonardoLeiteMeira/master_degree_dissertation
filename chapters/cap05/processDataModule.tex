@@ -3,8 +3,7 @@
 Como explicado em ~\ref{subsec:moduloProcessamento}, o modulo de processamento de dados faz a leitura dos dados brutos do sistema, aplica o calculo do \texttt{boxplot} e armazena o resultado no banco de dados.
 
 \subsection{Agendamento para execução periódica}
-%TODO Referencia para a biblioteca schedule
-O processamento dos dados precisa ocorrer periodicamente, no caso foi definido inicialmente uma vez por dia. Para executar a chamada da função de processamento uma vez ao dia foi utilizado a biblioteca schedule. Com essa biblioteca foi agendado para todo dia meia noite a execução da função da função de inicia a agregação dos dados. Um loop infinito foi criado para manter o código em execução, verificando se a função deve ser executada ou não.
+O processamento dos dados precisa ocorrer periodicamente, no caso foi definido inicialmente uma vez por dia. Para executar a chamada da função de processamento uma vez ao dia foi utilizado a biblioteca \texttt{schedule} \cite{scheduleDocs}. Com essa biblioteca foi agendado para todo dia meia noite a execução da função da função de inicia a agregação dos dados. Um loop infinito foi criado para manter o código em execução, verificando se a função deve ser executada ou não.
 
 \begin{verbatim}
 import schedule
@@ -215,7 +214,7 @@ class Logger(metaclass=Singleton):
 \end{verbatim}
 
 %TODO referencia para o pandas
-Os dados brutos lidos do banco de dados são convertidos em um DataFrame do pandas (biblioteca da linguagem python utilizada para manipulação e dados), após o qual são calculados os dados agregados relevantes usando a função \texttt{calc\_box\_plot()}. Esta função retorna os dados em uma forma estruturada adequada para representações gráficas, como um box plot.
+Os dados brutos lidos do banco de dados são convertidos em um DataFrame, da biblioteca \texttt{pandas} \cite{pandasDocs} (biblioteca da linguagem python utilizada para manipulação e dados), após o qual são calculados os dados agregados relevantes usando a função \texttt{calc\_box\_plot()}. Esta função retorna os dados em uma forma estruturada adequada para representações gráficas, como um box plot.
 
 Para realização do calculo, diversas funções da biblioteca pandas são utilizadas, como \texttt{median}, \texttt{quartile}, \texttt{mean} e \texttt{shape}, o que facilita o entendimento e a realização do calculo. 
 

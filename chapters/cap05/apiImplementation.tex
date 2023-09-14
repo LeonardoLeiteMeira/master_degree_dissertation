@@ -7,8 +7,8 @@ Portanto, essa seção irá abordar cada uma dessas partes, passando primeiro pe
 
 \subsection{Inicialização}\label{subsec:main}
 A inicialização do sistema acontece por meio do arquivo \texttt{main.py}, que serve como o ponto de entrada para inicializar a \gls{API} e o modulo de processamento de dados.
-%TODO ref para o fastapi
-A biblioteca \texttt{FastAPI} é utilizada para criar a aplicação principal, aqui referida como \texttt{app}. O middleware \texttt{CORSMiddleware} é adicionado à aplicação \texttt{FastAPI}, permitindo uma configuração de \gls{CORS} (Cross-Origin Resource Sharing) abrangente. Esta configuração faz com que a \gls{API} possa ser acessada por diferentes origens.
+
+A biblioteca \texttt{FastAPI} \cite{fastapiDocs} é utilizada para criar a aplicação principal, aqui referida como \texttt{app}. O middleware \texttt{CORSMiddleware} é adicionado à aplicação \texttt{FastAPI}, permitindo uma configuração de \gls{CORS} (Cross-Origin Resource Sharing) abrangente. Esta configuração faz com que a \gls{API} possa ser acessada por diferentes origens.
 
 A importação do módulo \texttt{API\_data\_layer} não apenas incorpora as rotas relacionadas a esse módulo, mas também inicializa o módulo de recebimento de dados. Isso implica que a inicialização deste módulo ocorre simultaneamente ao carregamento da \gls{API}, porem em uma thread separada, como detalhado em ~\ref{subsec:}.%TODO ref para a implementação do modulo de processamento de dados
 
@@ -19,7 +19,7 @@ As rotas da \gls{API} são então incluídas na aplicação principal através d
 Adicionalmente, o WebSocket é montado na raiz da aplicação através do objeto \texttt{socketio\_app}, possibilitando a comunicação em tempo real entre o servidor e os clientes. A implementação da conexão websocket pode ser vista em ~\ref{subsec:}.%TODO ref para a implementação da classe de conexão websocket
 
 
-A execução do arquivo se conclui com a inicialização do servidor \texttt{Uvicorn}, definindo o host e a porta para escuta. \texttt{Uvicorn} é um servidor \gls{ASGI} que serve como a interface entre o código da aplicação e o servidor web. Ele é responsável por hospedar a aplicação \texttt{FastAPI} e escutar por conexões de entrada no host e na porta especificados. A escolha deste servidor foi pautada na recomendação da documentação do FastAPI.%TODO ref para a doc do fast api
+A execução do arquivo se conclui com a inicialização do servidor \texttt{Uvicorn} \cite{uvicornOfficialDocs}, definindo o host e a porta para escuta. \texttt{Uvicorn} é um servidor \gls{ASGI} que serve como a interface entre o código da aplicação e o servidor web. Ele é responsável por hospedar a aplicação \texttt{FastAPI} e escutar por conexões de entrada no host e na porta especificados. A escolha deste servidor foi pautada na recomendação da documentação do FastAPI \cite{fastapiTutorial}.
 
 \begin{verbatim}
 from fastapi import FastAPI
@@ -69,9 +69,7 @@ if __name__ == "__main__":
 A infraestrutura e composta de 4 sub-módulos, Autenticação, WebSocket, Conexão com o banco de dados e Gerenciamento de Threads.
 
 \subsubsection{Authetication}\label{subsubsec:auth}
-%TODO referencia para JWT
-%TODO referencia para auth do fastAPI
-A implementação da autenticação do sistema foi baseada na documentação oficial do FastAPI, portanto foi adotada uma abordagem baseada em tokens \gls{JWT}. O \gls{JWT} é um padrão amplamente aceito para transmitir informações entre partes de maneira segura. A estrutura de um \gls{JWT} é codificada e pode ser verificada para assegurar que os dados não foram alterados durante a transmissão. 
+A implementação da autenticação do sistema foi baseada na documentação oficial do FastAPI \cite{fastapiSecurity}, portanto foi adotada uma abordagem baseada em tokens \gls{JWT}. O \gls{JWT} é um padrão amplamente aceito para transmitir informações entre partes de maneira segura. A estrutura de um \gls{JWT} é codificada e pode ser verificada para assegurar que os dados não foram alterados durante a transmissão. 
 
 O ponto de entrada para a autenticação é o \texttt{o\_auth2\_password\_bearer}, uma instância do OAuth2PasswordBearer que é designada para obter o token a partir do cabeçalho da requisição. O método \texttt{auth\_middleware} foi definido como um middleware assíncrono, que depende deste bearer token. Esse middleware é utilizado nos controllers para verificar se a requisição recebida tem ou não permissão para acessar as informações.
 
@@ -203,8 +201,7 @@ def __decode_token(self,token:str)->dict:
 \end{verbatim}
 
 \subsubsection{WebSocket}\label{subsubsec:WebSocketImplement}
-%TODO Ref para a biblioteca socket.io
-A implementação da conexão via WebSocket foi feita utilizando a biblioteca socket.io, que possui diversos recursos prontos que facilitam a gestão de conexões Web Socket, com por exemplo a criação de salas para disparo de notificações.
+A implementação da conexão via WebSocket foi feita utilizando a biblioteca \texttt{socket.io} \cite{socketIoDocs}, que possui diversos recursos prontos que facilitam a gestão de conexões Web Socket, com por exemplo a criação de salas para disparo de notificações.
 
 %TODO se der tempo mudar a implementação para ver a autenticação
 A estrutura adotada para a gestão de conexões Web Socket foi feita de forma que o cliente deve efetuar uma requisição websocket ao \textit{endpoint} raiz da \gls{API} para ser registrado em uma sala virtual específica. Após a conclusão bem-sucedida dessa solicitação, o cliente passa a receber todas as mensagens direcionadas à sala na qual foi cadastrado.
@@ -256,8 +253,7 @@ A classe \texttt{WebSocketDispatcher} é utilizada pelo modulo de recebimento do
 
 Na arquitetura do sistema, foi identificada a necessidade de realizar tarefas de forma concorrente, sem bloquear a execução da \gls{API}. Essas tarefas são a execução do modulo de recebimento de dados, e a checagem dos metadados do sistema. Ambas tarefas devem ser executadas em paralelo com a execução da \gls{API}, sem influenciar na sua execução. Portanto, para atingir esse objetivo, um gerenciador de threads, denominado \texttt{ThreadManager}, foi implementado.
 
-%TODO Ref para a biblioteca asyncio
-A classe \texttt{ThreadManager} é projetada seguindo o padrão Singleton, assegurando que apenas uma instância seja criada, evitando assim conflitos ou redundâncias no gerenciamento das threads. Uma lista denominada \texttt{threads} é inicializada para armazenar todas as threads criadas, enquanto um loop de eventos assíncronos, atribuído à variável \texttt{loop}, é criado utilizando a biblioteca \texttt{asyncio}.
+A classe \texttt{ThreadManager} é projetada seguindo o padrão Singleton, assegurando que apenas uma instância seja criada, evitando assim conflitos ou redundâncias no gerenciamento das threads. Uma lista denominada \texttt{threads} é inicializada para armazenar todas as threads criadas, enquanto um loop de eventos assíncronos, atribuído à variável \texttt{loop}, é criado utilizando a biblioteca \texttt{asyncio} \cite{pythonAsyncio}.
 
 O método \texttt{start\_async\_thread} foi introduzido para facilitar a criação e o gerenciamento de tarefas assíncronas. Este método aceita uma função assíncrona, \texttt{func}, como argumento e executa as seguintes operações:
 
@@ -295,8 +291,7 @@ class ThreadManager(metaclass=Singleton):
 Esta implementação permite a execução de múltiplas tarefas assíncronas em paralelo, cada uma em sua própria thread, todas gerenciadas pelo mesmo loop de eventos assíncronos.
 
 \subsubsection{Database}\label{subsubsec:DatabaseImpl}
-%TODO referencia para o motor
-No processo de implementação do sistema, para estabelecer uma conexão eficiente com o banco de dados foi utilizado a biblioteca \texttt{motor} foi adotada como mecanismo.
+No processo de implementação do sistema, para estabelecer uma conexão eficiente com o banco de dados foi utilizado a biblioteca \texttt{motor} \cite{motorDocs} foi adotada como mecanismo.
 
 No centro da estratégia de conexão está uma classe base, denominada \texttt{BaseDB}, que tem a responsabilidade não apenas de estabelecer a conexão com o MongoDB, mas também de definir uma série de operações básicas para a manipulação dos dados armazenados. A estrutura dessa classe é apresentada a seguir:
 
@@ -353,8 +348,7 @@ Dentro da estrutura da \gls{API}, uma pasta denominada \texttt{common} foi imple
 \subsubsection{Modelos de Dados}\label{subsubsec:dataModel}
 A seção de modelos de dados na pasta \texttt{common} abriga diversas classes que definem a estrutura dos dados utilizados. Classes que especificam usuários e dados de sensores estão presentes, e fazem o uso da biblioteca \texttt{Pydantic} para definir os modelos e criar validações dos dados.
 
-%TODO ref pydantic,
-\texttt{Pydantic} é uma biblioteca de validação de dados que adiciona tipagem estática no Python para validar que os dados recebidos correspondem a um determinado formato ou esquema. Quando usada para a construção da \gls{API}, \texttt{Pydantic} contribui para a verificação automática e coerente dos dados enviados por meio de solicitações \gls{HTTP}, e manipulações realizadas no banco de dados. Esta abordagem reduz a necessidade de codificação manual para validações de dados, acelerando assim o tempo de desenvolvimento e aumentando a robustez do código.
+\texttt{Pydantic} \cite{pydanticDocs} é uma biblioteca de validação de dados que adiciona tipagem estática no Python para validar que os dados recebidos correspondem a um determinado formato ou esquema. Quando usada para a construção da \gls{API}, \texttt{Pydantic} contribui para a verificação automática e coerente dos dados enviados por meio de solicitações \gls{HTTP}, e manipulações realizadas no banco de dados. Esta abordagem reduz a necessidade de codificação manual para validações de dados, acelerando assim o tempo de desenvolvimento e aumentando a robustez do código.
 
 Para exemplificar temos a  classeNotificationSensorResponse, que é responsável por definir o modelo de dados que é retornado quando a \gls{API} recebe uma requisição solicitando as notificações de um determinado usuário. Destaca-se o uso do \texttt{BaseModel} na sistema de herança, do \texttt{Pydantic}, necessário para definir os tipos de retorno dentro do FastAPI. Além disso é utilizado a função \texttt{Field}, também do \texttt{Pydantic}, para indicar com o três pontos que é um atributo obrigatório de ser informado na construção da classe.
 
