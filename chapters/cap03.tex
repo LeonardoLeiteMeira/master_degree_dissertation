@@ -8,7 +8,7 @@
 \chapter{Methodology}\label{cap:metodology}
 A seção de metodologia explora uma abordagem para o desenvolvimento do software, iniciando com a definição dos requisitos, passando pela definição do método de recebimento dos dados, e a seleção das tecnologias. O processo de desenvolvimento incorpora a criação de histórias de usuário, organizadas em um quadro Kanban para gerenciamento de tarefas, e à configuração dos repositórios. A documentação e reuniões regulares que acompanham o progresso, são uma constante em todas as fases para garantir que o projeto está ocorrendo como o esperado.
 
-\section[Definição dos requisitos]{Definição dos requisitos}
+\section[Definição dos requisitos]{Definição dos requisitos}\label{sec:req}
 A definição precisa dos requisitos é fundamental para garantir que o sistema desenvolvido atenda às necessidades e objetivos. Os requisitos desse projeto foram classificados nas categorias funcionais e não funcionais, para garantir uma compreensão completa do que é esperado do sistema.
 
 \subsection[Requisitos Funcionais]{Requisitos Funcionais}
@@ -62,7 +62,7 @@ O sistema deve oferecer a capacidade de os usuários filtrarem as exibições gr
 O sistema deve mostrar as paradas de máquina de acordo com os dados passados pelas planilhas com os dados. Dessa forma poderá ser exemplificado como ficaria as informações de parada das maquinas caso o sistema recebesse essas informações.
 
 
-\subsection[Requisitos Não Funcionais]{Requisitos Não Funcionais}
+\subsection[Requisitos Não Funcionais]{Requisitos Não Funcionais}\label{ssubec:reqNfuctional}
 %TODO Artigo que fala da importância de requisitos não funcionais
 Requisitos não funcionais são especificações que determinam as características de desempenho, usabilidade, confiabilidade e outras propriedades que o sistema deve possuir, ao invés de comportamentos específicos que ele deve demonstrar. Enquanto os requisitos funcionais descrevem o que um sistema deve fazer, os requisitos não funcionais especificam como o sistema deve realizar essas funções.
 
@@ -104,7 +104,7 @@ A interface do sistema e seus componentes devem ser projetados considerando prin
 %- Recebimento dos dados pelo protocolo feito pelo outro professor
 %- protocolo esse que decodifico as informações e disponibilizo para uso
 
-%TODO Referencia para o outro projeto com os sensores e protocolos - Referenciar o Attract 
+%TODO Artigo Referencia para o outro projeto com os sensores e protocolos - Referenciar o Attract 
 Dentro do contexto do projeto, a forma como os dados dos sensores são coletados e armazenados influenciam muito no funcionamento do sistema, pois é a partir deles que todo o sistema é estruturado. Dessa forma foi utilizado como base um protocolo desenvolvido em outro projeto dentro do mesmo contexto do \texttt{Projeto Attract}, que transmite todas as informações necessárias para o contexto desse projeto. Dentro do sistema em questão, ficou a responsabilidade de implementar o decodificador para o determinado protocolo.
 
 O formato do protocolo é estruturado de forma a representar as informações pertinentes à máquina, ao tipo de comunicação, ao sensor e ao significado dos dados transmitidos, seguindo o seguinte formato:
@@ -298,7 +298,7 @@ Ao selecionar uma plataforma de banco de dados, optou-se pelo MongoDB \cite{mong
 Distintivamente, o MongoDB apresenta vantagens como a capacidade de suportar consultas distribuídas e paralelas, otimizando o processamento de requisições intrincadas em cenários com densidade significativa de dados. Adicionalmente, sua compatibilidade com uma ampla variedade de ferramentas de análise de dados estabelece um precedente promissor para evoluções futuras do projeto.
 
 \subsection{Python}
-%TODO colocar referencia para estudos que mostram a eficiência do python 
+%TODO artigo colocar referencia para estudos que mostram a eficiência do python 
 No desenvolvimento do backend, optou-se pela utilização da linguagem Python \cite{pythonOfficialDocs}, amplamente reconhecida por sua versatilidade, legibilidade e adaptabilidade em diversos contextos de aplicação. Python, sendo uma das linguagens mais populares e amplamente aceitas no mundo acadêmico e industrial, apresenta uma vasta biblioteca padrão e suporte comunitário robusto. A rica gama de materiais educativos, que abrange desde tutoriais detalhados até extensos fóruns de discussão, foi essencial para o aprendizado.
 
 A sintaxe intuitiva de Python favorece a rápida prototipagem e desenvolvimento, ao passo que a ampla gama de frameworks e bibliotecas disponíveis potencializa sua aplicação em diversos aspectos, desde análise de dados até desenvolvimento web. Essas características intrínsecas, somadas à flexibilidade e eficiência da linguagem, consolidam a decisão de adotar Python como a linguagem central para o backend neste projeto de mestrado.
@@ -317,7 +317,7 @@ A coerência entre Next.js e TypeScript estabelece um ambiente de desenvolviment
 Além do Next.js e TypeScript, o Material UI 5 \cite{muiDocs} foi integrado ao projeto como biblioteca de design de interface do usuário. Este conjunto de componentes React, baseado no padrão de design Material Design da Google \cite{m3Docs}, oferece uma ampla gama de elementos de interface já estilizados e de fácil implementação. Além da economia de tempo no desenvolvimento de componentes desde o início, a biblioteca proporciona uma experiência de usuário coesa e moderna. O uso do Material UI 5 também contribui para a padronização do design em todo o projeto, assegurando uma experiência de usuário mais intuitiva e agradável. Portanto, a adição deste recurso complementa eficazmente as capacidades já robustas oferecidas pela combinação de Next.js e TypeScript, tornando o ambiente de desenvolvimento ainda mais rico e produtivo.
 
 \subsection{Docker}
-%TODO colocar referencia para artigo que mostra a eficiência do docker
+%TODO artigo que mostra a eficiência do docker
 Para a orquestração e gerenciamento do ambiente de desenvolvimento e produção, adotou-se o Docker \cite{dockerDocs} como ferramenta de containerização. O Docker, amplamente reconhecido no universo de desenvolvimento de software, possibilita encapsular aplicações e suas dependências em containers, garantindo uniformidade, reprodutibilidade e isolamento entre os ambientes. Esta abordagem simplifica significativamente os processos de integração, teste e implantação, uma vez que os containers podem ser movidos de forma transparente entre diferentes ambientes e plataformas.
 
 A ampla documentação disponível, juntamente com uma comunidade ativa, proporcionou um entendimento claro e facilitou a adoção desta tecnologia. Além disso, a flexibilidade e eficiência proporcionadas pelo Docker, ao minimizar os conflitos de dependências e garantir que a aplicação funcione consistentemente em diversos contextos, foram fatores decisivos para sua escolha neste projeto.

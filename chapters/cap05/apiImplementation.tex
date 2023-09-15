@@ -10,13 +10,13 @@ A inicialização do sistema acontece por meio do arquivo \texttt{main.py}, que 
 
 A biblioteca \texttt{FastAPI} \cite{fastapiDocs} é utilizada para criar a aplicação principal, aqui referida como \texttt{app}. O middleware \texttt{CORSMiddleware} é adicionado à aplicação \texttt{FastAPI}, permitindo uma configuração de \gls{CORS} (Cross-Origin Resource Sharing) abrangente. Esta configuração faz com que a \gls{API} possa ser acessada por diferentes origens.
 
-A importação do módulo \texttt{API\_data\_layer} não apenas incorpora as rotas relacionadas a esse módulo, mas também inicializa o módulo de recebimento de dados. Isso implica que a inicialização deste módulo ocorre simultaneamente ao carregamento da \gls{API}, porem em uma thread separada, como detalhado em ~\ref{subsec:}.%TODO ref para a implementação do modulo de processamento de dados
+A importação do módulo \texttt{API\_data\_layer} não apenas incorpora as rotas relacionadas a esse módulo, mas também inicializa o módulo de recebimento de dados. Isso implica que a inicialização deste módulo ocorre simultaneamente ao carregamento da \gls{API}, porem em uma thread separada, como detalhado em ~\ref{sec:ImplModuloProcessamento}.
 
 Para o gerenciamento de metadados, uma instância do \texttt{MetadataRepository} é criada durante a inicialização. Este componente é essencial para o carregamento dos metadados que são utilizados em diferentes partes do sistema, como constantes e parâmetros de alarme.
 
 As rotas da \gls{API} são então incluídas na aplicação principal através do método \texttt{include\_router} para diferentes módulos, como autenticação, análise de API, camada de dados, notificações e usuários.
 
-Adicionalmente, o WebSocket é montado na raiz da aplicação através do objeto \texttt{socketio\_app}, possibilitando a comunicação em tempo real entre o servidor e os clientes. A implementação da conexão websocket pode ser vista em ~\ref{subsec:}.%TODO ref para a implementação da classe de conexão websocket
+Adicionalmente, o WebSocket é montado na raiz da aplicação através do objeto \texttt{socketio\_app}, possibilitando a comunicação em tempo real entre o servidor e os clientes. A implementação da conexão websocket pode ser vista em ~\ref{subsubsec:WebSocketImplement}.
 
 
 A execução do arquivo se conclui com a inicialização do servidor \texttt{Uvicorn} \cite{uvicornOfficialDocs}, definindo o host e a porta para escuta. \texttt{Uvicorn} é um servidor \gls{ASGI} que serve como a interface entre o código da aplicação e o servidor web. Ele é responsável por hospedar a aplicação \texttt{FastAPI} e escutar por conexões de entrada no host e na porta especificados. A escolha deste servidor foi pautada na recomendação da documentação do FastAPI \cite{fastapiTutorial}.
@@ -224,8 +224,7 @@ async def connect(sid, environ, auth):
     socket_io_server.enter_room(sid, NOTIFICATION_ROOM)
 \end{verbatim}
 
-%TODO Ref para a explicação da main.py
-O objeto \texttt{socket\_io\_server} é responsável por gerenciar a comunicação \textit{WebSocket}, enquanto o \texttt{socketio\_app} cria uma aplicação \gls{ASGI} que interage com o servidor \textit{WebSocket}, e é adicionado ao servidor FastAPI. Adicionalmente, uma instância da classe \texttt{WebSocketDispatcher} foi criada para facilitar o envio de notificações através do \textit{WebSocket}.
+O objeto \texttt{socket\_io\_server} é responsável por gerenciar a comunicação \textit{WebSocket}, enquanto o \texttt{socketio\_app} cria uma aplicação \gls{ASGI} que interage com o servidor \textit{WebSocket}, e é adicionado ao servidor FastAPI. Adicionalmente, uma instância da classe \texttt{WebSocketDispatcher} foi criada para facilitar o envio de notificações através do \textit{WebSocket}. Essa configuração é feita na inicialização do sistema, explicado em \ref{subsec:main}
 
 No evento de conexão, denominado \texttt{connect}, um cliente é automaticamente adicionado à sala \texttt{NOTIFICATION\_ROOM}.
 
@@ -245,7 +244,6 @@ class WebSocketDispatcher:
             room=NOTIFICATION_ROOM)
 \end{verbatim}
 
-%TODO referencia para o modulo de recebimetno de dados
 A classe \texttt{WebSocketDispatcher} é utilizada pelo modulo de recebimento dos dados, detalhado em ~\ref{subsec:checkDataReceived}, para disparar notificações quando é identificado um funcionamento inadequado das maquinas.
 
 
@@ -358,8 +356,8 @@ class NotificationSensorResponse(BaseModel):
     total_count:int = Field(...)
 \end{verbatim}
 
-%TODO Ref para o uso de result para comunicação entre camadas
-Outros modelops de dados importantes são as classes de exceções e uma classe denominada \texttt{Result}, responsável pelo tráfego de dados entre as diferentes camadas da aplicação, mostrado na implementação do modulo da \gls{API} em X.%TODO ref para a parte da implementação do modulo com controller, service e etc...
+%TODO artigo Ref para o uso de result para comunicação entre camadas
+Outros modelos de dados importantes são as classes de exceções e uma classe denominada \texttt{Result}, responsável pelo tráfego de dados entre as diferentes camadas da aplicação, mostrado na implementação do modulo da \gls{API} em \ref{subsec:modules}.
 Exemplo de classe que define uma exceção do sistema.
 \begin{verbatim}
 class CustomBaseException(Exception):
@@ -424,12 +422,11 @@ class PyObjectId(ObjectId):
         field_schema.update(type="string")
 \end{verbatim}
 
-\subsubsection{Funções Helpers}
+\subsubsection{Funções Helpers}\label{subsubsec:helpers}
 
 A seção de funções \textit{helpers} na pasta \texttt{common} foi construída para conter métodos que sejam comum em diferentes módulos do sistema, evitando a duplicação de código e padronizando o funcionamento.
 
-%TODO ref para o datatype na subsections eguinte de constantes
-Um exemplo dessas funções é a conversão de \texttt{Datatype} para coleções do MongoDB. O código a seguir ilustra um desses processos:
+Um exemplo dessas funções é a conversão de \texttt{Datatype}, mostrado na seção sobre constantes \ref{subsubsec:constantes}, para coleções do MongoDB. O código a seguir ilustra um desses processos:
 
 \begin{verbatim}
 def sensor_name_to_processed_collection(
@@ -441,12 +438,11 @@ def sensor_name_to_processed_collection(
 \end{verbatim}
 
 Estas funções são empregadas para determinar os nomes corretos das coleções em de acordo com o tipo de dado a ser tratado e manipulado pelos modulos. Funções como \texttt{sensor\_name\_to\_processed\_collection} e \texttt{sensor\_name\_to\_raw\_data\_collection} convertem entre nomes de sensores e nomes de coleções. 
-%TODO ref para o datatype na subsections eguinte de constantes
-Adicionalmente, uma série de funções foi desenvolvida para mapear o nome processado da coleção, de volta para o \texttt{Datatype} correspondente, garantindo uma manipulação de dados mais segura e coerente.
+
+Adicionalmente, uma série de funções foi desenvolvida para mapear o nome processado da coleção, de volta para o \texttt{Datatype} correspondente, mostrado na seção sobre constantes \ref{subsubsec:constantes}, garantindo uma manipulação de dados mais segura e coerente.
 
 
-\subsubsection{Constantes}
-%TODO ref para websocker room
+\subsubsection{Constantes}\label{subsubsec:constantes}
 Por fim, a seção de constantes armazena uma série de valores fixos que são usados em várias partes do sistema. Isso inclui nomes de bancos de dados, tipos de alertas, salas de websocket, e outros que forem necessários.
 
 Dentre as constantes destaca-se a \texttt{DataType}, que é um \textit{enum} que padroniza os tipos de dados que podem ser recebidos dos sensores. Esta padronização é empregada em diversos módulos para assegurar que os dados sejam recebidos, processados, armazenados e retornados de maneira consistente e correta.
@@ -506,14 +502,12 @@ async def real_time_iot():
         media_type="application/octet-stream")
 \end{verbatim}
 
-%TODO adicionar referencia para a implementação da autenticação
-Neste exemplo, o controller faz uso do \texttt{APIRouter} para criar rotas associadas aos dados da IoT. Um middleware de autenticação é aplicado como uma dependência, como mostrado no detalhamento da autenticação em ref X, garantindo que apenas usuários autenticados possam acessar essas rotas. Nesse caso, ao aplicar o middleware na criação do \texttt{iot\_data\_router}, é garantido que todos os \texttt{endpoints} criados a partir dele precisem de autenticação.
+Neste exemplo, o controller faz uso do \texttt{APIRouter} para criar rotas associadas aos dados da IoT. Um middleware de autenticação é aplicado como uma dependência, como mostrado no detalhamento da autenticação em \ref{subsubsec:auth}, garantindo que apenas usuários autenticados possam acessar essas rotas. Nesse caso, ao aplicar o middleware na criação do \texttt{iot\_data\_router}, é garantido que todos os \texttt{endpoints} criados a partir dele precisem de autenticação.
 
 Logo abaixo é criada uma instância do serviço que deve ser utilizado pelos \texttt{endpoints} para responder as requisições recebidas.
 
-%TODO adicionar referencia para a implementação do modulo de recebimento de dados
 A rota \texttt{/realtime} é designada para fornecer dados em tempo real. Uma função interna, \texttt{get\_real\_time\_data}, é 
-responsável por coletar esses dados do \texttt{SensorValue}, explicado em ref X. Nesse endpoint, a \gls{API} pega os valores atuais e retorna uma \texttt{StreamingResponse}, que envia os dados em tempo real como um fluxo contínuo.
+responsável por coletar esses dados do \texttt{SensorValue}, explicado em \ref{sec:Implementação do modulo de recebimento de dados}. Nesse endpoint, a \gls{API} pega os valores atuais e retorna uma \texttt{StreamingResponse}, que envia os dados em tempo real como um fluxo contínuo.
 
 As outras rotas, como \texttt{/machines\_in\_sensor} e \texttt{/graph\_info}, operam de maneira semelhante, mas com diferentes responsabilidades. Elas fazem chamadas para a instancia de \texttt{ServiceIOT} para recuperar informações específicas e retorná-las ao cliente. Caso ocorra uma exceção ou erro, um \texttt{HTTPException} é lançado com um código de status HTTP apropriado e uma mensagem de erro detalhada.
 

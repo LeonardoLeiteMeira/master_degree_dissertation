@@ -145,9 +145,6 @@ def __parse_multicast_message(self, data):
         return message_dict
     \end{verbatim}
 
-
-
-%TODO Colocar referencia para a arquitetura
 Para interpretar e extrair informações da mensagem recebida do multicast, é crucial decodificar adequadamente a mensagem de acordo com o protocolo definido anteriormente. A implementação dessa decodificação é feita pelo método \texttt{\_\_parse\_multicast\_message}. A função auxiliar \texttt{\_\_parse\_bytes} é utilizada para essa tarefa, dada uma sequência de bytes, a função interpreta os bytes utilizando a ordem big-endian (onde os bytes mais significativos vêm primeiro).
 
 \begin{verbatim}
@@ -212,12 +209,9 @@ class IotSensorConnection(IotSensorConnectionInterface):
             listen_multicast_messages(self.__handle_iot_data)
 \end{verbatim}
 
-%TODO Referencia para o helper de threads
-Ao iniciar a conexão, utilizando o método \texttt{start\_connection}, é criada uma nova thread por meio da classe \texttt{ThreadManager}. Esta thread invoca o método \texttt{listen\_multicast\_messages} da classe \texttt{SensorConnection} que foi detalhado na seção ~\ref{subsec:Conexão e recebimento dos dados}. É necessário criar uma nova thread pois como esse modulo está junto com a \gls{API}, e é necessário que os dois processos funcionem ao mesmo tempo, uma nova thread foi necessária para o funcionamento em paralelo de ambos.
+Ao iniciar a conexão, utilizando o método \texttt{start\_connection}, é criada uma nova thread por meio da classe \texttt{ThreadManager}, explicada em \ref{subsubsec:ThreadManager}. Esta thread invoca o método \texttt{listen\_multicast\_messages} da classe \texttt{SensorConnection} que foi detalhado na seção ~\ref{subsec:Conexão e recebimento dos dados}. É necessário criar uma nova thread pois como esse modulo está junto com a \gls{API}, e é necessário que os dois processos funcionem ao mesmo tempo, uma nova thread foi necessária para o funcionamento em paralelo de ambos.
 
 \subsubsection{Verificação do formato dos dados}
-
-%TODO referencia para a seção de helper do Pydantic
 Para lidar com os dados recebidos, o método \texttt{\_\_handle\_iot\_data} é passado como argumento para \texttt{listen\_multicast\_messages} (como o argumento save\_func na classe que existe na classe \texttt{SensorConnection}).
 
 %TODO Alterar o value no parse
@@ -303,9 +297,7 @@ class SensorsRepository:
 
 \subsubsection{Verificação de alertas}
 
-Dentro do método \texttt{update\_current\_sensor\_value}, primeiramente é verificado o tipo de alerta gerado com o método  \texttt{\_\_get\_alert\_type}.
-%TODO Referencia para o helper de metadados com a leitura do parametro de alerta em get_sensor_alert_value
-Esse método realiza a leitura do parâmetro de acordo do com tipo do sensor dentro dos metadados do sistema, em que o acesso é explicado em ..., e com ele verifica o status de alerta. 
+Dentro do método \texttt{update\_current\_sensor\_value}, primeiramente é verificado o tipo de alerta gerado com o método  \texttt{\_\_get\_alert\_type}. Esse método realiza a leitura do parâmetro de acordo do com tipo do sensor dentro dos metadados do sistema, em que o acesso é explicado em \ref{subsec:main}, e com ele verifica o status de alerta. 
 
 O status de alerta, definido pela função  \texttt{get\_alert\_status}, retorna como \texttt{OK} caso o valor do sensor seja menor que 90\% do valor definido com parâmetro, retorna como \texttt{WARNING} caso esse valor esteja entre 90\% e 100\%, e retorna como \texttt{PROBLEM} caso o valor retornado pelo sensor seja maior que 100\% do valor definido como parâmetro
 
@@ -365,8 +357,7 @@ iot_data = IotData(
 )
 \end{verbatim}
 
-%TODO Referencia para a seção de helpers quando pega o nome da collection
-Uma informação importante a se destacar, é que o nome da coleção utilizada pelo método \texttt{insert\_value\_into\_database} é definida de acordo com tipo de dado estabelecido, usando a função de ajuda \texttt{sensor\_name\_to\_raw\_data\_collection}, explicada anteriormente em ....
+Uma informação importante a se destacar, é que o nome da coleção utilizada pelo método \texttt{insert\_value\_into\_database} é definida de acordo com tipo de dado estabelecido, usando a função de ajuda \texttt{sensor\_name\_to\_raw\_data\_collection}, explicada em \ref{subsubsec:helpers}.
 
 \subsubsection{Atualização dos dados em memoria}
 
@@ -463,8 +454,7 @@ async def check_iot_notification(self, iot_data:IotData):
             iot_data.timestamp)
 \end{verbatim}
 
-%TODO referencia para o datatype
-O método \texttt{\_\_put\_new\_machine\_sensor\_in\_alert\_state} é um método assíncrono privado que tem a responsabilidade de adicionar um novo sensor ao estado de alerta para uma máquina específica. Ele recebe dois parâmetros: \texttt{machine\_in\_alert}, que é uma instância da classe \texttt{MachinesSensorAlert} representando a máquina em questão, e \texttt{sensor\_type}, que é uma instância do tipo \texttt{Datatype} representando o tipo de sensor que deve ser colocado em alerta.
+O método \texttt{\_\_put\_new\_machine\_sensor\_in\_alert\_state} é um método assíncrono privado que tem a responsabilidade de adicionar um novo sensor ao estado de alerta para uma máquina específica. Ele recebe dois parâmetros: \texttt{machine\_in\_alert}, que é uma instância da classe \texttt{MachinesSensorAlert} representando a máquina em questão, e \texttt{sensor\_type}, que é uma instância do tipo \texttt{Datatype}, mostrado em \ref{subsubsec:constantes}, representando o tipo de sensor que deve ser colocado em alerta.
 
 \begin{verbatim}
 class MachinesSensorAlert(BaseModel):
@@ -480,7 +470,7 @@ class MachinesSensorAlert(BaseModel):
     read_by:Optional[list[str]] = Field([])
 \end{verbatim}
 
-Importante destacar que dentro dessa instância que é mantida em memória, o atributo \texttt{read\_by} não é preenchido. Isso acontece pois esse atributo é usado para controlar os usuários que marcaram a notificação como lida, e assim identificar notificações lidas pelo usuário. Portanto, esse atributo é preenchido apenas no banco de dados, pelo modulo de notificações da \gls{API}, mostrada em X.%TODO ref para subsection modulos da impl da \gls{API}
+Importante destacar que dentro dessa instância que é mantida em memória, o atributo \texttt{read\_by} não é preenchido. Isso acontece pois esse atributo é usado para controlar os usuários que marcaram a notificação como lida, e assim identificar notificações lidas pelo usuário. Portanto, esse atributo é preenchido apenas no banco de dados, pelo modulo de notificações da \gls{API}, mostrada em \ref{subsec:modules}.
 
 A primeira etapa realizada por este método é identificar a posição (ou índice) da máquina dentro da lista de alertas \texttt{machines\_alert} usando o método \texttt{index}. Uma vez obtido o índice, o tipo do sensor é adicionado à lista de sensores em estado de alerta da máquina, representada pelo atributo \texttt{sensors}. Além disso, este sensor também é adicionado ao histórico de sensores em estado de alerta da máquina, indicado pelo atributo \texttt{sensors\_historical}. Finalmente, a máquina atualizada (com o novo sensor adicionado às suas listas de alerta e histórico) é reinserida na lista principal \texttt{machines\_alert} na mesma posição identificada anteriormente.
 
@@ -499,8 +489,7 @@ async def __put_new_machine_sensor_in_alert_state(
 
 Já o método \texttt{\_\_put\_new\_machine\_in\_alert\_state} é um método assíncrono privado cuja principal função é criar e registrar um novo estado de alerta para uma máquina específica. Este método é invocado quando uma máquina entra em estado de alerta pela primeira vez, o que significa que ainda não está presente na lista de alertas \texttt{machines\_alert} da classe.
 
-%TODO referencia para o datatype
-Recebe quatro parâmetros: \texttt{machine\_name}, que é uma string representando o nome da máquina; \texttt{sensor\_type}, que é uma instância do tipo \texttt{Datatype} denotando o tipo de sensor que disparou o alerta; \texttt{start\_time}, uma instância de \texttt{datetime} indicando o início do alerta; e \texttt{alert\_type}, que é uma string representando o tipo de alerta.
+Recebe quatro parâmetros: \texttt{machine\_name}, que é uma string representando o nome da máquina; \texttt{sensor\_type}, que é uma instância do tipo \texttt{Datatype}, mostrado em \ref{subsubsec:constantes}, denotando o tipo de sensor que disparou o alerta; \texttt{start\_time}, uma instância de \texttt{datetime} indicando o início do alerta; e \texttt{alert\_type}, que é uma string representando o tipo de alerta.
 
 Inicialmente, o método cria uma nova instância da classe \texttt{MachinesSensorAlert}. Esta nova instância representa o estado de alerta da máquina. A instância é inicializada com o nome da máquina, o tipo de sensor que causou o alerta, uma marca temporal do início do alerta e o tipo de alerta. Além disso, a máquina é marcada como estando em estado de alerta através do atributo \texttt{is\_in\_alert}, que é definido como \texttt{True}.
 
@@ -524,9 +513,7 @@ async def __put_new_machine_in_alert_state(self,
     self.machines_alert.append(new_machine_alert)
 \end{verbatim}
 
-
-%TODO referencia para o datatype
-O método \texttt{\_\_remove\_machine\_sensor\_from\_alert\_state} é uma função assíncrona privada projetada para remover um sensor específico do estado de alerta de uma máquina. Ele recebe três parâmetros: \texttt{machine\_in\_alert}, que é uma instância da classe \texttt{MachinesSensorAlert} representando a máquina em questão; \texttt{sensor\_to\_remove}, que é do tipo \texttt{Datatype} e identifica o sensor a ser removido; e \texttt{end\_time}, uma instância de \texttt{datetime} que indica o momento em que o sensor foi removido do estado de alerta. Dentro deste método, inicialmente, as posições do sensor e da máquina são identificadas nas listas apropriadas. O sensor é então removido da lista de sensores em estado de alerta da máquina. Se, após a remoção, a máquina não tiver mais sensores em estado de alerta, ela será removida do estado de alerta, pela chamada do método \texttt{\_\_remove\_machine\_from\_alert} caso contrário, apenas o estado do sensor é atualizado, pela chamada de outro método, \texttt{\_\_remove\_sensor\_from\_alert\_state}.
+O método \texttt{\_\_remove\_machine\_sensor\_from\_alert\_state} é uma função assíncrona privada projetada para remover um sensor específico do estado de alerta de uma máquina. Ele recebe três parâmetros: \texttt{machine\_in\_alert}, que é uma instância da classe \texttt{MachinesSensorAlert} representando a máquina em questão; \texttt{sensor\_to\_remove}, que é do tipo \texttt{Datatype} \ref{subsubsec:constantes}, e identifica o sensor a ser removido; e \texttt{end\_time}, uma instância de \texttt{datetime} que indica o momento em que o sensor foi removido do estado de alerta. Dentro deste método, inicialmente, as posições do sensor e da máquina são identificadas nas listas apropriadas. O sensor é então removido da lista de sensores em estado de alerta da máquina. Se, após a remoção, a máquina não tiver mais sensores em estado de alerta, ela será removida do estado de alerta, pela chamada do método \texttt{\_\_remove\_machine\_from\_alert} caso contrário, apenas o estado do sensor é atualizado, pela chamada de outro método, \texttt{\_\_remove\_sensor\_from\_alert\_state}.
 
 \begin{verbatim}
 async def __remove_machine_sensor_from_alert_state(self,
@@ -545,7 +532,7 @@ async def __remove_machine_sensor_from_alert_state(self,
     
 \end{verbatim}
 
-O método \texttt{\_\_remove\_machine\_from\_alert} é outra função assíncrona privada, que tem a responsabilidade de remover completamente uma máquina do estado de alerta. Aceita dois parâmetros: \texttt{index\_of\_machine}, o índice da máquina em questão na lista, e \texttt{end\_time}, o momento em que a máquina foi removida do alerta. Dentro deste método, a máquina é primeiro marcada como não estando em alerta e depois é removida da lista \texttt{machines\_alert}. A máquina é então armazenada no banco de dados com um registro de seu estado final e o horário de término. Finalmente, uma notificação é enviada através de um websocket para informar a interface do usuário sobre a mudança no estado da máquina. O detalhamento de como a notificação é enviada está explicada em X %TODO referencia aqui para as notificações
+O método \texttt{\_\_remove\_machine\_from\_alert} é outra função assíncrona privada, que tem a responsabilidade de remover completamente uma máquina do estado de alerta. Aceita dois parâmetros: \texttt{index\_of\_machine}, o índice da máquina em questão na lista, e \texttt{end\_time}, o momento em que a máquina foi removida do alerta. Dentro deste método, a máquina é primeiro marcada como não estando em alerta e depois é removida da lista \texttt{machines\_alert}. A máquina é então armazenada no banco de dados com um registro de seu estado final e o horário de término. Finalmente, uma notificação é enviada através de um websocket para informar a interface do usuário sobre a mudança no estado da máquina. O detalhamento de como a notificação é enviada está explicada em \ref{subsubsec:WebSocketImplement}.
 
 \begin{verbatim}
 async def __remove_machine_from_alert(self,

@@ -89,6 +89,16 @@ Portanto, a imagem \ref{fig:graphData} mostra como fica a visualização dessas 
 	\label{fig:graphData}
 \end{figure}
 
+
+A visualização desses gráficos pode ser filtrada por data, podendo ser selecionada a data inicial e a data final que os dados devem ser exibidos. Quando esses campos são alterados e o botão "aplicar filtro" é clicado, uma nova requisição é enviada e os dados são carregados de acordo com o período especificado. Por padrão, quando a página é carregada pela primeira vez, o sistema envia a requisição buscando os dados dos últimos 30 dias, e cabe ao usuário usar o filtro para visualizar um período diferente. O filtro por data pode ser visto na figura \ref{fig:loadDataByDate}.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/datetimeFilter.png}
+	\caption{Date filter.}
+	\label{fig:loadDataByDate}
+\end{figure}
+
 \section[Exibição dos dados referente a paragem das máquinas]{Exibição dos dados referente a paragem das máquinas}\label{sec:downtime}
 
 Esta funcionalidade é dedicada à exibição de dados relacionados às paragens das máquinas, armazenados previamente no banco de dados. A funcionalidade tem o objetivo de demonstrar como seriam apresentados esses dados, caso fossem recebidos pelo sistema de forma similar aos dados dos sensores. A fonte dos dados para a elaboração desses gráficos provém de três planilhas recebidas no início do desenvolvimento do projeto, em que as informações foram salvas no banco de dados. Esses dados são acessados pelo frontend por meio do módulo \texttt{downtime\_analytics} da \gls{API}.

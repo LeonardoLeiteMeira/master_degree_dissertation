@@ -15,10 +15,9 @@ while True:
 \end{verbatim}
 
 \subsection{Identificando a origem dos dados}
-%TODO Referencia datatype
-Dentro desta estrutura, é necessário identificar as coleções corretas das quais os dados devem ser recuperados antes de realizar o processamento. Essa identificação começa pela função \texttt{get\_tuples\_with\_raw\_data\_collections\_and\_processed\_collections()}. Esta função, como o próprio nome sugere, está encarregada de recuperar tuplas relacionando as coleções de dados brutos com suas respectivas coleções processadas. Itera-se sobre todos os tipos de sensores, representados pelo enumerador \texttt{Datatype}, e para cada tipo de sensor, identificam-se as respectivas coleções de dados brutos e processados, resultando em uma lista de tuplas. 
+Dentro desta estrutura, é necessário identificar as coleções corretas das quais os dados devem ser recuperados antes de realizar o processamento. Essa identificação começa pela função \texttt{get\_tuples\_with\_raw\_data\_collections\_and\_processed\_collections()}. Esta função, como o próprio nome sugere, está encarregada de recuperar tuplas relacionando as coleções de dados brutos com suas respectivas coleções processadas. Itera-se sobre todos os tipos de sensores, representados pelo enumerador \texttt{Datatype}, explicado em \ref{subsubsec:constantes}, e para cada tipo de sensor, identificam-se as respectivas coleções de dados brutos e processados, resultando em uma lista de tuplas. 
 
-Importante destacar que os nomes das coleções são recuperados pelas funções de ajuda, explicados em %TODO Referencia para função helper que gera nome das coleções...
+Importante destacar que os nomes das coleções são recuperados pelas funções de ajuda, explicados em \ref{subsubsec:helpers}.
 
 \begin{verbatim}
 def get_tuples_with_raw_data_collections_and_processed_collections():
@@ -64,8 +63,7 @@ async def aggregation(sensors_collection_list:list[tuple]):
                 machine)
 \end{verbatim}
 
-%TODO referencia para base DB
-Dentro desta função, primeiramente, uma instância da base de dados é inicializada usando a classe \texttt{BaseDB()}. Em seguida, a função itera sobre cada tupla na lista fornecida. Para cada tupla, as coleções de dados brutos e processados são extraídas. Utilizando a coleção de dados brutos como referência, é feita uma leitura da lista de máquinas associadas a essa coleção por meio do método \texttt{read\_machines\_list()}.
+Dentro desta função, primeiramente, uma instância da base de dados é inicializada usando a classe \texttt{BaseDB()}, explicada em \ref{subsubsec:DatabaseImpl}. Em seguida, a função itera sobre cada tupla na lista fornecida. Para cada tupla, as coleções de dados brutos e processados são extraídas. Utilizando a coleção de dados brutos como referência, é feita uma leitura da lista de máquinas associadas a essa coleção por meio do método \texttt{read\_machines\_list()}.
 
 \begin{verbatim}
 async def read_machines_list(self, collection:str):
@@ -185,8 +183,7 @@ A quantidade de dados recuperados é calculada e, se esta quantidade exceder um 
 
 Apos a busca da query, um objeto \texttt{logger} é inicializado para manter registros do processo de agregação.
 
-%TODO referencia para trabalhos futuros com melhoria de logs
-Nessa implementação o log é utilizado apenas para mostrar informações no console, mas uma implementação futura pode adicionar uma forma mais completa de logs.
+Nessa implementação o log é utilizado apenas para mostrar informações no console, mas uma implementação futura pode adicionar uma forma mais completa de logs, como detalhado em \ref{subsubsec:futurelogs}.
 
 \begin{verbatim}
 class Logger(metaclass=Singleton):
@@ -213,7 +210,6 @@ class Logger(metaclass=Singleton):
         print("=============================")
 \end{verbatim}
 
-%TODO referencia para o pandas
 Os dados brutos lidos do banco de dados são convertidos em um DataFrame, da biblioteca \texttt{pandas} \cite{pandasDocs} (biblioteca da linguagem python utilizada para manipulação e dados), após o qual são calculados os dados agregados relevantes usando a função \texttt{calc\_box\_plot()}. Esta função retorna os dados em uma forma estruturada adequada para representações gráficas, como um box plot.
 
 Para realização do calculo, diversas funções da biblioteca pandas são utilizadas, como \texttt{median}, \texttt{quartile}, \texttt{mean} e \texttt{shape}, o que facilita o entendimento e a realização do calculo. 

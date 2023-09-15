@@ -1,7 +1,6 @@
 \section[Implementação do frontend]{Implementação do frontend}\label{sec:implFront}
 
-%TODO referencia para a arquitetura do front
-A implementação da interface de usuário, foi desenvolvida de acordo com a arquitetura exposta na seção X. O desenvolvimento do \textit{frontend} é segmentado em várias partes, que incluem a organização das páginas do sistema conforme a estrutura pré definida do Next.js \cite{nextjsDocs}, o gerenciamento de dados acessados pelos componentes, a configuração para acesso externo, e a construção dos componentes individuais.
+A implementação da interface de usuário, foi desenvolvida de acordo com a arquitetura exposta na seção \ref{sec:archFront}. O desenvolvimento do \textit{frontend} é segmentado em várias partes, que incluem a organização das páginas do sistema conforme a estrutura pré definida do Next.js \cite{nextjsDocs}, o gerenciamento de dados acessados pelos componentes, a configuração para acesso externo, e a construção dos componentes individuais.
 
 É relevante notar que, para manter a conformidade com as melhores práticas e simplificar o desenvolvimento, as configurações padrão do Next.js foram mantidas.
 
@@ -11,16 +10,15 @@ Por se tratar de um framework, o NextJs tem uma estrutura pré definida para cri
 \subsubsection{Paginas de configuração}\label{subsec:configPage}
 Em relação as páginas de configuração temos primeiro a \textit{\_app.tsx}. Esse arquivo tem a responsabilidade de configurar e gerenciar contextos, estilização global e a localização de datas, ou seja, aspectos globais de toda a aplicação.
 
-%TODO REF para a implementação dos contextos
-O código começa pela importação de diversos módulos e bibliotecas, o que inclui contextos específicos como \texttt{OpenContext} e \texttt{PrivateContext}, que são explicados melhor em \ref{label}, e o suporte para localização de datas com \texttt{AdapterDayjs} \cite{dayJsInstallation}.
+O código começa pela importação de diversos módulos e bibliotecas, o que inclui contextos específicos como \texttt{OpenContext} e \texttt{PrivateContext}, que são explicados melhor em \ref{subsubsec:contextCreation}, e o suporte para localização de datas com \texttt{AdapterDayjs} \cite{dayJsInstallation}.
 
-O \texttt{LocalizationProvider} e \texttt{AdapterDayjs} são de bibliotecas que têm o objetivo de fornecer funcionalidades de localização e formatação de datas. O \texttt{LocalizationProvider} atua como um encapsulador para o sistema de datas, permitindo a integração com diferentes bibliotecas de gerenciamento de datas. Neste caso, o \texttt{AdapterDayjs} é utilizado como o adaptador para a biblioteca Day.js, permitindo que as datas sejam manipuladas e formatadas de maneira eficiente e compatível com diversos locais geográficos e formatos. Com essas bibliotecas fica mais fácil gerenciar datas para a construção dos filtros do dashboard, explicados em X. %TODO ref para a funcionalidade de filtrar por data 
+O \texttt{LocalizationProvider} e \texttt{AdapterDayjs} são de bibliotecas que têm o objetivo de fornecer funcionalidades de localização e formatação de datas. O \texttt{LocalizationProvider} atua como um encapsulador para o sistema de datas, permitindo a integração com diferentes bibliotecas de gerenciamento de datas. Neste caso, o \texttt{AdapterDayjs} é utilizado como o adaptador para a biblioteca Day.js, permitindo que as datas sejam manipuladas e formatadas de maneira eficiente e compatível com diversos locais geográficos e formatos. Com essas bibliotecas fica mais fácil gerenciar datas para a construção do filtro do dashboard que gerencia o período de datas exibido nos gráficos, explicados em \ref{sec:histicalGraphs}. 
 
 O tipo \texttt{NextPageWithLayout} foi definido para enriquecer as propriedades da página com informações sobre o \textit{layout}. Isso permite que cada página tenha um \textit{layout} personalizado se necessário, oferecendo grande flexibilidade no design da interface.
 
 A função principal \texttt{App}, que recebe \texttt{Component} e \texttt{pageProps} como argumentos, é responsável por configurar o \textit{layout} e renderizar os componentes da página. A lógica dentro desta função verifica a rota atual usando \texttt{useRouter} \cite{nextjsUseRouter} para determinar se o usuário está na página de login.
 
-O conteúdo é então encapsulado dentro dos contextos relevantes. Se o usuário estiver na página de login, apenas o \texttt{OpenContext} é aplicado. Para todas as outras páginas, o \texttt{PrivateContext} é adicionalmente aplicado, garantindo que as informações sensíveis sejam acessadas apenas por usuários autenticados. Os contextos utilizados são detalhados em ref. %TODO Referencia para explicação dos contextos
+O conteúdo é então encapsulado dentro dos contextos relevantes. Se o usuário estiver na página de login, apenas o \texttt{OpenContext} é aplicado. Para todas as outras páginas, o \texttt{PrivateContext} é adicionalmente aplicado, garantindo que as informações sensíveis sejam acessadas apenas por usuários autenticados. Os contextos utilizados são detalhados em \ref{subsec:contextApi}.
 
 Dentro do \texttt{LocalizationProvider}, o adaptador \texttt{AdapterDayjs} é utilizado para fornecer funcionalidades de localização de datas, tornando o aplicativo mais versátil em diferentes locais.
 
@@ -98,8 +96,8 @@ export default function Document() {
 \subsubsection{Paginas do sistema}\label{subsec:}
 As páginas do sistema se dividem em dois tipos, privadas e publica, sendo que publica é apenas a página de login. Essa página pública está no arquivo \texttt{index.tsx}, sendo a rota raiz do sistema. 
 
-%TODO Ref para a tag head do next 
-Neste arquivo, apenas configurações \texttt{meta} e o componente \texttt{Login} são invocados. O elemento \texttt{Head} é utilizado para definir configurações globais do HTML, como o título da página e metadados. 
+
+Neste arquivo, apenas configurações \texttt{meta} e o componente \texttt{Login} são invocados. O elemento \texttt{Head} \cite{nextjsHeadComponent} é utilizado para definir configurações globais do HTML, como o título da página e metadados. 
 
 O componente \texttt{Login} é chamado dentro da tag \texttt{main}, que serve como o conteúdo principal da página. Esta abordagem de design mantém a página \texttt{index.tsx} enxuta, transferindo a maior parte da lógica e da apresentação visual para o componente \texttt{Login}. Este é um exemplo do princípio de separação de interesses, onde cada arquivo ou componente tem uma única responsabilidade claramente definida.
 
@@ -126,7 +124,7 @@ export default function Home() {
 
 As outras páginas do sistema se encontram dentro da pasta \texttt{dashboard}, que também está dentro da pasta \texttt{pages}. Isso implica que todas as páginas dentro dessa pasta devem ser acessados na rota \texttt{/dashboard} \cite{nextjsDefiningRoutes}.
 
-Dentro do dashboard, existe a páginas principal, em \texttt{/index.tsx}, com a página do dashboard que exibe os dados em tempo real e os gráficos com os dados históricos processados. As funcionalidades dessa página está detalhada em X. %TODO Ref para a explicação da pagina principal.
+Dentro do dashboard, existe a páginas principal, em \texttt{/index.tsx}, com a página do dashboard que exibe os dados em tempo real e os gráficos com os dados históricos processados. As funcionalidades dessa página sáo detalhadas em \ref{cap:functions}.
 
 Este arquivo segue à mesma lógica de design observada na página de login, mantendo a separação entre as configurações da página e a lógica dos componentes invocados.
 
@@ -151,8 +149,8 @@ export default function Dashboard() {
 
 As outras páginas do dashboard também foram construídas usando a lógica de composição demostrada e utilizando o mesmo componente base para o layout, \texttt{DashboardLayout}. Essas páginas são:
 \begin{enumerate}
-    \item \textbf{Maintenace}: Responsável por exibir os dados de paragem das maquinas em forma de gráficos para demostrar a visualização dessas informações dentro do sistema. %TODO ref para essa pagina
-    \item \textbf{Profile}: Responsável por exibir as informações do usuário que está logado no sistema, assim como permitir realizar alterações nos dados. %TODO ref para essa pagina
+    \item \textbf{Maintenace}: Responsável por exibir os dados de paragem das maquinas em forma de gráficos para demostrar a visualização dessas informações dentro do sistema, \ref{sec:downtime}.
+    \item \textbf{Profile}: Responsável por exibir as informações do usuário que está logado no sistema, assim como permitir realizar alterações nos dados, \ref{sec:profile}.
 \end{enumerate}
 
 
@@ -164,15 +162,15 @@ Não apenas estados de dados, mas também estados comportamentais, como o estado
 Os contextos criados para o gerenciamento de estados são os seguintes:
 \begin{enumerate}
     \item \texttt{SnackbarContext}: Utilizado para o gerenciamento de mensagens e alertas no sistema, facilitando o acesso a função que exibe alertas e sua configuração em todo o sistema.
-    \item \texttt{AuthContext}: Encarregado de gerenciar o estado de autenticação do usuário. %ref para impl da auth
-    \item \texttt{ThemeContext}: Responsável pela gestão do tema visual da aplicação. %TODO ref para o MUI5
+    \item \texttt{AuthContext}: Encarregado de gerenciar o estado de autenticação do usuário, \ref{subsubsec:auth}.
+    \item \texttt{ThemeContext}: Responsável pela gestão do tema visual da aplicação \cite{muiDefaultTheme}.
     \item \texttt{NotificationContext}: Utilizado para o gerenciamento, leitura e recebimento de notificações no sistema.
-    \item \texttt{LegacyContext}: Gerencia informações de parada das máquinas, após serem lidas do backend.%TODO ref para implementação do backend
+    \item \texttt{LegacyContext}: Gerencia informações de parada das máquinas, após serem lidas do backend.
     \item \texttt{IotContext}: Utilizado para o gerenciamento de estados relacionados aos dispositivos IoT no sistema.
     \item \texttt{DrawerContext}: Encarregado de gerenciar o estado do menu lateral (aberto ou fechado), e disponibilizar em todas as páginas do sistema que utilizam o menu lateral.
 \end{enumerate}
 
-Cada contexto foi concebido com uma função específica, de modo a permitir uma separação clara das responsabilidades. Utilizando a arquitetura mostra em X, esse modelo de gerenciamento de dados no frontend fica simples e escalável, como especificado no requisitos.%TODO Ref para os requisitos
+Cada contexto foi concebido com uma função específica, de modo a permitir uma separação clara das responsabilidades. Utilizando a arquitetura mostra em X, esse modelo de gerenciamento de dados no frontend fica simples e escalável, como especificado nos requisitos, em \ref{sec:req}.
 
 \subsubsection{Gerencia de diferentes contextos}\label{subsubsec:difContexts}
 Para tratar da complexidade gerada pela variedade de contextos necessários no sistema, optou-se por instanciar esses contextos por meio de componentes específicos. Esses componentes foram projetados para encapsular diferentes grupos de contextos, de acordo com as necessidades de acesso.
@@ -376,8 +374,7 @@ O método \texttt{getInstance()} assegura que apenas uma instância da classe se
 
 Uma instância da classe \textit{CustomSocketConnection} é utilizada no contexto de notificações. Através dessa instância, o contexto consegue receber mensagens do servidor, manipulá-las e, em seguida, disponibilizá-las para toda a aplicação. 
 
-%TODO ref para o local storage
-A classe também inclui um mecanismo de autenticação. O token de acesso é recuperado do armazenamento do local storage e é utilizado como parte do cabeçalho de autenticação durante o processo de conexão.
+A classe também inclui um mecanismo de autenticação. O token de acesso é recuperado do armazenamento do local storage \cite{mdnLocalStorage} e é utilizado como parte do cabeçalho de autenticação durante o processo de conexão.
 
 Dentro do contexto de notificações, o atributo Socket da classe é utilizada na inicialização do contexto para realizar a conexão. A instancia da classe é armazenada em uma constante, e em seguinda três funções são cadastradas em eventos de conexão, recebimento de notificação e disconexão. A função que trata o evento de receber uma nova notificação, envia o dado para uma função auxiliar que tem  o objetivo de analizar o dado recebido e atualizar a lista de notificações que aparecem na tela.
 
@@ -415,7 +412,7 @@ Dessa forma a camada de acesso externo disponibiliza um meio de conexão Web Soc
 
 \subsubsection{Recebendo dados via Stream}\label{subsec:streamData}
 
-Em relação a camada de acesso externo, o último tipo de conexão é o recebimento de dados via stream. Este mecanismo permite a atualização constante dos dados recebidos, garantindo assim um fluxo contínuo de informações atualizadas para a aplicação. Especificamente, essa conexão é usada para disponibilizar os dados dos sensores que são recebidos no backend, como explicado em X.%TODO ref para a implementação do modulo de recebimento de dados
+Em relação a camada de acesso externo, o último tipo de conexão é o recebimento de dados via stream. Este mecanismo permite a atualização constante dos dados recebidos, garantindo assim um fluxo contínuo de informações atualizadas para a aplicação. Especificamente, essa conexão é usada para disponibilizar os dados dos sensores que são recebidos no backend, como explicado em \ref{sec:Implementação do modulo de recebimento de dados}.
 
 O recebimento de dados via stream é implementado usando a função \textit{fetch} \cite{mdnFetchAPI}, nativa do JavaScript. Essa função é responsável por realizar a requisição ao endpoint correspondente e obter o fluxo de dados em tempo real.
 
@@ -479,9 +476,8 @@ Dentro do contexto de dados dos sensores IOT, a função \texttt{setData} passad
 \subsection{Construção dos componentes}\label{subsec:componentization}
 Na implementação do sistema, foi utilizada a lógica de construção de componentes \cite{reactFirstComponent} para compor a telas. A modularidade e reutilização de código são fatores críticos que motivam essa escolha. 
 
-%TODO ref para explicação de contextAPI
 %TODO ref para algo sobre evitar a passagem de muitos dados na arvores do react
-Os componentes acessam dados diretamente dos contextos, conforme discuto em X. Este método facilita a passagem de dados e permite que os componentes sejam mais específicos em sua função, além de evitar a passagem de muitas propriedades na árvore de componentes.
+Os componentes acessam dados diretamente dos contextos, conforme discuto em \ref{subsec:contextApi}. Este método facilita a passagem de dados e permite que os componentes sejam mais específicos em sua função, além de evitar a passagem de muitas propriedades na árvore de componentes.
 
 A base para os componentes menores foi extraída da biblioteca \gls{MUI5} \cite{muiDocs}. Isso inclui elementos como botões, contêineres, caixas de texto e outros. Um exemplo prático é o menu lateral nas páginas do dashboard, onde o componente Drawer do \gls{MUI5} foi empregado. 
 
@@ -507,10 +503,9 @@ Um componente que merece destaque é o \texttt{Grid} do \gls{MUI5} \cite{muiReac
 </Grid>
 \end{verbatim}
 
-O uso do Grid, portanto, contribuiu para a coesão do layout, fornecendo uma estrutura sólida sobre a qual outros componentes poderiam ser organizados de forma simples, e fácil de entender, cumprindo requisitos de facilitar a manutenção.%TODO ref pra os requisitos
+O uso do Grid, portanto, contribuiu para a coesão do layout, fornecendo uma estrutura sólida sobre a qual outros componentes poderiam ser organizados de forma simples, e fácil de entender, cumprindo requisitos de facilitar a manutenção especificado em \ref{ssubec:reqNfuctional}.
 
-%TODO ref para o modulo de processamento
-Por outro lado, para a construção dos gráficos, a biblioteca Recharts foi utilizada. O gráfico mostrado no dashboard com a informações geradas pelo modulo de processamento, detalhado REF X, é composto por gráficos Scatter, Area, Bar e Line, permitindo assim uma análise multifacetada das informações geradas. 
+Por outro lado, para a construção dos gráficos, a biblioteca Recharts foi utilizada. O gráfico mostrado no dashboard com a informações geradas pelo modulo de processamento, detalhado REF \ref{sec:ImplModuloProcessamento}, é composto por gráficos Scatter, Area, Bar e Line, permitindo assim uma análise multifacetada das informações geradas. 
 
 Para componentes que necessitam de manipulação de datas, a biblioteca \texttt{Days Js} \cite{dayJsInstallation} foi integrada. Um caso de uso é o componente de filtro de data para exibição de gráficos, que também emprega o DatePicker \cite{muiDatePickerValidation} do \gls{MUI5} para uma interface de usuário mais intuitiva. A biblioteca Days Js facilita a manipulação da entrada e saída de dados de data.
 

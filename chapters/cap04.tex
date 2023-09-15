@@ -59,7 +59,7 @@ O código é executado quando é invocada uma função específica encarregada d
 
 Com essas listas, inicia-se um procedimento iterativo, em que, para cada máquina identificada, os dados disponíveis são lidos, submetidos a um processo de análise estatística, após o qual os resultados obtidos são registrados na coleção de dados processados. Essa análise estatística adota o método do Box Plot.
 
-%TODO Referencia para um artigo explicando sobre boxPlot
+%TODO um artigo explicando sobre boxPlot
 O Box Plot, também conhecido como diagrama de caixa, é uma ferramenta gráfica utilizada para representar a variação de dados observados de uma variável numérica por meio de quartis. Na figura ~\ref{fig:boxplot}, pode ser visto o retângulo formado pelo primeiro quartil (Q1), mediana e terceiro quartil (Q3), que fornecem uma noção sobre a centralidade e dispersão dos dados, enquanto as "antenas" estendem-se para mostrar a amplitude completa dos dados, ajudando assim na identificação de possíveis outliers.
 
 Ao adotar o Box Plot, o sistema garante uma compreensão robusta da distribuição dos dados, identificando não apenas tendências centrais, mas também variações e potenciais anomalias.
@@ -94,7 +94,7 @@ Os módulos implementados na \gls{API} com a lógica descrita são:
 
 Além dessas camadas modulares, existe uma área especifica na \gls{API} para o armazenamento de códigos comuns a todos os módulos. Esta seção engloba diversas funções úteis, modelos de classes, valores constantes e configurações padrão. Tais elementos garantem uma maior coesão e reduzem a repetição de código, otimizando o desempenho geral. Dentre as configurações padrão, merecem destaque o inicializador que estabelece o acesso ao banco de dados, middleware de autenticação, conexão web socket para envio de notificações, e o inicializador de novas \textit{threads}. Este último é utilizada para operações assíncronas que são executadas em paralelo a operação da \gls{API}, como aquelas executadas pelo módulo de recebimento de dados.
 
-\section[Arquitetura do frontend]{Arquitetura do frontend}
+\section[Arquitetura do frontend]{Arquitetura do frontend}\label{sec:archFront}
 Utilizando o \textit{Next.js} \cite{nextjsDocs} como framework, o frontend segue uma estrutura básica já estabelecida pelo mesmo.
 
 As rotas do sistema residem na pasta \texttt{pages}, alinhadas com as diretrizes do framework. Já os layouts que servem de base para cada página estão localizados na pasta \texttt{layouts}.
@@ -119,8 +119,8 @@ Por fim, há uma pasta dedicada para armazenar códigos recorrentes, contendo fu
 
 \section{Containers}
 
-%TODO Referencia para explicar sobre containers
-Containers são tecnologias que permitem isolar aplicações em ambientes específicos com todas as suas dependências, bibliotecas e configurações necessárias, sem a sobrecarga de máquinas virtuais completas. Isso garante que a aplicação funcione de maneira idêntica em diferentes ambientes, desde o desenvolvimento até a produção. Na figura ~\ref{fig:container} é possível visualizar como é o funcionamento dos containers dentro do sistema operacional do  host.
+%TODO Artigo Referencia para explicar sobre containers
+Containers são tecnologias que permitem isolar aplicações em ambientes específicos com todas as suas dependências, bibliotecas e configurações necessárias, sem a sobrecarga de máquinas virtuais completas. Isso garante que a aplicação funcione de maneira idêntica em diferentes ambientes, desde o desenvolvimento até a produção. Na figura ~\ref{fig:container} é possível visualizar como é o funcionamento dos containers dentro do sistema operacional do host.
 
 \begin{figure}[htbp]
 	\centering
