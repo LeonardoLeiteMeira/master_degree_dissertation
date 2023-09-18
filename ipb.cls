@@ -201,7 +201,7 @@
 \cleardoublepage
         \tableofcontents
         \iftablespage
-                \listoftables
+                %\listoftables
         \fi
         \iffigurespage
 	%\newpage
