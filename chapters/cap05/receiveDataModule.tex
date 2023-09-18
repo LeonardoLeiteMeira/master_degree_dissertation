@@ -214,7 +214,6 @@ Ao iniciar a conexão, utilizando o método \texttt{start\_connection}, é criad
 \subsubsection{Verificação do formato dos dados}
 Para lidar com os dados recebidos, o método \texttt{\_\_handle\_iot\_data} é passado como argumento para \texttt{listen\_multicast\_messages} (como o argumento save\_func na classe que existe na classe \texttt{SensorConnection}).
 
-%TODO Alterar o value no parse
 \begin{verbatim}
 async def __handle_iot_data(self, sensor_data:dict):
     sensor_model = self.__parse_sensor_data_to_sensor_model(sensor_data)
@@ -227,7 +226,7 @@ async def __handle_iot_data(self, sensor_data:dict):
     )
 
 def __parse_sensor_data_to_sensor_model(self, sensor_data:dict):
-    value = 1
+    value = sensor_data["value"]
     machine = str(sensor_data["Machine"]['Number']) 
         + sensor_data["Machine"]['Type']
     date = datetime.now()

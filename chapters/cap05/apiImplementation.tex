@@ -203,10 +203,9 @@ def __decode_token(self,token:str)->dict:
 \subsubsection{WebSocket}\label{subsubsec:WebSocketImplement}
 A implementação da conexão via WebSocket foi feita utilizando a biblioteca \texttt{socket.io} \cite{socketIoDocs}, que possui diversos recursos prontos que facilitam a gestão de conexões Web Socket, com por exemplo a criação de salas para disparo de notificações.
 
-%TODO se der tempo mudar a implementação para ver a autenticação
-A estrutura adotada para a gestão de conexões Web Socket foi feita de forma que o cliente deve efetuar uma requisição websocket ao \textit{endpoint} raiz da \gls{API} para ser registrado em uma sala virtual específica. Após a conclusão bem-sucedida dessa solicitação, o cliente passa a receber todas as mensagens direcionadas à sala na qual foi cadastrado.
+A estrutura adotada para a gestão de conexões Web Socket foi feita de forma que o cliente deve efetuar uma requisição websocket ao \textit{endpoint} raiz da \gls{API} para ser registrado em uma sala virtual específica. Após a validação do token e a conclusão bem-sucedida dessa solicitação, o cliente passa a receber todas as mensagens direcionadas à sala na qual foi cadastrado.
 
-A implementação atual contempla apenas uma sala, destinada especificamente ao envio de notificações relacionadas ao funcionamento das máquinas. Esta sala é identificada pelo identificador \texttt{NOTIFICATION\_ROOM}. Essa constante armazena o valor "\texttt{Notification}", que é o nome da sala a ser conectada.
+A implementação atual contempla apenas uma sala, destinada especificamente ao envio de notificações relacionadas ao funcionamento das máquinas. Esta sala é identificada pelo identificador \texttt{NOTIFICATION\_ROOM}. Essa constante armazena o valor "\texttt{Notification}", que é o nome da sala a ser conectada, armazenada justo com as constantes do sistema descrito em \ref{subsubsec:constantes}.
 
 O modo assíncrono \gls{ASGI} selecionado para a criação do servidor, e as origens permitidas para \textit{CORS} definidas como vazias.
 
@@ -221,6 +220,8 @@ socket_dispacher = WebSocketDispatcher(socket_io_server)
 
 @socket_io_server.event
 async def connect(sid, environ, auth):
+    token = auth["Authorization"]
+    await auth_middleware(token)
     socket_io_server.enter_room(sid, NOTIFICATION_ROOM)
 \end{verbatim}
 
