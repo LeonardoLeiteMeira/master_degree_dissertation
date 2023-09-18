@@ -16,9 +16,7 @@ O sistema é estruturado fundamentalmente em camadas distintas, o backend, o fro
 \end{figure}
 
 O backend funciona como o núcleo do sistema. Sua principal função é a de receber os dados, processá-los conforme as regras estabelecidas nos requisitos e histórias de usuários e, armazená-los de maneira segura no banco de dados. Além das funções de armazenamento e processamento, ao backend também é atribuída a responsabilidade de disponibilizar esses dados por meio de uma \gls{API}, que pode ser acessada utilizando métodos \gls{HTTP}. Esta \gls{API} age como um intermediário entre a lógica central do sistema e as interfaces com as quais o usuário final interage, o frontend.
-
-%TODO 17artigo referencia para princípios de design e data visualization - Talvez referir a outra parte da dissertação que entra em mais detalhes
-Por outro lado, o frontend é caracterizado como a interface visual que o usuário final acessa. Serve como meio pelo qual os usuários interagem com o sistema, enviando e recebendo informações. Esta camada é projetada para acessar, recuperar e apresentar os dados processados e armazenados pelo backend de acordo com princípios de design e data visualization.
+Por outro lado, o frontend é caracterizado como a interface visual que o usuário final acessa. Serve como meio pelo qual os usuários interagem com o sistema, enviando e recebendo informações. Esta camada é projetada para acessar, recuperar e apresentar os dados processados e armazenados pelo backend de acordo com princípios de design e data visualization \cite{barbosa2019introduction}.
 
 Como pode ser visto na figura ~\ref{fig:systemAchitectureImage}, na planta industrial, onde as máquinas com os sensores se encontram, os sensores enviam os dados para o sistema, que recebe eles por meio do modulo de recebimento de dados e os armazena no banco de dados. O modulo de processamento acessa os dados armazenados para realizar a agregação, e a \gls{API} gerencia o acesso ao banco de dados, disponibilizando as informações para os usuários no frontend.
 
@@ -59,10 +57,9 @@ O código é executado quando é invocada uma função específica encarregada d
 
 Com essas listas, inicia-se um procedimento iterativo, em que, para cada máquina identificada, os dados disponíveis são lidos, submetidos a um processo de análise estatística, após o qual os resultados obtidos são registrados na coleção de dados processados. Essa análise estatística adota o método do Box Plot.
 
-%TODO 18um artigo explicando sobre boxPlot
 O Box Plot, também conhecido como diagrama de caixa, é uma ferramenta gráfica utilizada para representar a variação de dados observados de uma variável numérica por meio de quartis. Na figura ~\ref{fig:boxplot}, pode ser visto o retângulo formado pelo primeiro quartil (Q1), mediana e terceiro quartil (Q3), que fornecem uma noção sobre a centralidade e dispersão dos dados, enquanto as "antenas" estendem-se para mostrar a amplitude completa dos dados, ajudando assim na identificação de possíveis outliers.
 
-Ao adotar o Box Plot, o sistema garante uma compreensão robusta da distribuição dos dados, identificando não apenas tendências centrais, mas também variações e potenciais anomalias.
+Ao adotar o Box Plot, o sistema garante uma compreensão robusta da distribuição dos dados, identificando não apenas tendências centrais, mas também variações e potenciais anomalias \cite{marmolejo2010shifting}.
 
 \begin{figure}[htbp]
 	\centering
@@ -118,9 +115,7 @@ Por fim, há uma pasta dedicada para armazenar códigos recorrentes, contendo fu
 
 
 \section{Containers}
-
-%TODO 19Artigo Referencia para explicar sobre containers
-Containers são tecnologias que permitem isolar aplicações em ambientes específicos com todas as suas dependências, bibliotecas e configurações necessárias, sem a sobrecarga de máquinas virtuais completas. Isso garante que a aplicação funcione de maneira idêntica em diferentes ambientes, desde o desenvolvimento até a produção. Na figura ~\ref{fig:container} é possível visualizar como é o funcionamento dos containers dentro do sistema operacional do host.
+Containers são tecnologias que permitem isolar aplicações em ambientes específicos com todas as suas dependências, bibliotecas e configurações necessárias, sem a sobrecarga de máquinas virtuais completas. Isso garante que a aplicação funcione de maneira idêntica em diferentes ambientes, desde o desenvolvimento até a produção \cite{paraiso2016model}. Na figura ~\ref{fig:container} é possível visualizar como é o funcionamento dos containers dentro do sistema operacional do host.
 
 \begin{figure}[htbp]
 	\centering
@@ -146,7 +141,6 @@ Para garantir a persistência dos dados e evitar a perda de informações vitais
 
 Com a necessidade de gerenciar múltiplos containers, configurações de rede e volumes de forma coesa e simplificada, foi adotado o \textit{Docker Compose} \cite{dockerCompose} na arquitetura do sistema. O Docker Compose permite a definição e execução de aplicações multi-container usando um arquivo YAML \cite{yamlOrg}. Esse arquivo contém todas as configurações necessárias para inicializar e interconectar os containers. Assim, ao invés de executar uma série de comandos para iniciar cada container individualmente, é possível, através do Docker Compose, iniciar todo o sistema com um único comando. Essa abordagem não apenas simplifica o processo de deploy e desenvolvimento, mas também garante que as configurações de rede e volume sejam consistentemente aplicadas em cada execução.
 
-%TODO 20Referencia para os benefícios do docker
 A utilização de containers no projeto trouxe vantagens. Primeiramente, garantiu a consistência entre os ambientes de desenvolvimento e produção. Adicionalmente, a modularização proporcionada pelos containers facilita a escalabilidade e manutenção do sistema, permitindo atualizações e alterações de forma ágil e segura a medida que o sistema for crescendo. Por último, a utilização de containers facilita a portabilidade do sistema, podendo ser executado em diversos tipos de servidores e sistemas, bastando ter a instalação do docker.
 
 

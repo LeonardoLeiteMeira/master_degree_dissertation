@@ -476,7 +476,6 @@ Dentro do contexto de dados dos sensores IOT, a função \texttt{setData} passad
 \subsection{Construção dos componentes}\label{subsec:componentization}
 Na implementação do sistema, foi utilizada a lógica de construção de componentes \cite{reactFirstComponent} para compor a telas. A modularidade e reutilização de código são fatores críticos que motivam essa escolha. 
 
-%TODO 33ref para algo sobre evitar a passagem de muitos dados na arvores do react
 Os componentes acessam dados diretamente dos contextos, conforme discuto em \ref{subsec:contextApi}. Este método facilita a passagem de dados e permite que os componentes sejam mais específicos em sua função, além de evitar a passagem de muitas propriedades na árvore de componentes.
 
 A base para os componentes menores foi extraída da biblioteca \gls{MUI5} \cite{muiDocs}. Isso inclui elementos como botões, contêineres, caixas de texto e outros. Um exemplo prático é o menu lateral nas páginas do dashboard, onde o componente Drawer do \gls{MUI5} foi empregado. 
