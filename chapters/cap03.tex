@@ -9,10 +9,9 @@
 A seção de metodologia explora uma abordagem para o desenvolvimento do software, iniciando com a definição dos requisitos, passando pela definição do método de recebimento dos dados, e a seleção das tecnologias. O processo de desenvolvimento incorpora a criação de histórias de usuário, organizadas em um quadro Kanban para gerenciamento de tarefas, e à configuração dos repositórios. A documentação e reuniões regulares que acompanham o progresso, são uma constante em todas as fases para garantir que o projeto está ocorrendo como o esperado.
 
 \section[Definição dos requisitos]{Definição dos requisitos}\label{sec:req}
-A definição precisa dos requisitos é fundamental para garantir que o sistema desenvolvido atenda às necessidades e objetivos. Os requisitos desse projeto foram classificados nas categorias funcionais e não funcionais, para garantir uma compreensão completa do que é esperado do sistema.
+A definição precisa dos requisitos é fundamental para garantir que o sistema desenvolvido atenda às necessidades e objetivos do projeto de maneira ágil \cite{asghar2016role}. Os requisitos desse projeto foram classificados nas categorias funcionais e não funcionais, para garantir uma compreensão completa do que é esperado do sistema.
 
 \subsection[Requisitos Funcionais]{Requisitos Funcionais}
-%TODO Artigo que fala da importância de requisitos funcionais
 Os requisitos funcionais desempenham um papel fundamental no desenvolvimento de sistemas, definindo as funções que um sistema ou componente de software deve ser capaz de executar. Em essência, eles fornecem uma descrição das interações que o sistema terá com seus usuários ou com outros sistemas, especificando os serviços que o sistema deve fornecer.
 
 Para garantir eficácia, os requisitos funcionais devem ser claramente definidos, sem ambiguidades, e serem mensuráveis, rastreáveis, completos e consistentes. Além disso, eles devem ser definidos levando em consideração as necessidades e objetivos do projeto, garantindo que o sistema desenvolvido seja não apenas tecnicamente sólido, mas também útil e relevante para seus usuários finais.
@@ -63,7 +62,6 @@ O sistema deve mostrar as paradas de máquina de acordo com os dados passados pe
 
 
 \subsection[Requisitos Não Funcionais]{Requisitos Não Funcionais}\label{ssubec:reqNfuctional}
-%TODO Artigo que fala da importância de requisitos não funcionais
 Requisitos não funcionais são especificações que determinam as características de desempenho, usabilidade, confiabilidade e outras propriedades que o sistema deve possuir, ao invés de comportamentos específicos que ele deve demonstrar. Enquanto os requisitos funcionais descrevem o que um sistema deve fazer, os requisitos não funcionais especificam como o sistema deve realizar essas funções.
 
 Estes requisitos são cruciais para garantir a satisfação do usuário e a eficácia operacional do sistema, desempenhando um papel fundamental na qualidade e na operação geral de um produto de software.
@@ -104,7 +102,7 @@ A interface do sistema e seus componentes devem ser projetados considerando prin
 %- Recebimento dos dados pelo protocolo feito pelo outro professor
 %- protocolo esse que decodifico as informações e disponibilizo para uso
 
-%TODO Artigo Referencia para o outro projeto com os sensores e protocolos - Referenciar o Attract 
+%TODO 10Artigo Referencia para o outro projeto com os sensores e protocolos - Referenciar o Attract 
 Dentro do contexto do projeto, a forma como os dados dos sensores são coletados e armazenados influenciam muito no funcionamento do sistema, pois é a partir deles que todo o sistema é estruturado. Dessa forma foi utilizado como base um protocolo desenvolvido em outro projeto dentro do mesmo contexto do \texttt{Projeto Attract}, que transmite todas as informações necessárias para o contexto desse projeto. Dentro do sistema em questão, ficou a responsabilidade de implementar o decodificador para o determinado protocolo.
 
 O formato do protocolo é estruturado de forma a representar as informações pertinentes à máquina, ao tipo de comunicação, ao sensor e ao significado dos dados transmitidos, seguindo o seguinte formato:
@@ -168,8 +166,7 @@ Este campo representa os dados transmitidos pelo sensor. A especificação exata
 Com a definição clara dos requisitos do sistema e da forma como os dados lidos pelos sensores são transmitidos, foi definido o processo de como o projeto seria desenvolvido. Esse processo de desenvolvimento passa pela definição das histórias de usuário, organização das atividades, organização da documentação, configuração dos repositórios no GitHub e reuniões periódicas com o professor orientador e com a empresa para discutir o andamento.
 
 \subsection{Histórias de Usuário}
-%TODO artigo falando sobre desenvolvimento agil e-ou historias de usuario
-No desenvolvimento ágil de software, uma das abordagens mais centradas no usuário entendimento das funcionalidades do sistema e dos requisitos é a utilização de \textit{histórias de usuário}. Estas são descrições curtas, simples e informais do ponto de vista de um usuário final, capturando o que eles necessitam ou desejam fazer no software.
+No desenvolvimento ágil de software, uma das abordagens mais centradas no usuário entendimento das funcionalidades do sistema e dos requisitos é a utilização de \textit{histórias de usuário}. Estas são descrições curtas, simples e informais do ponto de vista de um usuário final, capturando o que eles necessitam ou desejam fazer no software \cite{lucassen2015forging}.
 
 A estrutura típica de uma história de usuário é: "Como [tipo de usuário], eu quero [uma ação] para que [um benefício/resultado]". Esta estrutura ajuda a manter o foco nas necessidades e desejos do usuário, em vez de mergulhar prematuramente em soluções técnicas ou detalhes de implementação.
 
@@ -196,11 +193,9 @@ Cada uma dessas historias de usuário foi detalhada melhor na organização das 
 
 
 \subsection{Organização das tarefas}\label{sec:taskOrganization}
-%TODO artigo referencia para algun estudo sobre o kaban
-O método Kanban, originário do sistema Toyota de produção, tornou-se uma ferramenta popular e eficaz para gerenciamento e organização de fluxos de trabalho. A palavra "Kanban" é de origem japonesa e pode ser traduzida como "cartão visual" ou "sinalização". No contexto de gestão de projetos, Kanban refere-se a um sistema visual de gestão que destaca o fluxo de trabalho e as tarefas em diferentes estágios de processo. A essência do Kanban é visualizar todo o fluxo de trabalho, desde as tarefas que ainda não foram iniciadas até aquelas que foram concluídas. Esta visualização permite identificar gargalos e ineficiências, otimizando assim o processo. Para a organização das atividades desse projeto, o método Kanban foi adotado como uma estratégia para garantir uma progressão eficiente e sistemática do trabalho.
+O método Kanban, originário do sistema Toyota de produção, tornou-se uma ferramenta popular e eficaz para gerenciamento e organização de fluxos de trabalho. A palavra "Kanban" é de origem japonesa e pode ser traduzida como "cartão visual" ou "sinalização". No contexto de gestão de projetos, Kanban refere-se a um sistema visual de gestão que destaca o fluxo de trabalho e as tarefas em diferentes estágios de processo. A essência do Kanban é visualizar todo o fluxo de trabalho, desde as tarefas que ainda não foram iniciadas até aquelas que foram concluídas. Esta visualização permite identificar gargalos e ineficiências, otimizando assim o processo \cite{ghani2015agile}. Para a organização das atividades desse projeto, o método Kanban foi adotado como uma estratégia para garantir uma progressão eficiente e sistemática do trabalho.
 
-%TODO ver se tem algum artigo que fala do notion sobre gestão de tarefas
-Para a implementação do método Kanban, foi escolhido o Notion como ferramenta. A escolha deste software deve-se à sua flexibilidade e capacidade de personalização, permitindo a criação de um board Kanban que se adapta especificamente às necessidades do projeto. Além disso, o Notion oferece uma interface intuitiva para a construção documentação, que está melhor detalhada na seção \ref{sec:documentation}.
+Para a implementação do método Kanban, foi escolhido o Notion como ferramenta. A escolha deste software deve-se à sua flexibilidade e capacidade de personalização, permitindo a criação de um board Kanban que se adapta especificamente às necessidades do projeto \cite{notionProjectManagement}. Além disso, o Notion oferece uma interface intuitiva para a construção documentação, que está melhor detalhada na seção \ref{sec:documentation}.
 
 O board Kanban foi estruturado em cinco colunas, cada uma representando um estágio distinto no fluxo de trabalho:
 
@@ -263,8 +258,7 @@ Para ilustrar este processo, é detalhado a história de usuário número 1.
 
 
 \subsection{Documentação do projeto}\label{sec:documentation}
-%TODO ver se acho algo falando do notion como ferramenta de documentação - verificar se a referencia anterior ja não fala algo sobre
-A documentação do projeto foi feita na ferramenta Notion. A escolha para este projeto foi fundamentada pois o Notion se destaca por sua flexibilidade, permitindo uma configuração adaptável dos texto para atender a vários tipos de necessidades. A interface intuitiva torna a inserção e atualização de informações um processo simples, que pode ser executado por ser uma plataforma acessível na internet por qualquer navegador.
+A documentação do projeto foi feita na ferramenta Notion. A escolha para este projeto foi fundamentada pois o Notion se destaca por sua flexibilidade, permitindo uma configuração adaptável dos texto para atender a vários tipos de necessidades. A interface intuitiva torna a inserção e atualização de informações um processo simples, que pode ser executado por ser uma plataforma acessível na internet por qualquer navegador \cite{notionProjectManagement}.
 
 Dessa forma, a documentação foi elaborada adotando uma abordagem estruturada para garantir que todas as características e funcionalidades fossem devidamente catalogadas. A base dessa documentação é uma tabela, onde cada entrada corresponde a uma funcionalidade ou a uma específica parte do sistema, sendo denominada de acordo com o nome da característica em questão.
 
@@ -298,7 +292,6 @@ Ao selecionar uma plataforma de banco de dados, optou-se pelo MongoDB \cite{mong
 Distintivamente, o MongoDB apresenta vantagens como a capacidade de suportar consultas distribuídas e paralelas, otimizando o processamento de requisições intrincadas em cenários com densidade significativa de dados. Adicionalmente, sua compatibilidade com uma ampla variedade de ferramentas de análise de dados estabelece um precedente promissor para evoluções futuras do projeto.
 
 \subsection{Python}
-%TODO artigo colocar referencia para estudos que mostram a eficiência do python 
 No desenvolvimento do backend, optou-se pela utilização da linguagem Python \cite{pythonOfficialDocs}, amplamente reconhecida por sua versatilidade, legibilidade e adaptabilidade em diversos contextos de aplicação. Python, sendo uma das linguagens mais populares e amplamente aceitas no mundo acadêmico e industrial, apresenta uma vasta biblioteca padrão e suporte comunitário robusto. A rica gama de materiais educativos, que abrange desde tutoriais detalhados até extensos fóruns de discussão, foi essencial para o aprendizado.
 
 A sintaxe intuitiva de Python favorece a rápida prototipagem e desenvolvimento, ao passo que a ampla gama de frameworks e bibliotecas disponíveis potencializa sua aplicação em diversos aspectos, desde análise de dados até desenvolvimento web. Essas características intrínsecas, somadas à flexibilidade e eficiência da linguagem, consolidam a decisão de adotar Python como a linguagem central para o backend neste projeto de mestrado.
@@ -317,8 +310,7 @@ A coerência entre Next.js e TypeScript estabelece um ambiente de desenvolviment
 Além do Next.js e TypeScript, o Material UI 5 \cite{muiDocs} foi integrado ao projeto como biblioteca de design de interface do usuário. Este conjunto de componentes React, baseado no padrão de design Material Design da Google \cite{m3Docs}, oferece uma ampla gama de elementos de interface já estilizados e de fácil implementação. Além da economia de tempo no desenvolvimento de componentes desde o início, a biblioteca proporciona uma experiência de usuário coesa e moderna. O uso do Material UI 5 também contribui para a padronização do design em todo o projeto, assegurando uma experiência de usuário mais intuitiva e agradável. Portanto, a adição deste recurso complementa eficazmente as capacidades já robustas oferecidas pela combinação de Next.js e TypeScript, tornando o ambiente de desenvolvimento ainda mais rico e produtivo.
 
 \subsection{Docker}
-%TODO artigo que mostra a eficiência do docker
-Para a orquestração e gerenciamento do ambiente de desenvolvimento e produção, adotou-se o Docker \cite{dockerDocs} como ferramenta de containerização. O Docker, amplamente reconhecido no universo de desenvolvimento de software, possibilita encapsular aplicações e suas dependências em containers, garantindo uniformidade, reprodutibilidade e isolamento entre os ambientes. Esta abordagem simplifica significativamente os processos de integração, teste e implantação, uma vez que os containers podem ser movidos de forma transparente entre diferentes ambientes e plataformas.
+Para a orquestração e gerenciamento do ambiente de desenvolvimento e produção, adotou-se o Docker \cite{dockerDocs} como ferramenta de containerização. O Docker, amplamente reconhecido no universo de desenvolvimento de software, possibilita encapsular aplicações e suas dependências em containers, garantindo uniformidade, reprodutibilidade e isolamento entre os ambientes \cite{dockerOverview}. Esta abordagem simplifica significativamente os processos de integração, teste e implantação, uma vez que os containers podem ser movidos de forma transparente entre diferentes ambientes e plataformas.
 
 A ampla documentação disponível, juntamente com uma comunidade ativa, proporcionou um entendimento claro e facilitou a adoção desta tecnologia. Além disso, a flexibilidade e eficiência proporcionadas pelo Docker, ao minimizar os conflitos de dependências e garantir que a aplicação funcione consistentemente em diversos contextos, foram fatores decisivos para sua escolha neste projeto.
 

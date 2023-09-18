@@ -356,7 +356,7 @@ class NotificationSensorResponse(BaseModel):
     total_count:int = Field(...)
 \end{verbatim}
 
-%TODO artigo Ref para o uso de result para comunicação entre camadas
+%TODO 31artigo Ref para o uso de result para comunicação entre camadas
 Outros modelos de dados importantes são as classes de exceções e uma classe denominada \texttt{Result}, responsável pelo tráfego de dados entre as diferentes camadas da aplicação, mostrado na implementação do modulo da \gls{API} em \ref{subsec:modules}.
 Exemplo de classe que define uma exceção do sistema.
 \begin{verbatim}
@@ -400,7 +400,7 @@ class Singleton(type):
         return cls._instances[cls]
 \end{verbatim}
 
-%TODO referencia para boas praticas - justificando a aplicação gerir o ID e nao o próprio banco
+%TODO 32referencia para boas praticas - justificando a aplicação gerir o ID e nao o próprio banco
 Por último, é destacado a classe \texttt{PyObjectId}, utilizada para definir um tipo para o atributo ID das classes que representam modelos do banco de dados. Os métodos definidos para essa classe são usados internamente pelo \texttt{FastAPI} e pelo \texttt{Pydantic}.
 
 Essa classe é necessária para que o ID possa ser corretamente convertido para texto, e retornado nas requisições. Além disso, o uso dessa classe viabiliza a manipulação do ID quando necessário, deixando a gestão dos identificadores únicos para a aplicação e não para o banco de dados, como uma boa prática para desenvolvimento de sistemas.
