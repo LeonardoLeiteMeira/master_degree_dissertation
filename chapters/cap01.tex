@@ -1,112 +1,29 @@
-\chapter{Introdução}\label{cap:intro}
+\chapter{Introduction}\label{cap:intro}
 
-\section{Enquadramento}
+\section{Framework}
 
-No cenário industrial contemporâneo, a busca constante por eficiência e inovação tornou-se um pilar essencial para a competitividade e sustentabilidade financeira das empresas \cite{Bonilla2018}. À medida que a tecnologia avança, as empresas sofrem uma pressão para se manter competitiva perante ao mercado \cite{ashraf2020optimization}. Nesse contexto, o monitoramento e a otimização das máquinas em linhas de produção tornam-se cruciais para garantir um funcionamento eficaz e prevenir potenciais paralisações ou falhas operacionais.
+In the contemporary industrial scenario, the constant pursuit of efficiency and innovation has become an essential pillar for the competitiveness and financial sustainability of companies \cite{Bonilla2018}. As technology advances, companies face pressure to remain competitive in the market \cite{ashraf2020optimization}. In this context, monitoring and optimizing machines in production lines become crucial to ensure effective operation and prevent potential downtime or operational failures.
 
-No entanto, a tradição das práticas industriais muitas vezes é caracterizada por inspeções manuais e sistemas de monitoramento desatualizados, que não conseguem fornecer informações em tempo real ou análises aprofundadas sobre o desempenho das máquinas. Esse descompasso tecnológico pode resultar em perdas significativas, em termos de produção, de recursos financeiros e manutenção de máquinas, levando em consideração que o investimento em tecnologia e monitoramento pode tornar as empresas mais eficientes financeiramente \cite{mabad2021rfid}.
+However, the tradition of industrial practices is often characterized by manual inspections and outdated monitoring systems that fail to provide real-time information or in-depth analysis of machine performance. This technological gap can result in significant losses in terms of production, financial resources, and machine maintenance, considering that investment in technology and monitoring can make companies more financially efficient \cite{mabad2021rfid}.
 
-Além disso, com a crescente integração de sistemas de IoT e a proliferação de sensores avançados, existe uma quantidade imensa de dados sendo gerada continuamente, e exigindo um processamento mais eficiente \cite{bajaj2021iot}. No entanto, sem a infraestrutura adequada para armazenar e analisar esses dados, as empresas podem se encontrar sobrecarregadas, incapazes de extrair insights significativos que poderiam informar decisões estratégicas e operacionais.
+In addition, with the increasing integration of IoT systems and the proliferation of advanced sensors, there is an immense amount of data being continuously generated, demanding more efficient processing \cite{bajaj2021iot}. However, without the proper infrastructure to store and analyze this data, companies may find themselves overwhelmed, unable to extract meaningful insights that could inform strategic and operational decisions.
 
-Com esse contexto de mercado, uma empresa da industria de estampagem buscou a construção de projetos que realizem a sensorização de suas maquinas, armazenamento e tratamento dos dados, e a visualização dessas informações, de forma a se tornar mais competitiva, eficiente e lucrativa. Esses projetos foram agrupados dentro do contexto “ATTRACT - Digital Innovation Hub for Artificial Intelligence and High-Performance Computing - Project: 101083770 — ATTRACT — DIGITAL-2021-EDIH-01”, com financiamento “Digital Europe Programme (DIGITAL) - DIGITAL-2021-EDIH-INITIAL-01 — Initial Network of European Digital Innovation Hubs”, chamado de \texttt{Projeto Attract} nesse documento.
+In this market context, a stamping industry company sought to build projects that enable the sensorization of their machines, storage and processing of data, and visualization of this information, in order to become more competitive, efficient, and profitable. These projects were grouped within the "ATTRACT - Digital Innovation Hub for Artificial Intelligence and High-Performance Computing - Project: 101083770 — ATTRACT — DIGITAL-2021-EDIH-01" context, with funding from the "Digital Europe Programme (DIGITAL) - DIGITAL-2021-EDIH-INITIAL-01 — Initial Network of European Digital Innovation Hubs", referred to as the \texttt{Attract Project} in this document.
 
-\section{Objetivos}
-Dado o enquadramento anterior, a necessidade identificada é de desenvolver um sistema robusto que possa receber dados de sensores que coletam dados das máquinas em tempo real, armazená-los de maneira eficiente em um data lake e apresentá-los através de um dashboard, transformando a maneira como a empresa monitora e otimiza sua linha de produção, garantindo não apenas eficiência, mas também uma abordagem proativa à manutenção e gestão industrial. Esse sistema não apenas forneceria informações em tempo real sobre o status e o desempenho das máquinas, mas também permitiria análises históricas, ajudando gestores e técnicos a identificar tendências e falhas, além de otimizar a produção, minimizando perdas na produção e otimizando os ganhos financeiros.
+\section{Objectives}
+Given the previous framework, the identified need is to develop a robust system that can receive data from sensors that collect real-time data from machines, store them efficiently in a data lake, and present them through a dashboard, transforming the way the company monitors and optimizes its production line, ensuring not only efficiency but also a proactive approach to maintenance and industrial management. This system would not only provide real-time information about the status and performance of the machines, but it would also allow for historical analyses, helping managers and technicians to identify trends and failures, as well as optimize production, minimizing production losses and maximizing financial gains.
 
-\section{Estrutura do Documento}
-Esta dissertação de mestrado está organizada começando pela Introdução, onde o problema e o escopo são apresentados. Esta seção contextualiza a necessidade de modernização industrial, destacando a importância do monitoramento e otimização de máquinas na indústria. A relevância do estudo é então justificada, com foco na crescente demanda por análise de dados no mercado.
+\section{Document Structure}
+This master's dissertation is organized starting with the Introduction, where the problem and scope are presented. This section contextualizes the need for industrial modernization, highlighting the importance of machine monitoring and optimization in the industry. The relevance of the study is then justified, focusing on the increasing demand for data analysis in the market.
 
-Segue-se com a Revisão Literária, que apresenta uma análise sobre trabalhos e conceitos relacionados ao projeto. Esta seção engloba trabalhos semelhantes já realizados nas partes de recebimento de dados em tempo real, processamento e alertas.
+This is followed by the Literature Review, which presents an analysis of works and concepts related to the project. This section encompasses similar works already carried out in the parts of real-time data reception, processing, and alerts.
 
-A Metodologia discute a escolha de tecnologias específicas usadas no projeto, detalhando o método de armazenamento de dados, e o processo adotado para o desenvolvimento do software, e também são descritas as estratégias de gestão das atividades do projeto.
+The Methodology discusses the choice of specific technologies used in the project, detailing the data storage method, and the process adopted for the software development, and also describes the strategies for managing the project activities.
 
-No capítulo sobre a Arquitetura do Sistema, é discutido sobre as especificidades técnicas do sistema proposto. Desde o diagrama geral do sistema até a forma como cada parte do sistema está organizada, deixando claro como cada parte é organizada e como ocorre a interação entre elas.
+In the chapter on System Architecture, the technical specifics of the proposed system are discussed. From the general system diagram to the way each part of the system is organized, making clear how each part is organized and how the interaction between them occurs.
 
-No capítulo de Implementação, aprofunda-se nos aspectos técnicos do sistema. Aqui, cada componente do banco de dados, da \gls{API}, do módulo de processamento de dados, do modulo de recebimento de dados e do frontend, são detalhadamente descritos. Esse capítulo visa mostrar de forma prática como foi implementada a arquitetura detalhada no capítulo anterior.
+In the Implementation chapter, the technical aspects of the system are delved into. Here, each component of the database, the \gls{API}, the data processing module, the data receiving module, and the frontend, are detailed. This chapter aims to show in a practical way how the architecture detailed in the previous chapter was implemented.
 
-No que diz respeito às Características do Sistema do ponto de vista funcional, a dissertação tem uma seção que foca em mostrar a aplicação prática do software, mostrando como cada funcionalidade funciona e como ocorrem as interações com o usuário.
+In regard to the System Characteristics from a functional point of view, the dissertation has a section that focuses on demonstrating the practical application of the software, showing how each feature works and how user interactions occur.
 
-Em Resultados e Avaliação, são apresentados os resultados obtidos durante o projeto, destacando as principais realizações e benefícios observados na implementação do sistema proposto. A Conclusão e Trabalhos Futuros resume os pontos chave do projeto, identifica as limitações do sistema atual e sugere possíveis direções para continuidade e implementações futuras.
-
-
-% \section{Normas de Composição}
-
-% Para além de uma organização que reflita o percurso seguido, o relatório deve estar bem formatado e ter aspeto sóbrio, convidando à leitura e fazendo jus ao mérito do trabalho descrito. Neste sentido, apresentam-se de seguida algumas das normas a levar em conta\footnote{Estas normas, assim como este modelo de documento, são compatíveis com o preconizado no "Regulamento da Unidade Curricular de Projecto das Licenciaturas", designadamente no que diz respeito ao relatório do projeto.}.
-
-% \subsubsection{Convenções Tipográficas}
-
-% Por vezes, opta-se por apresentar as convenções tipográficas seguidas no documento, ou seja, em que circunstâncias se usam texto em \textit{itálico}, \textbf{negrito}, ou de \texttt{espaçamento uniforme} (esta última formatação é normalmente usada para apresentar código fonte), bem como quais as fontes tipográficas usadas, respetivas dimensões, etc.
-
-
-% \subsubsection{Tabelas e Figuras}
-
-% Tabelas e figuras devem ser numeradas automaticamente e ter um tamanho equilibrado (nem muito grande, nem muito pequeno), como a Tabela \ref{tab:exemplo_de_tabela} e as Figuras  \ref{fig:exemplo_de_figura}, \ref{fig:exemplo_de_figura2} e \ref{fig:exemplo_de_figura3}.
-
-% \begin{table}[htbp]	
-% 	\centering
-% 	{\small
-% 		\begin{tabulary}{\linewidth}{|L|C|R|}	
-% 			\hline 	
-% 			{\bf Nome da Coluna 1} & {\bf Nome da Coluna 2} & {\bf Nome da Coluna 3} \\ 
-% 			\hline 
-% 			conteúdo A & conteúdo B & conteúdo C \\ 
-% 			\hline 
-% 			conteúdo D & conteúdo E & conteúdo F \\ 
-% 			\hline 
-% 		\end{tabulary} 
-% 	}	
-% 	\caption{\small{Exemplo de tabela.}}
-% 	\label{tab:exemplo_de_tabela}
-% \end{table}
-
-
-% \begin{figure}[htbp]
-% 	\centering
-% 	\includegraphics[scale=0.75]{images/lion_large}
-% 	\caption{Exemplo de imagem PNG.}
-% 	\label{fig:exemplo_de_figura}
-% \end{figure}
-
-% Sempre que possível, devem-se usar formatos escaláveis (e.g., PDF), como na Figura \ref{fig:exemplo_de_figura2}, e evitar imagens comprimidas (formatos JPG, PNG, GIF, etc.), como na Figura \ref{fig:exemplo_de_figura}.
-
-% \begin{figure}[htbp]
-% 	\centering
-% 	\includegraphics[width=0.75\linewidth]{images/architecture}
-% 	\caption{Exemplo de imagem PDF.}
-% 	\label{fig:exemplo_de_figura2}
-% \end{figure}
-
-
-% Em gráficos devem-se indicar sempre as grandezas associadas a cada eixo, bem como a respetiva legenda -- ver exemplo na Figura \ref{fig:exemplo_de_figura3}. Adicionalmente, o esquema de cores ou de traços para as linhas, deve ser sóbrio e prevenir ambiguidades na leitura do gráfico.
-
-% \begin{figure}[htbp]
-% 	\centering
-% 	\includegraphics[width=0.65\linewidth]{images/search_times}
-% 	\caption{Exemplo de gráfico.}
-% 	\label{fig:exemplo_de_figura3}
-% \end{figure}
-
-% \subsubsection{Distribuição dos Elementos}
-% A forma como o texto e outros elementos (tabelas, figuras, etc.) se distribui por uma página, deve ser tal que se evitem grandes blocos vazios no final da página. Embora algumas sistemas de composição tendam a garantir isso automaticamente (como o LaTeX), é costume serem necessárias afinações para resolver, manualmente, essas (e outras) desformatações. No entanto, essas afinações devem ser deixadas para a fase pré-impressão, já com o conteúdo do documento estabilizado, de forma a evitar trabalho inconsequente.
-
-
-% \subsubsection{Correcção Ortográfica}
-% Para além da qualidade tipográfica do relatório, é imprescindível minimizar (se possível até, erradicar) erros ortográficos. Qualquer sistema de composição de documentos suporta correção ortográfica (e, muitas vezes, sintática), pelo que não é aceitável a submissão para avaliação de relatórios sem revisão ortográfica prévia.
-
-
-% \subsubsection{Referências Bibliográficas}
-% Ao longo do documento, deve ficar sempre perfeitamente claro o que é escrita original e o que foi baseado (ou até reproduzido de) noutras fontes. 
-
-% Todas as fontes devem ser descritas na formatação usada na Bibliografia e referenciadas, no texto, pelos seus identificadores únicos. Por exemplo: ``Uma solução para o problema em causa deve respeitar as propriedades {\it x}, {\it y} e {\it z} \cite{INPROC1}.'', ou ``Neste trabalho explorou-se a API PThreads \cite{TECH01} com o objetivo de $\dots$''.  No modelo em LaTeX, as referências bibliográficas são definidas no ficheiro {\tt libs/refs.bib}, onde existem entradas de diferentes tipos: livro \cite{BOOK01}, artigo de conferência \cite{INPROC1}, relatório técnico \cite{TECH01} e sítio web \cite{FORD11}.
-
-% A reprodução fiel de texto de fontes externas deve ser limitada, surgir entre aspas, ligeiramente destacada, e ter apensa a respetiva referência bibliográfica.  Por exemplo:
-
-% \begin{quotation}
-% ``Recently, the employment of GPU devices is a key to achieve higher performance for computer systems. On those systems, GPUs are used for general calculation but with extreme parallelism.'' \cite{INPROC1}
-% \end{quotation}
-
-% \subsubsection{Siglas}
-% Na primeira vez as siglas devem surgir por extenso, sendo resumidas nas vezes seguintes. Por exemplo: ``o curso atual de Engenharia Informática da \gls{ESTiG} foi reformulado em 2015 e, a par com o curso de Informática de Gestão, representa o leque de licenciaturas da área de Informática que a \gls{ESTiG} oferece''. No modelo em LaTeX, as siglas são definidas no ficheiro {\tt acronym.tex}.
-
-
-
+In Results and Evaluation, the results obtained during the project are presented, highlighting the main achievements and benefits observed in the implementation of the proposed system. The Conclusion and Future Works section summarizes the key points of the project, identifies the limitations of the current system, and suggests possible directions for continuity and future implementations.
