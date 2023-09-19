@@ -1,120 +1,102 @@
-% \chapter{Abordagem/Análise/Modelação}\label{cap:metodology}
-
-% Neste capítulo espera-se uma descrição detalhada do problema e da proposta de solução. 
-
-% No caso de projetos de desenvolvimento de software, deverá deitar-se mão dos conceitos e ferramentas de Análise/Modelação estudadas durante o curso (por exemplo, diagramas UML ou outra linguagem gráfica). Deve-se indicar explicitamente as tarefas a desempenhar pelo sistema, e os atores que interagem com o mesmo. A descrição deve ter suficiente detalhes  para perceber as dificuldades associadas à resolução do problema.
-
-
 \chapter{Methodology}\label{cap:metodology}
-A seção de metodologia explora uma abordagem para o desenvolvimento do software, iniciando com a definição dos requisitos, passando pela definição do método de recebimento dos dados, e a seleção das tecnologias. O processo de desenvolvimento incorpora a criação de histórias de usuário, organizadas em um quadro Kanban para gerenciamento de tarefas, e à configuração dos repositórios. A documentação e reuniões regulares que acompanham o progresso, são uma constante em todas as fases para garantir que o projeto está ocorrendo como o esperado.
+The methodology section explores an approach to software development, starting with the definition of requirements, moving on to the method of data reception, and the selection of technologies. The development process incorporates the creation of user stories, organized on a Kanban board for task management, and the configuration of repositories. Documentation and regular meetings that track progress are a constant in all phases to ensure that the project is proceeding as expected.
 
-\section[Definição dos requisitos]{Definição dos requisitos}\label{sec:req}
-A definição precisa dos requisitos é fundamental para garantir que o sistema desenvolvido atenda às necessidades e objetivos do projeto de maneira ágil \cite{asghar2016role}. Os requisitos desse projeto foram classificados nas categorias funcionais e não funcionais, para garantir uma compreensão completa do que é esperado do sistema.
+\section[Requirements Definition]{Requirements Definition}\label{sec:req}The precise definition of requirements is crucial to ensure that the developed system meets the project's needs and objectives in an agile way \cite{asghar2016role}. The requirements of this project were classified into functional and non-functional categories, to ensure a complete understanding of what is expected from the system.
 
-\subsection[Requisitos Funcionais]{Requisitos Funcionais}
-Os requisitos funcionais desempenham um papel fundamental no desenvolvimento de sistemas, definindo as funções que um sistema ou componente de software deve ser capaz de executar. Em essência, eles fornecem uma descrição das interações que o sistema terá com seus usuários ou com outros sistemas, especificando os serviços que o sistema deve fornecer.
+\subsection[Functional Requirements]{Functional Requirements}
+Functional requirements play a fundamental role in system development, defining the functions that a system or software component should be able to perform. Essentially, they provide a description of the interactions the system will have with its users or other systems, specifying the services the system should provide.
 
-Para garantir eficácia, os requisitos funcionais devem ser claramente definidos, sem ambiguidades, e serem mensuráveis, rastreáveis, completos e consistentes. Além disso, eles devem ser definidos levando em consideração as necessidades e objetivos do projeto, garantindo que o sistema desenvolvido seja não apenas tecnicamente sólido, mas também útil e relevante para seus usuários finais.
+To ensure effectiveness, functional requirements must be clearly defined, unambiguous, and measurable, traceable, complete, and consistent. Moreover, they should be defined considering the needs and objectives of the project, ensuring that the developed system is not only technically sound but also useful and relevant to its end users.
 
-Dentro do contexto do sistema desenvolvido, está listado abaixo os requisitos funcionais do sistema e sua descrição, de forma a deixar claro, de forma funcional, o que o sistema deve fazer.
+Within the context of the developed system, the functional requirements of the system and their description are listed below, to clearly state, functionally, what the system should do.
 
-\subsubsection{FR1 - O sistema deve permitir que um usuário acesse o sistema de forma segura com um email e senha}
-Dado que o sistema é para a visualização dos dados de operação de uma industria de estampagem, as informações disponibilizadas devem ser acessadas apenas por usuários previamente autorizados.
+\subsubsection{FR1 - The system must allow a user to securely access the system with an email and password}Given that the system is for viewing the operational data of a stamping industry, the information provided should only be accessed by previously authorized users.
 
-\subsubsection{FR2 - O sistema deve permitir que um usuário veja as suas informações pessoais que são armazenadas nos sistema}
-Cada usuário que tiver acesso ao sistema terá registrado nele alguns de seus dados pessoais, como e-mail, cargo e tipo de acesso. Portanto, cada usuário deve ter acesso a suas informações pessoais que estão salvas no sistema.
+\subsubsection{FR2 - The system must allow a user to view their personal information that is stored in the system}
+Each user who has access to the system will have some of their personal data registered in it, such as email, position, and type of access. Therefore, each user should have access to their personal information that is saved in the system.
 
-\subsubsection{FR3 - O sistema deve exibir em tempo real os valores lidos pelos sensores em cada uma das máquinas}
-Ao receber os dados enviados pelos sensores, os sistema deve exibir em tela os valores lidos, separado por tipo de sensor e máquina. 
+\subsubsection{FR3 - The system must display in real time the values read by the sensors in each of the machines}Upon receiving the data sent by the sensors, the system should display on screen the read values, separated by sensor type and machine.
 
-\subsubsection{FR4 - O sistema deve armazenar um valor máximo ideal para cada para tipo de sensor utilizado}
-Cada sensor deverá ter um valor máximo ideal para o funcionamento. Ele servirá de parâmetro para entender se o valor lido pelo sensor indica um bom ou mal funcionamento da máquina.
+\subsubsection{FR4 - The system must store an ideal maximum value for each type of sensor used}
+Each sensor should have an ideal maximum value for operation. It will serve as a parameter to understand whether the value read by the sensor indicates good or poor machine performance.
 
-\subsubsection{FR5 - O sistema deve identificar sempre que um valor lido pelo sensor não estiver abaixo do valor ideal}
-Esse requisito refere-se à capacidade do sistema de detectar, de forma automática, toda vez que o sensor indicar um valor que não esteja abaixo do limite pré definido. Isto é, se o valor ideal for X, e o sensor ler um valor maior ou igual a X, o sistema reconhecerá esta situação.
+\subsubsection{FR5 - The system must identify whenever a value read by the sensor is not below the ideal value}
+This requirement refers to the system's ability to automatically detect every time the sensor indicates a value that is not below the pre-defined limit. That is, if the ideal value is X, and the sensor reads a value greater than or equal to X, the system will recognize this situation.
 
-\subsubsection{FR6 - O sistema deve registrar sempre que um valor lido pelo sensor não estiver de acordo com o valor ideal}
-Esse requisito implica que o sistema deve manter um registro de todos os momentos em que o valor detectado pelo sensor não estiver abaixo do valor ideal armazenado.
+\subsubsection{FR6 - The system must always register when a value read by the sensor is not in accordance with the ideal value}
+This requirement implies that the system must keep a record of all times when the value detected by the sensor is not below the stored ideal value.
 
-\subsubsection{FR7 - O sistema deve mostrar em tela quando um valor lido pelo sensor não estiver abaixo do ideal}
-Sempre que o sensor detectar um valor abaixo do padrão ideal, o sistema deverá exibir um alerta na interface de forma que fique sempre visível para o usuário.
+\subsubsection{FR7 - The system must display on screen when a value read by the sensor is not below the ideal}
+Whenever the sensor detects a value below the ideal standard, the system should display an alert on the interface so that it is always visible to the user.
 
-\subsubsection{FR8 - O sistema deve mostrar no formato de notificação os registros de não funcionamento abaixo do valor ideal}
-Este requisito estabelece que o sistema deve apresentar aos usuários na forma de notificações quando o sensor ler um valor acima do ideal, para possibilitar que os usuários sejam informados, mesmo que posteriormente, sempre que um alerta for identificado.
+\subsubsection{FR8 - The system must display in notification format the records of non-operation below the ideal value}This requirement establishes that the system should present to users in the form of notifications when the sensor reads a value above the ideal, to enable users to be informed, even if later, whenever an alert is identified.
 
-\subsubsection{FR9 - O sistema deve permitir que o usuário marque uma notificação como lida, de forma que ela não apareça novamente}
-Após ser notificado, os usuários deverão ter a capacidade de marcar essa notificação como "lida", garantindo que a mesma informação não continue a ser exibida repetidamente.
+\subsubsection{FR9 - The system should allow the user to mark a notification as read, so that it does not appear again}
+After being notified, users should have the ability to mark this notification as "read", ensuring that the same information does not continue to be displayed repeatedly.
 
-\subsubsection{FR10 - O sistema deve exibir gráficos mostrando os valores lidos pelos sensores nos dias anteriores de forma agregada, separando por máquinas}
-Esse requisito assegura que os usuários possam visualizar, por meio de representações gráficas, as leituras dos sensores de dias anteriores de forma agregada. Estes gráficos devem ser categorizados por máquina, proporcionando uma análise detalhada do desempenho de cada equipamento ao longo do tempo.
+\subsubsection{FR10 - The system should display graphs showing the values read by the sensors on previous days in an aggregated manner, separating by machines}This requirement ensures that users can view, through graphical representations, the readings of sensors from previous days in an aggregated manner. These graphs should be categorized by machine, providing a detailed analysis of the performance of each piece of equipment over time.
 
-\subsubsection{FR11 - O sistema deve exibir nos gráficos uma análise estatística do funcionamento das máquinas, junto com o valor máximo de funcionamento ideal}
-Os gráficos devem oferecer uma análise estatística, mostrando os indicadores estatísticos dos dados agregados média, mediana, percentil 75 e média removendo os outliers. Juntamente com isso, o gráfico também mostrará o valor ideal, servindo como uma referência para avaliar o desempenho.
+\subsubsection{FR11 - The system must display in the graphs a statistical analysis of the machines' operation, along with the maximum ideal operating value}
+The graphs should provide a statistical analysis, showing the statistical indicators of the aggregated data average, median, 75th percentile, and average removing outliers. Along with this, the graph will also show the ideal value, serving as a reference for evaluating performance.
 
-\subsubsection{FR12 - O sistema deve permitir filtrar as informações exibidas em tela por máquinas}
-Os usuários devem ter a flexibilidade de selecionar e visualizar informações específicas para determinadas máquinas, permitindo que eles se concentrem em equipamentos específicos conforme a necessidade.
+\subsubsection{FR12 - The system must allow filtering the information displayed on screen by machines}
+Users should have the flexibility to select and view specific information for certain machines, allowing them to focus on specific equipment as needed.
 
-\subsubsection{FR13 - O sistema deve permitir filtrar os gráficos exibidas em tela por data}
-O sistema deve oferecer a capacidade de os usuários filtrarem as exibições gráficas por datas específicas, permitindo análises temporais detalhadas e comparações entre diferentes períodos.
+\subsubsection{FR13 - The system must allow filtering the charts displayed on screen by date}
+The system should offer the ability for users to filter graphic displays by specific dates, allowing for detailed temporal analyses and comparisons between different periods.
 
-\subsubsection{FR13 - O sistema deve exibir os gráficos de parada das máquinas de forma a exemplificar a exibição desses dados}
-O sistema deve mostrar as paradas de máquina de acordo com os dados passados pelas planilhas com os dados. Dessa forma poderá ser exemplificado como ficaria as informações de parada das maquinas caso o sistema recebesse essas informações.
+\subsubsection{FR14 - The system must display the machine stoppage charts in a way that exemplifies the display of this data}The system should display machine stops according to the data passed by the spreadsheets with the data. In this way, it can be exemplified how the machine stop information would look if the system received this information.
 
+\subsection[Non-Functional Requirements]{Non-Functional Requirements}\label{ssubec:reqNfuctional}
+Non-functional requirements are specifications that determine the performance characteristics, usability, reliability, and other properties that the system must possess, rather than specific behaviors it should demonstrate. While functional requirements describe what a system should do, non-functional requirements specify how the system should perform these functions.
 
-\subsection[Requisitos Não Funcionais]{Requisitos Não Funcionais}\label{ssubec:reqNfuctional}
-Requisitos não funcionais são especificações que determinam as características de desempenho, usabilidade, confiabilidade e outras propriedades que o sistema deve possuir, ao invés de comportamentos específicos que ele deve demonstrar. Enquanto os requisitos funcionais descrevem o que um sistema deve fazer, os requisitos não funcionais especificam como o sistema deve realizar essas funções.
+These requirements are crucial to ensure user satisfaction and the operational effectiveness of the system, playing a fundamental role in the quality and overall operation of a software product.
 
-Estes requisitos são cruciais para garantir a satisfação do usuário e a eficácia operacional do sistema, desempenhando um papel fundamental na qualidade e na operação geral de um produto de software.
+Non-functional requirements can be of various types, such as usability, performance, security, availability, maintenance, and reliability. Within the context of the developed system, the non-functional requirements of the system and their description are listed below, to make clear what was taken into account when developing each of the system's functionalities.
 
-Os requisitos não funcionais podem ser de vários tipos, como usabilidade, desempenho, segurança, disponibilidade, manutenção e confiabilidade. Dentro do contexto do sistema desenvolvido, está listado abaixo os requisitos não funcionais do sistema e sua descrição, de forma a deixar claro o que foi levado em consideração no momento de desenvolver cada uma das funcionalidades do sistema.
+\subsubsection{NFR1 - Availability}The system must have automatic reconnection mechanisms that activate when connection problems or data reception from sensors are detected, thus ensuring the continuity in data reception.
 
-\subsubsection{NFR1 - Disponibilidade}
-O sistema deve possuir mecanismos de reconexão automática que se ativam quando problemas de conexão ou recebimento de dados dos sensores forem detectados, garantindo assim a continuidade no recebimento dos dados.
+\subsubsection{NFR2 - Access Security}
+The system must implement access controls so that only authorized employees have permission to access data and functionalities relevant to their role.
 
-\subsubsection{NFR2 - Segurança no acesso}
-O sistema deve implementar controles de acesso para que somente colaboradores autorizados tenham permissão para acessar os dados e funcionalidades pertinentes ao seu papel.
+\subsubsection{NFR3 - Network Security}
+To ensure the security of data transmission, the connection to the system must be established using the \gls{HTTPS} protocol, which incorporates the \gls{TLS} security layer, thus protecting the data against interceptions and alterations.
 
-\subsubsection{NFR3 - Segurança na rede}
-Para garantir a segurança da transmissão de dados, a conexão ao sistema deve ser estabelecida utilizando o protocolo \gls{HTTPS}, que incorpora a camada de segurança \gls{TLS}, protegendo assim os dados contra intercepções e alterações.
+\subsubsection{NFR4 - Real-time Transmission}
+The system must process and transmit the data sent by the sensors in a streaming-based architecture. The delay between the sensor sending the data and its visualization by the end user should be less than three seconds.
 
-\subsubsection{NFR4 - Transmissão em tempo real}
-O sistema deve processar e transmitir os dados enviados pelos sensores em uma arquitetura baseada em streaming. O atraso entre o envio do dado pelo sensor e sua visualização pelo usuário final deve ser inferior a três segundos.
+\subsubsection{NFR5 - Modularity}
+The system's architecture should be modular, allowing for the integration and addition of new components or functionalities in an efficient manner without compromising the operation of the existing parts.
 
-\subsubsection{NFR5 - Modularidade}
-A arquitetura do sistema deve ser modular, possibilitando a integração e a adição de novos componentes ou funcionalidades de maneira eficiente e sem comprometer o funcionamento das partes já existentes.
+\subsubsection{NFR6 - Maintainability}
+Prioritizing longevity and ease of maintenance, the system should be developed following good programming practices and system modularization. This will facilitate future modifications, expansions, and the correction of any potential problems.
 
+\subsubsection{NFR7 - Scalability of sensors and machines}
+The system design must be able to handle an increasing volume of sensors and machines, ensuring that there is no performance degradation or failures when the demand for resources increases.
 
-\subsubsection{NFR6 - Manutenibilidade}
-Priorizando a longevidade e facilidade de manutenção, o sistema deve ser desenvolvido seguindo boas práticas de programação e modularização do sistema. Isso facilitará futuras modificações, expansões e a correção de eventuais problemas.
+\subsubsection{NFR8 - Portability}
+The system must ensure compatibility with the main web browsers available on the market. In addition, the user interface should adapt well on larger screens such as televisions, allowing the dashboard to be clearly viewed in different factory environments.
 
-\subsubsection{NFR7 - Escalabilidade de sensores e máquinas}
-O design do sistema deve ser capaz de lidar com um crescente volume de sensores e máquinas, garantindo que não haja degradação de performance ou falhas quando a demanda por recursos aumentar.
+\subsubsection{NFR9 - Usability}The system interface and its components should be designed considering fundamental principles of interaction design, ensuring that users can understand and interact with the system in an intuitive and efficient manner.
 
-\subsubsection{NFR8 - Portabilidade}
-O sistema deve garantir compatibilidade com os principais navegadores web disponíveis no mercado. Além disso, a interface de usuário deve se adaptar bem em telas maiores como televisões, permitindo que o dashboard seja visualizado de forma clara em diferentes ambientes da fábrica.
+\section[Data Collection and Storage Method]{Data Collection and Storage Method}
 
-\subsubsection{NFR9 - Usabilidade}
-A interface do sistema e seus componentes devem ser projetados considerando princípios fundamentais de design de interação, garantindo que os usuários possam compreender e interagir com o sistema de maneira intuitiva e eficiente.
+Within the project context, the way sensor data is collected and stored greatly influences the system's operation, as it is from them that the entire system is structured. Thus, a protocol developed in another project within the same context of the \texttt{Attract Project} was used as a basis, which transmits all the necessary information for the context of this project. Within the system in question, the responsibility of implementing the decoder for the given protocol was assigned.
 
-
-\section[Método de coleta e armazenamento de dados]{Método de coleta e armazenamento de dados}
-
-Dentro do contexto do projeto, a forma como os dados dos sensores são coletados e armazenados influenciam muito no funcionamento do sistema, pois é a partir deles que todo o sistema é estruturado. Dessa forma foi utilizado como base um protocolo desenvolvido em outro projeto dentro do mesmo contexto do \texttt{Projeto Attract}, que transmite todas as informações necessárias para o contexto desse projeto. Dentro do sistema em questão, ficou a responsabilidade de implementar o decodificador para o determinado protocolo.
-
-O formato do protocolo é estruturado de forma a representar as informações pertinentes à máquina, ao tipo de comunicação, ao sensor e ao significado dos dados transmitidos, seguindo o seguinte formato:
+The protocol format is structured to represent the information pertinent to the machine, the type of communication, the sensor, and the meaning of the transmitted data, following the format below:
 
 \subsubsection{Machine ID (2 bytes)}
 
-O campo \textit{Machine ID} é responsável por identificar a máquina em questão e está dividido em dois subcampos:
+The \textit{Machine ID} field is responsible for identifying the machine in question and is divided into two subfields:
 
 \begin{itemize}
-    \item \textbf{High (bytes de ordem superior)}: Representa o tipo da máquina. Exemplos de valores possíveis são: prensa, torno, robot, tapete, entre outros.
-    \item \textbf{Low (bytes de ordem inferior)}: Identifica o número da máquina.
+    \item \textbf{High (higher order bytes)}: Represents the type of machine. Possible values include: press, lathe, robot, conveyor, among others.
+    \item \textbf{Low (lower order bytes)}: Identifies the machine number.
 \end{itemize}
 
 \subsubsection{Type (1 byte)}
 
-O campo \textit{Type} indica o tipo de mensagem e pode assumir os seguintes valores:
+The \textit{Type} field indicates the type of message and can assume the following values:
 \begin{enumerate}
     \item Publish
     \item Request to publish
@@ -122,56 +104,53 @@ O campo \textit{Type} indica o tipo de mensagem e pode assumir os seguintes valo
 
 \subsubsection{Sensor ID (2 bytes)}
 
-O campo \textit{Sensor ID} fornece detalhes sobre o sensor que está transmitindo os dados:
+The \textit{Sensor ID} field provides details about the sensor that is transmitting the data:
 
 \begin{itemize}
-    \item \textbf{High (bytes de ordem superior)}: Representa a quantidade física sendo medida, como temperatura, velocidade, pressão, força, entre outros.
-    \item \textbf{Low (bytes de ordem inferior)}: Indica o número do sensor.
-\end{itemize}
+    \item \textbf{High (higher order bytes)}: Represents the physical quantity being measured, such as temperature, speed, pressure, force, among others.
+    \item \textbf{Low (lower order bytes)}: Indicates the sensor number.
+\end{itemize}\subsubsection{Meaning of Data (2 bytes)}
 
-\subsubsection{Meaning of Data (2 bytes)}
-
-O campo \textit{Meaning of Data} fornece informações sobre o tipo e significado dos dados:
+The \textit{Meaning of Data} field provides information about the type and meaning of the data:
 
 \begin{itemize}
-    \item \textbf{High (bytes de ordem superior)}: Tipo dos dados:
+    \item \textbf{High (higher order bytes)}: Data type:
     \begin{enumerate}
         \item Not defined
         \item Normal
         \item Raw data
         \item Alarm
     \end{enumerate}
-    \item \textbf{Low (bytes de ordem inferior)}: Significado dos dados, que varia de acordo com o equipamento. Exemplos incluem:
+    \item \textbf{Low (lower order bytes)}: Meaning of the data, which varies according to the equipment. Examples include:
     \begin{itemize}
         \item Oil critical temperature
         \item Check oil temperature
         \item Oil pressure
-    \end{itemize}
+\end{itemize}
 \end{itemize}
 
 \subsubsection{Length (2 bytes)}
 
-O campo \textit{Length} indica o número de bytes subsequentes no pacote.
+The \textit{Length} field indicates the number of subsequent bytes in the package.
 
 \subsubsection{Data}
 
-Este campo representa os dados transmitidos pelo sensor. A especificação exata do que os dados representam deve ser definida e normalizada, conforme indicado pela notação (*).
+This field represents the data transmitted by the sensor. The exact specification of what the data represents should be defined and standardized, as indicated by the notation (*).
 
 
-\section[Processo de desenvolvimento do software]{Processo de desenvolvimento do software}
-Com a definição clara dos requisitos do sistema e da forma como os dados lidos pelos sensores são transmitidos, foi definido o processo de como o projeto seria desenvolvido. Esse processo de desenvolvimento passa pela definição das histórias de usuário, organização das atividades, organização da documentação, configuração dos repositórios no GitHub e reuniões periódicas com o professor orientador e com a empresa para discutir o andamento.
+\section[Software development process]{Software development process}
+With a clear definition of the system requirements and how the data read by the sensors are transmitted, the process of how the project would be developed was defined. This development process involves defining user stories, organizing activities, organizing documentation, setting up repositories on GitHub, and holding regular meetings with the supervising professor and the company to discuss progress.
 
-\subsection{Histórias de Usuário}
-No desenvolvimento ágil de software, uma das abordagens mais centradas no usuário entendimento das funcionalidades do sistema e dos requisitos é a utilização de \textit{histórias de usuário}. Estas são descrições curtas, simples e informais do ponto de vista de um usuário final, capturando o que eles necessitam ou desejam fazer no software \cite{lucassen2015forging}.
+\subsection{User Stories}
+In agile software development, one of the most user-centered approaches to understanding system features and requirements is the use of \textit{user stories}. These are short, simple, and informal descriptions from the perspective of an end user, capturing what they need or want to do in the software \cite{lucassen2015forging}.
 
-A estrutura típica de uma história de usuário é: "Como [tipo de usuário], eu quero [uma ação] para que [um benefício/resultado]". Esta estrutura ajuda a manter o foco nas necessidades e desejos do usuário, em vez de mergulhar prematuramente em soluções técnicas ou detalhes de implementação.
+The typical structure of a user story is: "As a [type of user], I want [an action] so that [a benefit/outcome]". This structure helps to keep the focus on the user's needs and desires, rather than prematurely diving into technical solutions or implementation details.
 
-Além de serem uma ferramenta de comunicação entre os desenvolvedores e os stakeholders, as histórias de usuário facilitam a priorização das tarefas, ajudam na criação de critérios de aceitação e fornecem uma base para discussões interativas durante as reuniões de revisão e planejamento.
+In addition to being a communication tool between developers and stakeholders, user stories facilitate task prioritization, assist in creating acceptance criteria, and provide a basis for interactive discussions during review and planning meetings.
 
-Em suma, as histórias de usuário servem como um meio eficaz de traduzir requisitos complexos em tarefas gerenciáveis e centradas no usuário, garantindo que o produto final atenda às expectativas e necessidades dos seus utilizadores.
+In short, user stories serve as an effective means of translating complex requirements into manageable, user-centered tasks, ensuring that the final product meets the expectations and needs of its users.
 
-Com essa definição de historias de usuário, foi definido os seguintes itens que traduzem os requisitos em tarefas para o desenvolvimento do projeto:
-
+With this definition of user stories, the following items were defined that translate the requirements into tasks for the project development:
 
 \begin{enumerate}
     \item As a user, I must be able to log in with my credentials to use the system.
@@ -185,132 +164,129 @@ Com essa definição de historias de usuário, foi definido os seguintes itens q
     \item As a user, I should be able to view the system information (dashboards) on different screen sizes so that I can display the information in different contexts.
 \end{enumerate}
 
-Cada uma dessas historias de usuário foi detalhada melhor na organização das tarefas, incluindo uma descrição mais completa, possíveis regras de negócio, quais requisitos, funcionais e não funcionais, ela se referencia, e também critérios de aceite. A organização das atividades está detalhada na seção \ref{sec:taskOrganization}.
+Each of these user stories was further detailed in the task organization, including a more complete description, possible business rules, which requirements, functional and non-functional, it refers to, and also acceptance criteria. The organization of activities is detailed in section \ref{sec:taskOrganization}.
 
 
-\subsection{Organização das tarefas}\label{sec:taskOrganization}
-O método Kanban, originário do sistema Toyota de produção, tornou-se uma ferramenta popular e eficaz para gerenciamento e organização de fluxos de trabalho. A palavra "Kanban" é de origem japonesa e pode ser traduzida como "cartão visual" ou "sinalização". No contexto de gestão de projetos, Kanban refere-se a um sistema visual de gestão que destaca o fluxo de trabalho e as tarefas em diferentes estágios de processo. A essência do Kanban é visualizar todo o fluxo de trabalho, desde as tarefas que ainda não foram iniciadas até aquelas que foram concluídas. Esta visualização permite identificar gargalos e ineficiências, otimizando assim o processo \cite{ghani2015agile}. Para a organização das atividades desse projeto, o método Kanban foi adotado como uma estratégia para garantir uma progressão eficiente e sistemática do trabalho.
+\subsection{Task Organization}\label{sec:taskOrganization}
+The Kanban method, originating from the Toyota production system, has become a popular and effective tool for managing and organizing workflows. The word "Kanban" is of Japanese origin and can be translated as "visual card" or "signage". In the context of project management, Kanban refers to a visual management system that highlights the workflow and tasks at different stages of the process. The essence of Kanban is to visualize the entire workflow, from tasks that have not yet been started to those that have been completed. This visualization allows the identification of bottlenecks and inefficiencies, thus optimizing the process \cite{ghani2015agile}. For the organization of the activities of this project, the Kanban method was adopted as a strategy to ensure an efficient and systematic progression of work.
 
-Para a implementação do método Kanban, foi escolhido o Notion como ferramenta. A escolha deste software deve-se à sua flexibilidade e capacidade de personalização, permitindo a criação de um board Kanban que se adapta especificamente às necessidades do projeto \cite{notionProjectManagement}. Além disso, o Notion oferece uma interface intuitiva para a construção documentação, que está melhor detalhada na seção \ref{sec:documentation}.
+For the implementation of the Kanban method, Notion was chosen as the tool. The choice of this software is due to its flexibility and customization capacity, allowing the creation of a Kanban board that specifically adapts to the project's needs \cite{notionProjectManagement}. In addition, Notion offers an intuitive interface for building documentation, which is further detailed in section \ref{sec:documentation}.
 
-O board Kanban foi estruturado em cinco colunas, cada uma representando um estágio distinto no fluxo de trabalho:
+The Kanban board was structured into five columns, each representing a distinct stage in the workflow:
 
 \begin{itemize}
-    \item \textbf{Backlog:} Esta coluna contém todas as tarefas e atividades identificadas, mas que ainda não foram iniciadas. É um repositório de tudo o que precisa ser feito, mas que ainda não tem uma data definida para começar.
-    \item \textbf{To Do:} As tarefas que estão nesta coluna estão prontas para serem iniciadas. Elas foram retiradas do Backlog, detalhadas e têm prioridade para serem iniciadas em breve.
-    \item \textbf{Stopped:} Aqui estão as tarefas que foram iniciadas, mas por algum motivo tiveram que ser interrompidas, desde mudanças de prioridade, necessidade de alguma valição ou limitação técnica.
-    \item \textbf{In Progress:} Esta coluna contém as tarefas que estão atualmente em execução. A movimentação para esta coluna indica que o trabalho está ativamente sendo feito na tarefa.
-    \item \textbf{Done:} Assim que é finalizado o desenvolvimento de uma tarefa ela é dada como concluída, e portanto, movida para esta coluna. Representa o sucesso na finalização da atividade, e serve como um registro de todos os itens concluídos.
+    \item \textbf{Backlog:} This column contains all identified tasks and activities that have not yet been started. It is a repository of everything that needs to be done, but does not yet have a defined start date.
+    \item \textbf{To Do:} The tasks in this column are ready to be started. They have been taken from the Backlog, detailed, and have priority to be started soon.
+    \item \textbf{Stopped:} Here are the tasks that have been started, but for some reason had to be interrupted, from changes in priority, the need for some validation, or technical limitation.
+    \item \textbf{In Progress:} This column contains the tasks that are currently underway. The move to this column indicates that work is actively being done on the task.
+    \item \textbf{Done:} As soon as the development of a task is completed, it is marked as completed, and therefore, moved to this column. It represents the success in completing the activity, and serves as a record of all completed items.
 \end{itemize}
 
-A estruturação destas colunas oferece uma visão clara do status de cada atividade e ajuda a identificar rapidamente onde estão os gargalos, facilitando a tomada de decisões e a priorização das tarefas.
+The structuring of these columns provides a clear view of the status of each activity and helps to quickly identify where the bottlenecks are, facilitating decision-making and task prioritization.
 
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=\textwidth]{images/kanban_board}
-	\caption{Board Kanban used to manager the tasks.}
+	\caption{Kanban board used to manage the tasks.}
 	\label{fig:BoardKanban}
 \end{figure}
 
-A fim de definir melhor a implementação de cada história de usuário, cada card no board Kanban foi detalhado com uma descrição que inclui regras de negócio relevantes, referências a requisitos funcionais e não funcionais, critérios de aceitação e sub-tarefas. Antes que uma história de usuário possa ser movida para a coluna "In Progress", é essencial que esses campos sejam avaliados para assegurar um entendimento do escopo da tarefa. Os critérios de aceitação desempenham um papel importante na verificação de que uma história atende a todas as exigências estabelecidas antes de ser marcada como concluída.
+In order to better define the implementation of each user story, each card on the Kanban board was detailed with a description that includes relevant business rules, references to functional and non-functional requirements, acceptance criteria, and sub-tasks. Before a user story can be moved to the "In Progress" column, it is essential that these fields are evaluated to ensure an understanding of the task scope. The acceptance criteria play an important role in verifying that a story meets all the established requirements before it is marked as completed.
 
-Para ilustrar este processo, é detalhado a história de usuário número 1.
+To illustrate this process, user story number 1 is detailed.
 
 \textbf{1. As a user, I must be able to log in with my credentials to use the system.}
 \begin{itemize}
-    \item \textbf{Descrição:} Para garantir a segurança e a personalização da experiência do usuário, o sistema deve possuir uma funcionalidade de autenticação. O usuário deve inserir suas credenciais - geralmente um nome de usuário ou endereço de e-mail e uma senha - para acessar sua conta e as funcionalidades associadas a ela.
-    \item \textbf{Regras de Negócio Relevantes:} 
+    \item \textbf{Description:} To ensure security and customization of the user experience, the system must have an authentication feature. The user must enter their credentials - usually a username or email address and a password - to access their account and the functionalities associated with it.
+    \item \textbf{Relevant Business Rules:} 
         \begin{itemize}
-            \item Os usuários não podem acessar o sistema sem autenticação.
-            \item As tentativas de entrar no sistema devem ficar armazenadas no banco de dados.
-            \item As senhas devem ser armazenadas de forma segura, utilizando técnicas como hashing.
+            \item Users cannot access the system without authentication.
+            \item Attempts to log into the system should be stored in the database.
+            \item Passwords should be stored securely, using techniques such as hashing.
         \end{itemize}
 
-    \item \textbf{Referências a Requisitos:}
+    \item \textbf{Requirement References:}
         \begin{itemize}
-            \item \textbf{Funcionais:} FR1
-            \item \textbf{Não Funcionais:} NFR2, NFR3, NFR6, NFR9 
+            \item \textbf{Functional:} FR1
+            \item \textbf{Non-Functional:} NFR2, NFR3, NFR6, NFR9 
         \end{itemize}
 
-    \item \textbf{Critérios de Aceitação:}
+    \item \textbf{Acceptance Criteria:}
         \begin{itemize}
-            \item O sistema deve apresentar uma tela de login clara e intuitiva.
-            \item Após inserir as credenciais corretamente, o usuário deve ser redirecionado para a página inicial do sistema (/dashboard).
-            \item Se as credenciais estiverem incorretas, o usuário deve receber uma mensagem de erro clara.
+            \item The system must present a clear and intuitive login screen.
+            \item After correctly entering the credentials, the user should be redirected to the system's home page (/dashboard).
+            \item If the credentials are incorrect, the user should receive a clear error message.
         \end{itemize}
 
-        \item \textbf{Sub-tarefas:}
+        \item \textbf{Sub-tasks:}
             \begin{itemize}
-                \item Desenhar a interface da tela de login.
-                \item Construção da interface de login no repositório.
-                \item Implementar a lógica de criação de usuário com hash de senha.
-                \item Implementar a lógica de autenticação no backend com \gls{JWT} Token.
-                \item Testar a segurança e eficácia da funcionalidade de login.
-                \item Testar se a \gls{API} está retornando os códigos \gls{HTTP} corretamente.
+                \item Design the login screen interface.
+                \item Build the login interface in the repository.
+                \item Implement the user creation logic with password hash.
+                \item Implement the authentication logic in the backend with \gls{JWT} Token.
+                \item Test the security and effectiveness of the login functionality.
+                \item Test if the \gls{API} is returning the \gls{HTTP} codes correctly.
             \end{itemize}
 
 \end{itemize}
 
 
 
-\subsection{Documentação do projeto}\label{sec:documentation}
-A documentação do projeto foi feita na ferramenta Notion. A escolha para este projeto foi fundamentada pois o Notion se destaca por sua flexibilidade, permitindo uma configuração adaptável dos texto para atender a vários tipos de necessidades. A interface intuitiva torna a inserção e atualização de informações um processo simples, que pode ser executado por ser uma plataforma acessível na internet por qualquer navegador \cite{notionProjectManagement}.
+\subsection{Project Documentation}\label{sec:documentation}
+The project documentation was created using the Notion tool. The choice for this project was based on the fact that Notion stands out for its flexibility, allowing an adaptable configuration of the text to meet various types of needs. The intuitive interface makes the insertion and updating of information a simple process, which can be executed as it is a platform accessible on the internet by any browser \cite{notionProjectManagement}.
 
-Dessa forma, a documentação foi elaborada adotando uma abordagem estruturada para garantir que todas as características e funcionalidades fossem devidamente catalogadas. A base dessa documentação é uma tabela, onde cada entrada corresponde a uma funcionalidade ou a uma específica parte do sistema, sendo denominada de acordo com o nome da característica em questão.
+In this way, the documentation was elaborated adopting a structured approach to ensure that all features and functionalities were properly cataloged. The basis of this documentation is a table, where each entry corresponds to a functionality or a specific part of the system, being named according to the name of the feature in question.
 
-Cada item da tabela se expande em uma página independente, com detalhes descritivos. Esta organização permite o entendimento em cada aspecto do sistema, pois foi sendo construído à medida que o sistema era desenvolvido, refletindo assim as adições e mudanças mais recentes.
+Each item in the table expands into an independent page, with descriptive details. This organization allows understanding in each aspect of the system, as it was being built as the system was developed, thus reflecting the most recent additions and changes.
 
-Para facilitar a navegação e busca por informações específicas, foi incorporado uma coluna de tags na tabela. Estas tags servem para categorizar as funcionalidades, e também um mecanismo eficiente de busca, permitindo que os usuários identifiquem rapidamente os aspectos relevantes do sistema.
+To facilitate navigation and search for specific information, a tag column was incorporated into the table. These tags serve to categorize functionalities, and also an efficient search mechanism, allowing users to quickly identify the relevant aspects of the system.
 
-Além disso, o design interno de cada página é fundamentado na estrutura do markdown, explicado em \cite{markdownguide}, para assegurar que o conteúdo da documentação seja apresentado de forma clara, estruturada e esteticamente agradável, facilitando a compreensão e a absorção das informações por parte do leitor.
+In addition, the internal design of each page is based on the structure of markdown, explained in \cite{markdownguide}, to ensure that the content of the documentation is presented in a clear, structured, and aesthetically pleasing way, facilitating the understanding and absorption of information by the reader.
 
-\subsection{Configuração dos repositórios}
-A escolha da plataforma para gerenciamento dos repositórios do projeto foi o GitHub \cite{github}, uma das mais renomadas e amplamente adotadas plataformas de controle de versão baseada em Git disponíveis atualmente. A decisão de utilizar o GitHub foi pautada em alguns fatores. Primeiramente, a plataforma oferece uma interface intuitiva e um conjunto robusto de ferramentas que facilitam o acompanhamento do progresso do código, bem como a colaboração entre diferentes membros da equipe. Além disso, o GitHub é amplamente reconhecido por sua comunidade ativa, o que se traduz em uma vasta gama de recursos, tutoriais e suporte disponível, essencial para resolver possíveis dúvidas e desafios. Ademais, a integração com outras ferramentas e plataformas é facilmente realizável caso fosse necessário, permitindo um fluxo de trabalho contínuo e otimizado. Por fim, o compromisso do GitHub com a segurança, garantindo a integridade do código e dos dados do projeto, reforçou nossa decisão em adotá-lo como a solução de controle de versão para o projeto desenvolvido. 
+\subsection{Repository Configuration}
+The platform chosen for managing the project's repositories was GitHub \cite{github}, one of the most renowned and widely adopted Git-based version control platforms currently available. The decision to use GitHub was based on several factors. Firstly, the platform offers an intuitive interface and a robust set of tools that facilitate tracking code progress, as well as collaboration among different team members. In addition, GitHub is widely recognized for its active community, which translates into a vast range of resources, tutorials, and available support, essential for resolving possible doubts and challenges. Furthermore, integration with other tools and platforms is easily achievable if necessary, allowing for a continuous and optimized workflow. Finally, GitHub's commitment to security, ensuring the integrity of the project's code and data, reinforced our decision to adopt it as the version control solution for the developed project.
 
-Nesse contexto, os repositórios criados para esse projeto foram \texttt{backend}, que armazena o código referente a \gls{API} do sistema, outro chamado \texttt{frontend}, que armazena o código do dashboard que é exibido na web, e outro chamado \texttt{iot\_sensors\_data\_aggregation}, responsável por armazenar o código que realiza a agregação dos dados recebidos pelos sensores, o Modulo de Processamento dos Dados.
+In this context, the repositories created for this project were \texttt{backend}, which stores the code related to the system's \gls{API}, another called \texttt{frontend}, which stores the code of the dashboard that is displayed on the web, and another called \texttt{iot\_sensors\_data\_aggregation}, responsible for storing the code that performs the aggregation of the data received by the sensors, the Data Processing Module.
 
+\subsection{Periodic meetings}
+The development of the project was accompanied by meetings to ensure its alignment with the project objectives. Weekly meetings with the supervising professor were established, ensuring a constant review, time to ask questions, and to detail activities. These meetings provided continuous feedback, allowing for trajectory correction and focus on the desired progress for the project. In parallel, monthly meetings were conducted with the interested company, to present what was being built, gather feedback, guidance on desired features, and also to better understand how the company operates and its needs.
 
-\subsection{Reuniões periódicas}
-O desenvolvimento do projeto foi acompanhado por reuniões para garantir seu alinhamento com os objetivos do projeto. Reuniões semanais com o professor orientador foram estabelecidas, garantindo uma constante revisão, momento para tirar dúvidas, e realizar o detalhamento de atividades. Estes encontros proporcionaram um feedback contínuo, possibilitando a correção de trajetória e o foco no progresso desejado para o projeto. Paralelamente, reuniões mensais foram conduzidas com a empresa interessada, para apresentar o que estava sendo construído, pegar feedbacks, orientações sobre funcionalidades desejadas, e também entender melhor como funciona a empresa e suas necessidades.
+These meetings played a fundamental role in integrating academic research and the practical needs of the industry, ensuring that the developed solutions remained relevant and applicable to the business context. This supervision system was crucial in keeping the project on track, balancing academic needs with industrial applicability within the company's context.
 
-Esses encontros desempenharam um papel fundamental na integração entre a pesquisa acadêmica e as necessidades práticas da indústria, buscando que as soluções desenvolvidas se mantivessem pertinentes e aplicáveis ao contexto empresarial. Este sistema de supervisão foi crucial para manter o projeto em seu curso, balanceando as necessidades acadêmicas com a aplicabilidade industrial dentro do contexto da empresa.
+\section[Tecnologias]{Technologies}
+The selection of technologies was carried out to meet specific requirements of scalability and long-term sustainability. Given that the system is primarily aimed at data storage and management, its use as a reference for future projects with similar characteristics was anticipated, therefore, the emphasis was placed on modern technologies, widely recognized and with robust support in the development community.
 
-
-\section[Tecnologias]{Tecnologias}
-A seleção de tecnologias foi realizada para atender a requisitos específicos de escalabilidade e sustentabilidade a longo prazo. Dado que o sistema é primariamente voltado para armazenamento e gestão de dados, foi antecipada sua utilização como referência para futuros projetos de características similares, por isso, a ênfase recaiu sobre tecnologias modernas, amplamente reconhecidas e com robusto suporte na comunidade de desenvolvimento.
-
-Nesse contexto, o MongoDB foi escolhido como nossa solução de banco de dados não relacional, devido à sua flexibilidade e performance. Python foi adotado como linguagem para o backend, devido à sua versatilidade e ampla biblioteca. O framework FastAPI, por sua vez, foi empregado para a elaboração da \gls{API}, graças à sua eficiência e facilidade de integração. No âmbito do frontend, a linguagem JavaScript foi complementada pelo framework NextJs, reconhecido por sua otimização e recursos avançados. Para garantir uma integração fluida e modulada dos componentes do sistema, foi utilizado ao uso de containers Docker, enquanto o gerenciamento eficiente do servidor web foi assegurado pelo NGINX.
+In this context, MongoDB was chosen as our non-relational database solution, due to its flexibility and performance. Python was adopted as the language for the backend, due to its versatility and extensive library. The FastAPI framework, in turn, was employed for the development of the \gls{API}, thanks to its efficiency and ease of integration. In the frontend scope, the JavaScript language was complemented by the NextJs framework, recognized for its optimization and advanced features. To ensure a fluid and modular integration of the system components, Docker containers were used, while efficient web server management was ensured by NGINX.
 
 \subsection{MongoDB}
-2-
-Ao selecionar uma plataforma de banco de dados, optou-se pelo MongoDB \cite{mongodbDocs}, um sistema de banco de dados não relacional projetado para adaptar-se com flexibilidade às mudanças no formato dos dados que são armazenados. O MongoDB proporciona facilidade na manipulação do data lake em variados contextos. Sua documentação meticulosamente estruturada, aliada à vasta gama de conteúdo disponível online, provou ser inestimável para a aquisição de conhecimento.
 
-Distintivamente, o MongoDB apresenta vantagens como a capacidade de suportar consultas distribuídas e paralelas, otimizando o processamento de requisições intrincadas em cenários com densidade significativa de dados. Adicionalmente, sua compatibilidade com uma ampla variedade de ferramentas de análise de dados estabelece um precedente promissor para evoluções futuras do projeto.
+When selecting a database platform, MongoDB \cite{mongodbDocs} was chosen, a non-relational database system designed to flexibly adapt to changes in the format of the data that is stored. MongoDB provides ease in manipulating the data lake in various contexts. Its meticulously structured documentation, coupled with a vast range of content available online, proved to be invaluable for knowledge acquisition.
+
+Distinctively, MongoDB presents advantages such as the ability to support distributed and parallel queries, optimizing the processing of intricate requests in scenarios with significant data density. Additionally, its compatibility with a wide variety of data analysis tools sets a promising precedent for future evolutions of the project.
 
 \subsection{Python}
-No desenvolvimento do backend, optou-se pela utilização da linguagem Python \cite{pythonOfficialDocs}, amplamente reconhecida por sua versatilidade, legibilidade e adaptabilidade em diversos contextos de aplicação. Python, sendo uma das linguagens mais populares e amplamente aceitas no mundo acadêmico e industrial, apresenta uma vasta biblioteca padrão e suporte comunitário robusto. A rica gama de materiais educativos, que abrange desde tutoriais detalhados até extensos fóruns de discussão, foi essencial para o aprendizado.
+In the development of the backend, the Python language \cite{pythonOfficialDocs} was chosen, widely recognized for its versatility, readability, and adaptability in various application contexts. Python, being one of the most popular and widely accepted languages in the academic and industrial world, presents a vast standard library and robust community support. The rich range of educational materials, which spans from detailed tutorials to extensive discussion forums, was essential for learning.
 
-A sintaxe intuitiva de Python favorece a rápida prototipagem e desenvolvimento, ao passo que a ampla gama de frameworks e bibliotecas disponíveis potencializa sua aplicação em diversos aspectos, desde análise de dados até desenvolvimento web. Essas características intrínsecas, somadas à flexibilidade e eficiência da linguagem, consolidam a decisão de adotar Python como a linguagem central para o backend neste projeto de mestrado.
-
+Python's intuitive syntax favors rapid prototyping and development, while the wide range of available frameworks and libraries enhances its application in various aspects, from data analysis to web development. These intrinsic characteristics, combined with the language's flexibility and efficiency, consolidate the decision to adopt Python as the central language for the backend in this master's project.
 
 \subsection{FastAPI}
-Na etapa de implementação do backend, decidiu-se empregar a linguagem Python, aliada ao framework FastAPI \cite{fastapiDocs}. Esta escolha foi motivada, em grande parte, pela eficácia e elevado desempenho oferecido pelo FastAPI. Este framework se destaca por incorporar a biblioteca \gls{ASGI}, uma interface que otimiza a gestão de solicitações, ao aproveitar ao máximo a execução assíncrona, garantindo respostas mais ágeis e precisas. Uma característica importante do FastAPI é sua documentação abrangente e bem elaborada, que ser como uma ferramenta fundamental ao processo de aprendizado e desenvolvimento.
+In the backend implementation phase, it was decided to use the Python language, combined with the FastAPI framework \cite{fastapiDocs}. This choice was largely motivated by the efficiency and high performance offered by FastAPI. This framework stands out for incorporating the \gls{ASGI} library, an interface that optimizes request management, by fully leveraging asynchronous execution, ensuring more agile and accurate responses. An important feature of FastAPI is its comprehensive and well-crafted documentation, which serves as a fundamental tool in the learning and development process.
 
 \subsection{NextJs}
-Para a arquitetura do frontend, optou-se pelo uso do Next.js \cite{nextjsDocs}, um framework que aprimora significativamente a interação com a biblioteca React \cite{reactDocs} do JavaScript, tal como enfatizado na própria documentação oficial do React. O suporte comunitário é uma de suas principais características, sendo amplamente complementado por uma oferta de materiais educativos disponíveis na internet - desde tutoriais a artigos de blog e vídeos instrucionais - os quais contribuíram de maneira essencial para o processo de aprendizado.
+For the frontend architecture, the choice was made to use Next.js \cite{nextjsDocs}, a framework that significantly enhances the interaction with the JavaScript React library \cite{reactDocs}, as emphasized in the official React documentation itself. Community support is one of its main features, being widely complemented by a range of educational materials available on the internet - from tutorials to blog articles and instructional videos - which contributed essentially to the learning process.
 
-No escopo desse projeto, paralelamente ao Next.js, incorporou-se o TypeScript \cite{typescriptLang}, que por sua natureza de tipagem estática, proporciona uma manutenção do código mais intuitiva, incrementando sua legibilidade, simplificando sua compreensão e gerenciamento.
+In the scope of this project, alongside Next.js, TypeScript \cite{typescriptLang} was incorporated, which, due to its static typing nature, provides a more intuitive code maintenance, increasing its readability, simplifying its understanding and management.
 
-A coerência entre Next.js e TypeScript estabelece um ambiente de desenvolvimento altamente eficaz. Enquanto o Next.js promove uma experiência de desenvolvimento mais fluída e de alto desempenho, o TypeScript fortalece a segurança e a produtividade, graças à sua tipagem rigorosa. Estes fatores justificam a escolha da combinação de Next.js e TypeScript para a concretização deste projeto.
+The coherence between Next.js and TypeScript establishes a highly effective development environment. While Next.js promotes a more fluid and high-performance development experience, TypeScript strengthens security and productivity, thanks to its rigorous typing. These factors justify the choice of the combination of Next.js and TypeScript for the realization of this project.
 
-Além do Next.js e TypeScript, o Material UI 5 \cite{muiDocs} foi integrado ao projeto como biblioteca de design de interface do usuário. Este conjunto de componentes React, baseado no padrão de design Material Design da Google \cite{m3Docs}, oferece uma ampla gama de elementos de interface já estilizados e de fácil implementação. Além da economia de tempo no desenvolvimento de componentes desde o início, a biblioteca proporciona uma experiência de usuário coesa e moderna. O uso do Material UI 5 também contribui para a padronização do design em todo o projeto, assegurando uma experiência de usuário mais intuitiva e agradável. Portanto, a adição deste recurso complementa eficazmente as capacidades já robustas oferecidas pela combinação de Next.js e TypeScript, tornando o ambiente de desenvolvimento ainda mais rico e produtivo.
+In addition to Next.js and TypeScript, Material UI 5 \cite{muiDocs} was integrated into the project as a user interface design library. This set of React components, based on Google's Material Design standard \cite{m3Docs}, offers a wide range of already stylized and easy-to-implement interface elements. Besides saving time in developing components from scratch, the library provides a cohesive and modern user experience. The use of Material UI 5 also contributes to the standardization of design throughout the project, ensuring a more intuitive and pleasant user experience. Therefore, the addition of this feature effectively complements the already robust capabilities offered by the combination of Next.js and TypeScript, making the development environment even richer and more productive.
 
 \subsection{Docker}
-Para a orquestração e gerenciamento do ambiente de desenvolvimento e produção, adotou-se o Docker \cite{dockerDocs} como ferramenta de containerização. O Docker, amplamente reconhecido no universo de desenvolvimento de software, possibilita encapsular aplicações e suas dependências em containers, garantindo uniformidade, reprodutibilidade e isolamento entre os ambientes \cite{dockerOverview}. Esta abordagem simplifica significativamente os processos de integração, teste e implantação, uma vez que os containers podem ser movidos de forma transparente entre diferentes ambientes e plataformas.
+For the orchestration and management of the development and production environment, Docker \cite{dockerDocs} was adopted as the containerization tool. Docker, widely recognized in the software development universe, allows encapsulating applications and their dependencies in containers, ensuring uniformity, reproducibility, and isolation among environments \cite{dockerOverview}. This approach significantly simplifies integration, testing, and deployment processes, as containers can be transparently moved between different environments and platforms.
 
-A ampla documentação disponível, juntamente com uma comunidade ativa, proporcionou um entendimento claro e facilitou a adoção desta tecnologia. Além disso, a flexibilidade e eficiência proporcionadas pelo Docker, ao minimizar os conflitos de dependências e garantir que a aplicação funcione consistentemente em diversos contextos, foram fatores decisivos para sua escolha neste projeto.
+The extensive documentation available, along with an active community, provided a clear understanding and facilitated the adoption of this technology. In addition, the flexibility and efficiency provided by Docker, by minimizing dependency conflicts and ensuring that the application works consistently in various contexts, were decisive factors for its choice in this project.
 
 \subsection{NGINX}
-Para a parte de gestão das solicitações web, adotou-se o NGINX \cite{nginxDocs} como servidor web. O NGINX é reconhecido por sua alta performance, confiabilidade e flexibilidade, sendo uma escolha adequada em ambientes de produção que demandam baixa latência, tratamento eficiente de um grande número de conexões simultâneas, e com capacidade de servir conteúdo estático de maneira extremamente rápida. Essas características tornam-no particularmente adequado para sistemas que visam escalabilidade e robustez. 
+For the part of managing web requests, NGINX \cite{nginxDocs} was adopted as the web server. NGINX is recognized for its high performance, reliability, and flexibility, making it a suitable choice in production environments that demand low latency, efficient handling of a large number of simultaneous connections, and the ability to serve static content extremely quickly. These characteristics make it particularly suitable for systems aiming for scalability and robustness.
 
-A vasta documentação e os extensos recursos da comunidade foram essenciais para aprofundar o entendimento e aplicar as melhores práticas no contexto do projeto. Ao se considerar a necessidade de uma entrega consistente e otimizada do conteúdo ao usuário final, bem como uma configuração segura e eficaz do proxy, o NGINX se mostrou como a escolha preeminente para esta dissertação de mestrado.
+The extensive documentation and the vast community resources were essential to deepen the understanding and apply best practices in the project context. Considering the need for a consistent and optimized delivery of content to the end user, as well as a secure and effective proxy configuration, NGINX proved to be the preeminent choice for this master's dissertation.
