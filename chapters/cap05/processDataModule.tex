@@ -1,9 +1,9 @@
-\section[Implementação do módulo de processamento de dados]{Implementação do módulo de processamento de dados}\label{sec:ImplModuloProcessamento}
+\section[Implementation of the data processing module]{Implementation of the data processing module}\label{sec:ImplModuloProcessamento}
 
-Como explicado em ~\ref{subsec:moduloProcessamento}, o modulo de processamento de dados faz a leitura dos dados brutos do sistema, aplica o calculo do \texttt{boxplot} e armazena o resultado no banco de dados.
+As explained in ~\ref{subsec:moduloProcessamento}, the data processing module reads the raw data from the system, applies the \texttt{boxplot} calculation, and stores the result in the database.
 
-\subsection{Agendamento para execução periódica}
-O processamento dos dados precisa ocorrer periodicamente, no caso foi definido inicialmente uma vez por dia. Para executar a chamada da função de processamento uma vez ao dia foi utilizado a biblioteca \texttt{schedule} \cite{scheduleDocs}. Com essa biblioteca foi agendado para todo dia meia noite a execução da função da função de inicia a agregação dos dados. Um loop infinito foi criado para manter o código em execução, verificando se a função deve ser executada ou não.
+\subsection{Scheduling for periodic execution}
+The data processing needs to occur periodically, in this case it was initially defined once a day. To execute the processing function call once a day, the \texttt{schedule} library was used \cite{scheduleDocs}. With this library, the execution of the data aggregation function was scheduled for every day at midnight. An infinite loop was created to keep the code running, checking whether the function should be executed or not.
 
 \begin{verbatim}
 import schedule
@@ -14,10 +14,10 @@ while True:
     time.sleep(1)
 \end{verbatim}
 
-\subsection{Identificando a origem dos dados}
-Dentro desta estrutura, é necessário identificar as coleções corretas das quais os dados devem ser recuperados antes de realizar o processamento. Essa identificação começa pela função \texttt{get\_tuples\_with\_raw\_data\_collections\_and\_processed\_collections()}. Esta função, como o próprio nome sugere, está encarregada de recuperar tuplas relacionando as coleções de dados brutos com suas respectivas coleções processadas. Itera-se sobre todos os tipos de sensores, representados pelo enumerador \texttt{Datatype}, explicado em \ref{subsubsec:constantes}, e para cada tipo de sensor, identificam-se as respectivas coleções de dados brutos e processados, resultando em uma lista de tuplas. 
+\subsection{Identifying the origin of the data}
+Within this structure, it is necessary to identify the correct collections from which the data should be retrieved before processing. This identification begins with the function \texttt{get\_tuples\_with\_raw\_data\_collections\_and\_processed\_collections()}. This function, as the name suggests, is responsible for retrieving tuples relating the raw data collections with their respective processed collections. It iterates over all types of sensors, represented by the enumerator \texttt{Datatype}, explained in \ref{subsubsec:constantes}, and for each type of sensor, the respective raw and processed data collections are identified, resulting in a list of tuples.
 
-Importante destacar que os nomes das coleções são recuperados pelas funções de ajuda, explicados em \ref{subsubsec:helpers}.
+It is important to highlight that the names of the collections are retrieved by the helper functions, explained in \ref{subsubsec:helpers}.
 
 \begin{verbatim}
 def get_tuples_with_raw_data_collections_and_processed_collections():
@@ -31,22 +31,21 @@ def get_tuples_with_raw_data_collections_and_processed_collections():
     return result
 \end{verbatim}
 
-Para iniciar o processamento dos dados, a função \texttt{aggregation\_init()} é chamada, obtendo primeiramente a lista de tuplas que relaciona as coleções de dados brutos com as processadas. Após recuperar esta lista, ela inicializa um loop assíncrono, cujo objetivo é executar uma função de agregação até sua conclusão. Esse design assíncrono é necessário para garantir que o processamento possa realizar chamadas de funções assíncronas, dado que esse modulo é separado da \gls{API}.
+To initiate the data processing, the function \texttt{aggregation\_init()} is called, first obtaining the list of tuples that relate the raw data collections with the processed ones. After retrieving this list, it initializes an asynchronous loop, whose aim is to execute an aggregation function until its completion. This asynchronous design is necessary to ensure that the processing can make asynchronous function calls, given that this module is separate from the \gls{API}.
 
 \begin{verbatim}
 def aggregation_init():
     tuples_list = 
     get_tuples_with_raw_data_collections_and_processed_collections()
-
     loop = asyncio.new_event_loop()
     loop.run_until_complete(aggregation(tuples_list))
     loop.close()
 \end{verbatim}
 
-Desta forma, é identificado a origem dos dados, e onde eles devem ser inseridos depois de processados. Essa informação é passada para a função de agregação para que ela possa ser executada para qualquer dado armazenado.
+In this way, the origin of the data is identified, and where they should be inserted after being processed. This information is passed to the aggregation function so that it can be executed for any stored data.
 
-\subsection{Iniciando a agregação}
-Uma vez definida a origem dos dados por meio das coleções identificadas, a fase de agregação dos dados é iniciada. A função responsável por essa tarefa é a \texttt{aggregation()}, que aceita uma lista de tuplas representando as coleções de sensores.
+\subsection{Starting the aggregation}
+Once the data source is defined through the identified collections, the data aggregation phase is initiated. The function responsible for this task is \texttt{aggregation()}, which accepts a list of tuples representing the sensor collections.
 
 \begin{verbatim}
 async def aggregation(sensors_collection_list:list[tuple]):
@@ -63,7 +62,7 @@ async def aggregation(sensors_collection_list:list[tuple]):
                 machine)
 \end{verbatim}
 
-Dentro desta função, primeiramente, uma instância da base de dados é inicializada usando a classe \texttt{BaseDB()}, explicada em \ref{subsubsec:DatabaseImpl}. Em seguida, a função itera sobre cada tupla na lista fornecida. Para cada tupla, as coleções de dados brutos e processados são extraídas. Utilizando a coleção de dados brutos como referência, é feita uma leitura da lista de máquinas associadas a essa coleção por meio do método \texttt{read\_machines\_list()}.
+Within this function, firstly, a database instance is initialized using the \texttt{BaseDB()} class, explained in \ref{subsubsec:DatabaseImpl}. Then, the function iterates over each tuple in the provided list. For each tuple, the raw and processed data collections are extracted. Using the raw data collection as a reference, a reading of the list of machines associated with this collection is made through the \texttt{read\_machines\_list()} method.
 
 \begin{verbatim}
 async def read_machines_list(self, collection:str):
@@ -71,15 +70,14 @@ async def read_machines_list(self, collection:str):
     return await temp_client[IOT_DATABASE][collection].distinct('machine')
 \end{verbatim}
 
+For each identified machine, the data is then aggregated. The function \texttt{aggregate\_data()} is called, passing the database, the raw data collection, the processed data collection, and the specific machine in question as arguments. This function, in turn, is responsible for effectively aggregating the machine's data, transforming raw data into processed data that will be stored in the respective processed data collection.
 
-Para cada máquina identificada, os dados são então agregados. A função \texttt{aggregate\_data()} é chamada, passando-se a base de dados, a coleção de dados brutos, a coleção de dados processados e a máquina específica em questão como argumentos. Esta função, por sua vez, é responsável por realizar a efetiva agregação dos dados da máquina, transformando dados brutos em dados processados que serão armazenados na respectiva coleção de dados processados.
+\subsubsection{Searching for data to be aggregated}
+Initially, a \texttt{query} is generated using the \texttt{get\_aggregation\_query()} function, which uses the information from the aggregated collection and the machine in question. With this \texttt{query}, the raw data is then read from the raw data collection using the \texttt{read\_raw\_data()} method.
 
-\subsubsection{Busca dos dados a serem agregados}
-Inicialmente, um \texttt{query} é gerado utilizando a função \texttt{get\_aggregation\_query()}, que usa as informações da coleção agregada e da máquina em questão. Com esta \texttt{query}, os dados brutos são então lidos da coleção de dados brutos usando o método \texttt{read\_raw\_data()}.
+The \texttt{get\_aggregation\_query()} function is responsible for generating the query that searches for the information to be aggregated by the processing module. Its goal is that only the raw data not yet processed are considered for aggregation, optimizing the process and avoiding unnecessary reprocessing.
 
-A função \texttt{get\_aggregation\_query()} é encarregada de gerar a \textit{query} que busca as informações a serem agregadas pelo modulo de processamento. O objetivo dela é que apenas os dados brutos ainda não processados sejam considerados para agregação, otimizando o processo e evitando reprocessamento desnecessário.
-
-Esta função necessita de uma instância da base de dados, o nome da coleção onde os dados agregados são armazenados e a máquina específica para a qual a agregação é necessária.
+This function requires an instance of the database, the name of the collection where the aggregated data is stored, and the specific machine for which the aggregation is needed.
 
 \begin{verbatim}
 async def get_aggregation_query(
@@ -88,7 +86,7 @@ async def get_aggregation_query(
     machine:str)->dict:
     field_to_aggregate = "more_recent_register"
     more_recent_processed_data:BoxPlotData|None = 
-    await database.read_more_recente_data(
+    await database.read_more_recent_data(
         collection,
         machine,
         field_to_aggregate)
@@ -102,9 +100,9 @@ async def get_aggregation_query(
         field_to_aggregate)
 \end{verbatim}
 
-A construção da \textit{query} utiliza duas constantes importantes. \texttt{MAX\_VALUE\_BY\_PERIOD} armazena a quantidade maxima de registros que podem ser lidos para a agregação, que nesse caso é a quantidade equivalente a 24 horas de leitura considerando a chegada de dados a cada segundo, ou  seja 86400 registros. Já \texttt{AGGREGATION\_PERIOD\_IN\_HOURS} armazena a quantidade de horas entre uma agregação e outra, no caso 24 horas, sendo condizente com a constante anterior. 
+The construction of the \textit{query} uses two important constants. \texttt{MAX\_VALUE\_BY\_PERIOD} stores the maximum number of records that can be read for aggregation, which in this case is the equivalent amount to 24 hours of reading considering the arrival of data every second, or 86400 records. Meanwhile, \texttt{AGGREGATION\_PERIOD\_IN\_HOURS} stores the number of hours between one aggregation and another, in this case 24 hours, being consistent with the previous constant.
 
-Inicialmente, o campo \texttt{more\_recent\_register} é definido como o atributo a ser buscado. A função \texttt{read\_more\_recente\_data()} é então chamada para obter os dados processados mais recentes para a máquina e coleção em questão.
+Initially, the field \texttt{more\_recent\_register} is set as the attribute to be searched for. The function \texttt{read\_more\_recente\_data()} is then called to obtain the most recent processed data for the machine and collection in question.
 
 \begin{verbatim}
 async def read_more_recente_data(self,
@@ -123,7 +121,7 @@ async def read_more_recente_data(self,
         raise ex
 \end{verbatim}
 
-Se nenhum dado processado recente for encontrado, a \textit{query} é construída utilizando a função \texttt{\_\_build\_query\_with\_limit\_of\_data()}. Esta função simplesmente limita a quantidade de dados recuperados a \texttt{MAX\_VALUE\_BY\_PERIOD} e busca por registros que correspondam à máquina especificada.
+If no recently processed data is found, the \textit{query} is built using the \texttt{\_\_build\_query\_with\_limit\_of\_data()} function. This function simply limits the amount of data retrieved to \texttt{MAX\_VALUE\_BY\_PERIOD} and searches for records that match the specified machine.
 
 \begin{verbatim}
 def __build_query_with_limit_of_data(machine:str)->dict:
@@ -134,8 +132,8 @@ def __build_query_with_limit_of_data(machine:str)->dict:
 \end{verbatim}
 
 
-No entanto, se dados processados recentes forem encontrados, o que é esperado, a função a ser utilizada é a \texttt{\_\_build\_query\_with\_range\_of\_data()}. Esta função considera o registro processado mais recente e calcula um intervalo de tempo (\texttt{date\_limit\_to\_process\_data}) adicionando o período de agregação, definido por \texttt{AGGREGATION\_PERIOD\_IN\_HOURS}, à data desse registro mais recente. A \textit{query} gerada busca registros com \textit{timestamps} dentro desse intervalo de tempo e que correspondam à máquina especificada, com um limite máximo de 
-registros definido por \texttt{MAX\_VALUE\_BY\_PERIOD}.
+However, if recent processed data is found, which is expected, the function to be used is \texttt{\_\_build\_query\_with\_range\_of\_data()}. This function considers the most recent processed record and calculates a time range (\texttt{date\_limit\_to\_process\_data}) by adding the aggregation period, defined by \texttt{AGGREGATION\_PERIOD\_IN\_HOURS}, to the date of this most recent record. The generated query searches for records with timestamps within this time range and that match the specified machine, with a maximum limit of
+records defined by \texttt{MAX\_VALUE\_BY\_PERIOD}.
 
 \begin{verbatim}
 def __build_query_with_range_of_data(more_recent_processed_data:BoxPlotData,
@@ -160,8 +158,8 @@ field_to_aggregate:str)->dict:
 
 \end{verbatim}
 
-\subsubsection{Calculo do BoxPlot}
-Com query montada, os dados são recuperados com a função \texttt{read\_raw\_data}.
+\subsubsection{BoxPlot Calculation}
+With the query assembled, the data is retrieved using the \texttt{read\_raw\_data} function.
 
 \begin{verbatim}
 async def read_raw_data(self, collection:str, query:dict):
@@ -177,13 +175,13 @@ async def read_raw_data(self, collection:str, query:dict):
         raise ex
 \end{verbatim}
 
-A quantidade de dados recuperados é calculada e, se esta quantidade exceder um valor mínimo predefinido \texttt{MINIMUM\_DATA\_TO\_AGGREGATE}, a agregação prossegue. Caso não seja atingindo a quantidade mínima, a função recursiva é finalizada, concluído o processamento dos dados daquela coleção.
+The amount of data retrieved is calculated and, if this amount exceeds a predefined minimum value \texttt{MINIMUM\_DATA\_TO\_AGGREGATE}, the aggregation proceeds. If the minimum amount is not reached, the recursive function is terminated, concluding the processing of the data from that collection.
 
-\texttt{MINIMUM\_DATA\_TO\_AGGREGATE} é um valor constante definido em 100, que garante que existem dados suficientes para serem agregados, evitando a agregação de poucos dados, o que pode comprometer a análise. 
+\texttt{MINIMUM\_DATA\_TO\_AGGREGATE} is a constant value defined as 100, which ensures that there are enough data to be aggregated, avoiding the aggregation of a small amount of data, which could compromise the analysis.
 
-Apos a busca da query, um objeto \texttt{logger} é inicializado para manter registros do processo de agregação.
+After the query search, a \texttt{logger} object is initialized to keep records of the aggregation process.
 
-Nessa implementação o log é utilizado apenas para mostrar informações no console, mas uma implementação futura pode adicionar uma forma mais completa de logs, como detalhado em \ref{subsubsec:futurelogs}.
+In this implementation, the log is used only to display information on the console, but a future implementation may add a more comprehensive form of logs, as detailed in \ref{subsubsec:futurelogs}.
 
 \begin{verbatim}
 class Logger(metaclass=Singleton):
@@ -210,9 +208,9 @@ class Logger(metaclass=Singleton):
         print("=============================")
 \end{verbatim}
 
-Os dados brutos lidos do banco de dados são convertidos em um DataFrame, da biblioteca \texttt{pandas} \cite{pandasDocs} (biblioteca da linguagem python utilizada para manipulação e dados), após o qual são calculados os dados agregados relevantes usando a função \texttt{calc\_box\_plot()}. Esta função retorna os dados em uma forma estruturada adequada para representações gráficas, como um box plot.
+The raw data read from the database is converted into a DataFrame, from the \texttt{pandas} library \cite{pandasDocs} (a python language library used for data manipulation), after which the relevant aggregated data is calculated using the \texttt{calc\_box\_plot()} function. This function returns the data in a structured form suitable for graphical representations, such as a box plot.
 
-Para realização do calculo, diversas funções da biblioteca pandas são utilizadas, como \texttt{median}, \texttt{quartile}, \texttt{mean} e \texttt{shape}, o que facilita o entendimento e a realização do calculo. 
+To perform the calculation, various functions from the pandas library are used, such as \texttt{median}, \texttt{quartile}, \texttt{mean}, and \texttt{shape}, which facilitate the understanding and execution of the calculation.
 
 \begin{verbatim}
 def calc_box_plot(df:pd.DataFrame, machine:str):
@@ -232,7 +230,7 @@ def calc_box_plot(df:pd.DataFrame, machine:str):
     selection = (df["value"]>=lower_quartile) & (df["value"]<=upper_quartile)
 
     values_selected = values[selection]
-    
+
     mean_with_selection = values_selected.mean()
 
     df['timestamp'] = pd.to_datetime(df['timestamp'])
@@ -257,17 +255,17 @@ def calc_box_plot(df:pd.DataFrame, machine:str):
     return box_plot
 \end{verbatim}
 
-Nessa função, o dataframe recebido contém uma série de valores que será utilizada para calcular os componentes do Box Plot. Primeiro, são determinados os valores da mediana e da média dos dados. Os quartis Q1 (primeiro quartil) e Q3 (terceiro quartil) são calculados utilizando a função \texttt{quantile()}, da bilbioteca pandas. A partir destes quartis, o \gls{IQR} é determinado como a diferença entre Q3 e Q1.
+In this function, the received dataframe contains a series of values that will be used to calculate the components of the Box Plot. First, the median and mean values of the data are determined. The quartiles Q1 (first quartile) and Q3 (third quartile) are calculated using the \texttt{quantile()} function from the pandas library. From these quartiles, the \gls{IQR} is determined as the difference between Q3 and Q1.
 
-Para identificar os valores discrepantes, são calculados os limites inferior e superior. O limite inferior é obtido subtraindo-se \(1.5 \times \texttt{IIQ}\) de Q1 e o limite superior é obtido adicionando-se \(1.5 \times \texttt{IIQ}\) a Q3. Posteriormente, é feita uma seleção dos valores que estão entre os limites inferior e superior. A média destes valores selecionados é então calculada, resultando em \texttt{mean\_with\_selection}.
+To identify the outlier values, the lower and upper limits are calculated. The lower limit is obtained by subtracting \(1.5 \times \texttt{IQR}\) from Q1 and the upper limit is obtained by adding \(1.5 \times \texttt{IQR}\) to Q3. Subsequently, a selection of values that are between the lower and upper limits is made. The mean of these selected values is then calculated, resulting in \texttt{mean\_with\_selection}.
 
-A função também se encarrega de converter a coluna \texttt{timestamp} para o tipo datetime e identificar o \textit{timestamp} mais recente, que será crucial para montagem das buscas nas agregações seguintes.
+The function also takes care of converting the \texttt{timestamp} column to datetime type and identifying the most recent \textit{timestamp}, which will be crucial for assembling searches in the following aggregations.
 
-Com todos os valores calculados, um objeto \texttt{BoxPlotData} é instanciado e populado com os componentes do Box Plot, juntamente com informações adicionais, como o número total de dados e a máquina correspondente.
+With all the calculated values, a \texttt{BoxPlotData} object is instantiated and populated with the Box Plot components, along with additional information, such as the total number of data and the corresponding machine.
 
 
-\subsubsection{Registro dos dados processados}
-Após todo o processo descrito, os dados são convertidos em formato JSON e inseridos na coleção de dados agregados pela função \texttt{insert\_processed\_data}.
+\subsubsection{Recording of processed data}
+After the entire process described, the data is converted into JSON format and inserted into the collection of aggregated data by the \texttt{insert\_processed\_data} function.
 
 \begin{verbatim}
 async def insert_processed_data(self, collection:str, data):
@@ -280,6 +278,6 @@ async def insert_processed_data(self, collection:str, data):
         raise ex
 \end{verbatim}
 
-Após a inserção bem-sucedida, a função \texttt{aggregate\_data()} é chamada recursivamente, garantindo que todos os dados brutos relevantes sejam agregados.
+After a successful insertion, the function \texttt{aggregate\_data()} is recursively called, ensuring that all relevant raw data are aggregated.
 
-No entanto, se a quantidade de dados brutos não atingir o limite mínimo, a função registra essa ocorrência usando o método \texttt{not\_aggregated\_data()}, indicando que os dados não foram agregados devido à falta deles, e finalização a recursão.
+However, if the amount of raw data does not reach the minimum limit, the function records this occurrence using the \texttt{not\_aggregated\_data()} method, indicating that the data were not aggregated due to their lack, and ends the recursion.

@@ -1,14 +1,14 @@
-\section{Implementação do modulo de recebimento de dados}\label{sec:Implementação do modulo de recebimento de dados}
+\section{Implementation of the data receiving module}\label{sec:Implementation of the data receiving module}
 
-No processo de implementação do sistema, uma das etapas essenciais foi o desenvolvimento de um módulo destinado ao recebimento de dados provenientes dos sensores IoT. Este recebimento é realizado por meio de uma conexão multicast, uma abordagem eficiente para lidar com a transmissão de mensagens a vários destinatários simultaneamente.
+In the process of implementing the system, one of the essential steps was the development of a module intended for receiving data from IoT sensors. This reception is carried out via a multicast connection, an efficient approach to handle the transmission of messages to multiple recipients simultaneously.
 
-Esse modulo é responsável por estabelecer a conexão multicast para receber os dados, realizar a conversão dos dados recebidos de acordo com o protocolo pré definido, disponibilizar os dados para serem mostrados em tempo real para os usuários conectados, verificar se gera algum tipo de alerta (e se gerar, notificar os usuários sobre isso com a criação de uma notificação), e salvar as informações geradas no banco de dados.
+This module is responsible for establishing the multicast connection to receive the data, performing the conversion of the received data according to the predefined protocol, making the data available to be displayed in real time for connected users, checking if it generates any type of alert (and if it does, notifying users about it by creating a notification), and saving the generated information in the database.
 
-\subsection[Conexão e recebimento dos dados]{Conexão e recebimento dos dados}\label{subsec:Conexão e recebimento dos dados}
+\subsection[Connection and data reception]{Connection and data reception}\label{subsec:Connection and data reception}
 
-A classe \texttt{SensorConnection} tem como principal responsabilidade criar um socket, manter-se conectada para receber mensagens e interpreta-las. A estrutura e o funcionamento desta classe são detalhados a seguir.
+The \texttt{SensorConnection} class has the main responsibility of creating a socket, staying connected to receive messages and interpreting them. The structure and operation of this class are detailed below.
 
-A classe \texttt{SensorConnection} é iniciada com a criação de um socket IPv4 e UDP:
+The \texttt{SensorConnection} class is initiated with the creation of an IPv4 and UDP socket:
 
 \begin{verbatim}
 class SensorConnection:
@@ -16,7 +16,7 @@ class SensorConnection:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 \end{verbatim}
 
-Para garantir que o sistema esteja constantemente ouvindo mensagens multicast dos sensores, o método \texttt{listen\_multicast\_messages} foi definido dentro dessa classe. Ele começa com a criação da conexão e inicia o processo de leitura de mensagens, gerenciando ainda possíveis desconexões e reestabelecendo a ligação quando necessário:
+To ensure that the system is constantly listening to multicast messages from the sensors, the \texttt{listen\_multicast\_messages} method was defined within this class. It starts with the creation of the connection and initiates the message reading process, also managing possible disconnections and reestablishing the connection when necessary:
 
 \begin{verbatim}
     async def listen_multicast_messages(self, save_data_func):
@@ -28,12 +28,11 @@ Para garantir que o sistema esteja constantemente ouvindo mensagens multicast do
             self.__reconnect()
 \end{verbatim}
 
-A função \texttt{\_\_create\_connection} tem o papel de estabelecer e configurar a conexão inicial com o grupo multicast, e dentro do loop infinito é inciado o recebimento das mensagens com o método \texttt{\_\_start\_read\_messages}. Quando esse método é finalizado a conexão socket é fechada, e em seguida reconectada para depois voltar a fazer a leitura das mensagens. A chamada da função \texttt{time.sleep(1)} é utilizada para ter um pequeno intervalo entre uma chamada e outra caso e não realizar uma quantidade muito grande de chamadas caso esteja ocorrendo algum tipo de problema.
+The function \texttt{\_\_create\_connection} is responsible for establishing and configuring the initial connection with the multicast group, and within the infinite loop, the reception of messages is initiated with the \texttt{\_\_start\_read\_messages} method. When this method is finished, the socket connection is closed, and then reconnected to resume reading the messages. The call to the \texttt{time.sleep(1)} function is used to have a small interval between one call and another so as not to make a very large number of calls in case there is some kind of problem.
 
-A seguir, cada uma das funções chamadas dentro desse método e detalhado.
+Below, each of the functions called within this method is detailed.
 
-
-\subsubsection[Método create connection]{Método create connection}
+\subsubsection[Create connection method]{Create connection method}
 
 \begin{verbatim}
 def __create_connection(self):
@@ -50,20 +49,20 @@ def __create_connection(self):
         mreq)
 \end{verbatim}
 
-Inicialmente, o socket é configurado para permitir várias conexões em um único endereço. A opção \texttt{SO\_REUSEADDR} é definida com o valor 1, permitindo que mais de um socket se ligue a um mesmo endereço, o que é especialmente útil em contextos de conexões multicast:
+Initially, the socket is configured to allow multiple connections on a single address. The \texttt{SO\_REUSEADDR} option is set to the value 1, allowing more than one socket to bind to the same address, which is especially useful in multicast connection contexts:
 
 \begin{verbatim}
     self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 \end{verbatim}
 
-Após isso, o socket é vinculado a um endereço e porta multicast específicos. É importante ressaltar que o primeiro argumento na definição do endereço do servidor é deixado vazio. Esta abordagem garante que o sistema esteja conectando-se com todas as interfaces de rede disponíveis, proporcionando uma ampla cobertura de conexão:
+After this, the socket is bound to a specific multicast address and port. It is important to note that the first argument in the server address definition is left blank. This approach ensures that the system is connecting to all available network interfaces, providing broad connection coverage:
 
 \begin{verbatim}
     server_address = ('', SENSOR_MULTICAST_PORT)
     self.sock.bind(server_address)
 \end{verbatim}
 
-Por fim, para se juntar efetivamente ao grupo multicast, algumas etapas são realizadas. O endereço IP multicast é primeiramente convertido para o formato binário com a chamada de \texttt{socket.inet\_aton}. Em seguida, este endereço e o endereço local (representado por \texttt{socket.INADDR\_ANY}) são empacotados em uma estrutura de dados por \texttt{struct.pack}. Esta estrutura é usado para especificar ao socket que ele deve se juntar a um grupo multicast em \texttt{self.sock.setsockopt}. A opção \texttt{IP\_ADD\_MEMBERSHIP} é definida e a estrutura previamente criada é passada como argumento, concluindo a conexão com o grupo multicast:
+Finally, to effectively join the multicast group, some steps are performed. The multicast IP address is first converted to binary format with the call to \texttt{socket.inet\_aton}. Then, this address and the local address (represented by \texttt{socket.INADDR\_ANY}) are packed into a data structure by \texttt{struct.pack}. This structure is used to specify to the socket that it should join a multicast group in \texttt{self.sock.setsockopt}. The \texttt{IP\_ADD\_MEMBERSHIP} option is set and the previously created structure is passed as an argument, concluding the connection to the multicast group:
 
 \begin{verbatim}
     multicast_group = SENSOR_MULTICAST
@@ -72,10 +71,10 @@ Por fim, para se juntar efetivamente ao grupo multicast, algumas etapas são rea
     self.sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 \end{verbatim}
 
-Essas operações garantem que o socket esteja configurado e conectado ao grupo multicast, pronto para receber mensagens de múltiplas fontes simultaneamente.
+These operations ensure that the socket is configured and connected to the multicast group, ready to receive messages from multiple sources simultaneously.
 
 
-\subsubsection[Método reconnect]{Método reconnect}
+\subsubsection[Reconnect Method]{Reconnect Method}
 \begin{verbatim}
 def __reconnect(self):
     try:
@@ -85,9 +84,9 @@ def __reconnect(self):
         print(f"Error to reconnect: {e}")
 \end{verbatim}
 
-Em situações em que a conexão com os sensores é interrompida, o método \texttt{\_\_reconnect} é chamado para tentar estabelecer novamente a conexão, criando uma nova instância do socket e chamando novamente a função \texttt{\_\_create\_connection}, detalhada anteriormente.
+In situations where the connection to the sensors is interrupted, the \texttt{\_\_reconnect} method is called to try to reestablish the connection, creating a new instance of the socket and calling the \texttt{\_\_create\_connection} function again, detailed earlier.
 
-\subsubsection[Método start read messages]{Método start read messages}
+\subsubsection[Method start read messages]{Method start read messages}
 
 \begin{verbatim}
 async def __start_read_messages(self, save_data_func):
@@ -102,13 +101,11 @@ async def __start_read_messages(self, save_data_func):
             break
 \end{verbatim}
 
-Após as configurações realizads, as mensagens são continuamente lidas e processadas pela função \texttt{\_\_start\_read\_messages}. Durante este processo, cada mensagem é processada pelo método \texttt{\_\_parse\_multicast\_message}, e se estiver no formato correto, é passada para uma função que irá salvar e disponibilizar para \gls{API} enviar por streaming para os usuários conectados.
+After the settings are made, the messages are continuously read and processed by the \texttt{\_\_start\_read\_messages} function. During this process, each message is processed by the \texttt{\_\_parse\_multicast\_message} method, and if it is in the correct format, it is passed to a function that will save and make it available for the \gls{API} to stream to connected users.
 
-Se ocorrer algum problema na execução desse método, ele é finalizado e volta para o \texttt{listen\_multicast\_messages}, onde o socket é fechado e uma nova conexão é estabelecida pelo método \texttt{\_\_reconnect}.
+If there is any problem in the execution of this method, it is terminated and returns to the \texttt{listen\_multicast\_messages}, where the socket is closed and a new connection is established by the \texttt{\_\_reconnect} method.
 
-
-\subsubsection[Método parse multicast messages]{Método parse multicast messages}
-
+\subsubsection[Parse Multicast Messages Method]{Parse Multicast Messages Method}
 
 \begin{verbatim}
 def __parse_multicast_message(self, data):
@@ -143,9 +140,9 @@ def __parse_multicast_message(self, data):
         }
 
         return message_dict
-    \end{verbatim}
+\end{verbatim}
 
-Para interpretar e extrair informações da mensagem recebida do multicast, é crucial decodificar adequadamente a mensagem de acordo com o protocolo definido anteriormente. A implementação dessa decodificação é feita pelo método \texttt{\_\_parse\_multicast\_message}. A função auxiliar \texttt{\_\_parse\_bytes} é utilizada para essa tarefa, dada uma sequência de bytes, a função interpreta os bytes utilizando a ordem big-endian (onde os bytes mais significativos vêm primeiro).
+To interpret and extract information from the message received from the multicast, it is crucial to properly decode the message according to the protocol defined earlier. The implementation of this decoding is done by the \texttt{\_\_parse\_multicast\_message} method. The helper function \texttt{\_\_parse\_bytes} is used for this task, given a sequence of bytes, the function interprets the bytes using the big-endian order (where the most significant bytes come first).
 
 \begin{verbatim}
 def __parse_bytes(self, bytes):
@@ -156,21 +153,21 @@ def __parse_bytes(self, bytes):
     return (high_data,low_data)
 \end{verbatim}
 
-Aqui, \texttt{data} contém o valor inteiro dos bytes fornecidos. O byte de ordem superior (High) é extraído deslocando o valor 8 bits para a direita e aplicando uma operação "END" (\&), e o byte de ordem inferior (Low) é simplesmente obtido aplicando a operação "END" com \texttt{0xFF}.
+Here, \texttt{data} contains the integer value of the provided bytes. The high-order byte is extracted by shifting the value 8 bits to the right and applying an "AND" operation (\&), and the low-order byte is simply obtained by applying the "AND" operation with \texttt{0xFF}.
 
-Com a capacidade de interpretar os bytes, a função principal \texttt{\_\_parse\_multicast\_message} pode começar a decodificação:
+With the ability to interpret the bytes, the main function \texttt{\_\_parse\_multicast\_message} can begin the decoding:
 
 \begin{itemize}
-    \item Primeiro, ela extrai o tipo de máquina e o número da máquina dos dois primeiros bytes da mensagem.
+    \item First, it extracts the machine type and the machine number from the first two bytes of the message.
     
-    \item O terceiro byte da mensagem é então interpretado como o tipo da mensagem. Se o tipo da mensagem for \texttt{2}, a função retornará diretamente uma solicitação para publicar.
+    \item The third byte of the message is then interpreted as the message type. If the message type is \texttt{2}, the function will directly return a request to publish.
     
-    \item Os bytes 4 e 5 são interpretados como o ID do sensor, que contém a quantidade física sendo medida e o número do sensor.
+    \item Bytes 4 and 5 are interpreted as the sensor ID, which contains the physical quantity being measured and the sensor number.
     
-    \item Os bytes 6 e 7 são usados para extrair o tipo de dados e seu significado.
+    \item Bytes 6 and 7 are used to extract the data type and its meaning.
 \end{itemize}
 
-A informação extraída é então organizada em um dicionário para representação clara e fácil acesso aos componentes individualmente:
+The extracted information is then organized into a dictionary for clear representation and easy access to the components individually:
 
 \begin{verbatim}
 message_dict = {
@@ -187,12 +184,12 @@ message_dict = {
 }
 \end{verbatim}
 
-Esta estrutura permite uma representação clara e modular da mensagem decodificada, tornando fácil a integração e utilização em outras partes do sistema. Sendo assim, o retorno do método \texttt{\_\_parse\_multicast\_message} é utilizado como resultado da interpretação da mensagem multicast, e enviado para função recebida como parâmetro, \texttt{save\_data\_func}.
+This structure allows a clear and modular representation of the decoded message, making it easy to integrate and use in other parts of the system. Therefore, the return of the \texttt{\_\_parse\_multicast\_message} method is used as the result of the interpretation of the multicast message, and sent to the function received as a parameter, \texttt{save\_data\_func}.
 
-\subsection[Verificação e disponibilização dos dados]{Verificação e disponibilização dos dados}\label{subsec:checkDataReceived}
-No processo de recebimento dos dados, após abrir a conexão e os dados, é necessário verificar se estão no formato correto, se gera algum alerta, inserir no banco de dados e disponibilizar para os usuários conectados no sistema.
+\subsection[Verification and provision of data]{Verification and provision of data}\label{subsec:checkDataReceived}
+In the data reception process, after opening the connection and the data, it is necessary to check if they are in the correct format, if it generates any alert, insert it into the database and make it available to the users connected to the system.
 
-A classe \texttt{IotSensorConnection}, que implementa a interface \texttt{IotSensorConnectionInterface}, desempenha um papel principal neste módulo. Na sua inicialização, é estabelecida uma ligação com o repositório através da variável \texttt{self.\_\_repository}. Além disso, é responsável pela conexão com o sensor é estabelecida por meio do \texttt{self.\_\_sensor\_connection}, explicada anteriormente na seção ~\ref{subsec:Conexão e recebimento dos dados}.
+The \texttt{IotSensorConnection} class, which implements the \texttt{IotSensorConnectionInterface} interface, plays a key role in this module. Upon its initialization, a connection with the repository is established through the \texttt{self.\_\_repository} variable. In addition, it is responsible for the connection with the sensor, which is established through the \texttt{self.\_\_sensor\_connection}, explained earlier in section ~\ref{subsec:Connection and data reception}.
 
 \begin{verbatim}
 class IotSensorConnection(IotSensorConnectionInterface):
@@ -209,10 +206,10 @@ class IotSensorConnection(IotSensorConnectionInterface):
             listen_multicast_messages(self.__handle_iot_data)
 \end{verbatim}
 
-Ao iniciar a conexão, utilizando o método \texttt{start\_connection}, é criada uma nova thread por meio da classe \texttt{ThreadManager}, explicada em \ref{subsubsec:ThreadManager}. Esta thread invoca o método \texttt{listen\_multicast\_messages} da classe \texttt{SensorConnection} que foi detalhado na seção ~\ref{subsec:Conexão e recebimento dos dados}. É necessário criar uma nova thread pois como esse modulo está junto com a \gls{API}, e é necessário que os dois processos funcionem ao mesmo tempo, uma nova thread foi necessária para o funcionamento em paralelo de ambos.
+Upon initiating the connection, using the \texttt{start\_connection} method, a new thread is created through the \texttt{ThreadManager} class, explained in \ref{subsubsec:ThreadManager}. This thread invokes the \texttt{listen\_multicast\_messages} method from the \texttt{SensorConnection} class that was detailed in section ~\ref{subsec:Connection and data receipt}. It is necessary to create a new thread because this module is together with the \gls{API}, and it is necessary for both processes to function at the same time, a new thread was necessary for the parallel operation of both.
 
-\subsubsection{Verificação do formato dos dados}
-Para lidar com os dados recebidos, o método \texttt{\_\_handle\_iot\_data} é passado como argumento para \texttt{listen\_multicast\_messages} (como o argumento save\_func na classe que existe na classe \texttt{SensorConnection}).
+\subsubsection{Data Format Verification}
+To handle the received data, the \texttt{\_\_handle\_iot\_data} method is passed as an argument to \texttt{listen\_multicast\_messages} (as the save\_func argument that exists in the \texttt{SensorConnection} class).
 
 \begin{verbatim}
 async def __handle_iot_data(self, sensor_data:dict):
@@ -241,7 +238,7 @@ def __parse_sensor_data_to_sensor_model(self, sensor_data:dict):
     )
 \end{verbatim}
 
-Este método tem a responsabilidade de receber os dados so sensor e converter para uma classe modelo, denominada \texttt{ConnectionModelToParse}, que utiliza o \texttt{Pydantic} para validar as informações. A explicação do \texttt{Pydantic} é feita na seção ~\ref{subsubsec:dataModel}.
+This method is responsible for receiving the sensor data and converting it into a model class, named \texttt{ConnectionModelToParse}, which uses \texttt{Pydantic} to validate the information. The explanation of \texttt{Pydantic} is given in section ~\ref{subsubsec:dataModel}.
 
 \begin{verbatim}
 from datetime import datetime
@@ -257,7 +254,7 @@ class ConnectionModelToParse:
         self.sensor_number = sensor_number
 \end{verbatim}
 
-Após essa transformação, os dados são encaminhados para o repositório. O método \texttt{update\_current\_sensor\_value} do repository é chamado para checar se o dado recebido gera algum tipo de alerta, salvar no banco de dados, atualizar os dados em memoria, e realizar as verificações de notificação.
+After this transformation, the data is forwarded to the repository. The \texttt{update\_current\_sensor\_value} method from the repository is called to check if the received data triggers any type of alert, save it in the database, update the data in memory, and perform notification checks.
 
 \begin{verbatim}
 class SensorsRepository:
@@ -294,11 +291,11 @@ class SensorsRepository:
             iot_data)
 \end{verbatim}
 
-\subsubsection{Verificação de alertas}
+\subsubsection{Alert Verification}
 
-Dentro do método \texttt{update\_current\_sensor\_value}, primeiramente é verificado o tipo de alerta gerado com o método  \texttt{\_\_get\_alert\_type}. Esse método realiza a leitura do parâmetro de acordo do com tipo do sensor dentro dos metadados do sistema, em que o acesso é explicado em \ref{subsec:main}, e com ele verifica o status de alerta. 
+Within the \texttt{update\_current\_sensor\_value} method, the type of alert generated is first verified with the \texttt{\_\_get\_alert\_type} method. This method reads the parameter according to the sensor type within the system metadata, where access is explained in \ref{subsec:main}, and with it checks the alert status.
 
-O status de alerta, definido pela função  \texttt{get\_alert\_status}, retorna como \texttt{OK} caso o valor do sensor seja menor que 90\% do valor definido com parâmetro, retorna como \texttt{WARNING} caso esse valor esteja entre 90\% e 100\%, e retorna como \texttt{PROBLEM} caso o valor retornado pelo sensor seja maior que 100\% do valor definido como parâmetro
+The alert status, defined by the \texttt{get\_alert\_status} function, returns as \texttt{OK} if the sensor value is less than 90\% of the value defined as a parameter, returns as \texttt{WARNING} if this value is between 90\% and 100\%, and returns as \texttt{PROBLEM} if the value returned by the sensor is greater than 100\% of the value defined as a parameter.
 
 \begin{verbatim}
 def get_alert_status(self,sensor_value:int,
@@ -320,10 +317,9 @@ async def __get_alert_type(self, sensor_value:float,
     return alert_type
 \end{verbatim}
 
+\subsubsection{Database Registration}
 
-\subsubsection{Registro no banco de dados}
-
-Com a verificação dos alertas, todas as informações foram geradas, portanto já podem ser registradas no banco de dados. Para esse registro é usado o método \texttt{insert\_value\_into\_database}.
+With the verification of the alerts, all information has been generated, so it can now be registered in the database. The \texttt{insert\_value\_into\_database} method is used for this registration.
 
 \begin{verbatim}
 async def insert_value_into_database(self, value:BaseIotData, type:Datatype):
@@ -335,7 +331,7 @@ async def insert_value_into_database(self, value:BaseIotData, type:Datatype):
         raise ex
 \end{verbatim}
 
-Esse método utiliza da classe base do banco de dados com operações já definidas para realizar o registro. Dentro do método \texttt{update\_current\_sensor\_value} do repositório, o retorno é utilizado para manter o ID registrado em memoria, importante para criar o objeto \texttt{IotData}, que é enviado para os usuários conectados, via stream, no passo seguinte.
+This method uses the base class of the database with already defined operations to perform the registration. Within the \texttt{update\_current\_sensor\_value} method of the repository, the return is used to keep the registered ID in memory, important for creating the \texttt{IotData} object, which is sent to the connected users, via stream, in the next step.
 
 \begin{verbatim}
 current_value = {"machine":machine,
@@ -356,14 +352,13 @@ iot_data = IotData(
 )
 \end{verbatim}
 
-Uma informação importante a se destacar, é que o nome da coleção utilizada pelo método \texttt{insert\_value\_into\_database} é definida de acordo com tipo de dado estabelecido, usando a função de ajuda \texttt{sensor\_name\_to\_raw\_data\_collection}, explicada em \ref{subsubsec:helpers}.
+An important piece of information to highlight is that the name of the collection used by the \texttt{insert\_value\_into\_database} method is defined according to the established data type, using the helper function \texttt{sensor\_name\_to\_raw\_data\_collection}, explained in \ref{subsubsec:helpers}.
 
-\subsubsection{Atualização dos dados em memoria}
+\subsubsection{Data update in memory}
 
-Com o tipo de alerta definido e os dados registrados no banco de dados, é utilizado a classe \texttt{SensorValue} para atualizar as informações na memória. Esse processo é feito por meio da chamada \texttt{\_\_sensor\_value.update\_sensor\_value\_by\_type (iot\_data,sensor\_type)} no método \texttt{update\_current\_sensor\_value} do repository.
+With the alert type defined and the data registered in the database, the \texttt{SensorValue} class is used to update the information in memory. This process is done through the call \texttt{\_\_sensor\_value.update\_sensor\_value\_by\_type (iot\_data,sensor\_type)} in the \texttt{update\_current\_sensor\_value} method of the repository.
 
-
-A classe \texttt{SensorValue} é responsável por gerenciar e atualizar os valores em memória. Nota-se que a mesma utiliza o padrão de projeto \texttt{Singleton}, assegurando a existência de apenas uma instância desta classe durante todo o ciclo de vida da aplicação, garantindo que so existe uma instancia armazenando as informações dos sensores.
+The \texttt{SensorValue} class is responsible for managing and updating the values in memory. It is noted that it uses the \texttt{Singleton} design pattern, ensuring the existence of only one instance of this class throughout the application's lifecycle, guaranteeing that there is only one instance storing the sensor information.
 
 \begin{verbatim}
 class SensorValue(metaclass=Singleton):
@@ -393,11 +388,11 @@ class SensorValue(metaclass=Singleton):
             self.machine_list.append(new_machine)
 \end{verbatim}
 
-No momento de sua inicialização, a classe \texttt{SensorValue} inicializa uma lista vazia, \texttt{machine\_list}, que será responsável por armazenar os valores dos sensores organizados por máquina.
+At the time of its initialization, the \texttt{SensorValue} class initializes an empty list, \texttt{machine\_list}, which will be responsible for storing the sensor values organized by machine.
 
-A atualização acontece pelo método \texttt{update\_sensor\_value\_by\_type}. Este método atualiza o valor do sensor na memória de acordo com seu tipo (\texttt{data\_type}). O processo de atualização verifica primeiramente se a máquina associada ao sensor já existe na lista. Caso positivo, busca-se pelo sensor específico dentro dos dados da máquina e atualiza-se seu valor. Se o sensor não for encontrado, um novo é adicionado à lista de sensores da máquina correspondente.
+The update occurs through the \texttt{update\_sensor\_value\_by\_type} method. This method updates the sensor value in memory according to its type (\texttt{data\_type}). The update process first checks if the machine associated with the sensor already exists in the list. If so, it searches for the specific sensor within the machine's data and updates its value. If the sensor is not found, a new one is added to the list of sensors of the corresponding machine.
 
-Por outro lado, se a máquina não for encontrada na lista \texttt{machine\_list}, uma nova instância de \texttt{MachineData} é criada e adicionada à lista, contendo as informações da máquina e os dados do sensor recebido.
+On the other hand, if the machine is not found in the \texttt{machine\_list}, a new instance of \texttt{MachineData} is created and added to the list, containing the machine's information and the received sensor data.
 
 \begin{verbatim}
 class MachineData(BaseModel):
@@ -405,22 +400,20 @@ class MachineData(BaseModel):
     sensor_data:list[IotData] = Field([])
 \end{verbatim}
 
-Dessa forma, o repositório envia as informações para esse método, e com a verificação adequada, é mantido os dados mais atualizados em memoria, e disponível para ser utilizado pela \gls{API}, possibilitando o acesso em tempo real dos dados dos sensores.
+In this way, the repository sends the information to this method, and with the appropriate verification, the most updated data is kept in memory, and available to be used by the \gls{API}, enabling real-time access to sensor data.
 
+\subsubsection{Notification Verification}
+With the alert type verified, the information saved in the database, and the \texttt{IotData} object assembled, the last task of the \texttt{update\_current\_sensor\_value} method in the repository is to use the IotNotificationCheck singleton to verify the notifications regarding the operation of the machines.
 
-\subsubsection{Verificação de notificação}
-Com o tipo de alerta verificado, a informação salva no banco de dados e o objeto \texttt{IotData} montado, a última tarefa do método \texttt{update\_current\_sensor\_value} do repository é utilizar o singleton IotNotificationCheck para verificar as notificações em relação a operação das máquinas.
+The \texttt{IotNotificationCheck} class acts as an alert controller for IoT data. Upon receiving IoT data, it checks the alert status and takes appropriate measures, whether adding or removing machines or sensors from the alert list. This class is essential for monitoring and responding to real-time alert events, ensuring that associated users are notified of any abnormalities or important events detected by the IoT sensors.
 
-A classe \texttt{IotNotificationCheck} atua como um controlador de alertas para dados IoT. Ao receber dados IoT, ela verifica o estado do alerta e toma medidas apropriadas, seja adicionando ou removendo máquinas ou sensores da lista de alertas. Essa classe é essencial para monitorar e responder a eventos de alerta em tempo real, garantindo que os usuários associados sejam notificados de quaisquer anormalidades ou eventos importantes detectados pelos sensores IoT.
-
-Por meio do método \texttt{check\_iot\_notification}, a classe verifica o tipo de alerta recebido pelo objeto IotData, se a máquina está em estado de alerta e se o sensor específico da máquina está em estado de alerta. Com base nessa verificação, o método toma uma das seguintes ações:
+Through the \texttt{check\_iot\_notification} method, the class verifies the type of alert received by the IotData object, whether the machine is in an alert state, and whether the machine's specific sensor is in an alert state. Based on this verification, the method takes one of the following actions:
 
 \begin{enumerate}
-    \item Coloca uma nova máquina em estado de alerta.
-    \item Coloca um novo sensor da máquina em estado de alerta.
-    \item Remove um sensor da máquina do estado de alerta. Se a máquina tiver apenas um único sensor em estado de alerta, a maquina é removida do estado de alerta
+    \item Puts a new machine in an alert state.
+    \item Puts a new sensor of the machine in an alert state.
+    \item Removes a sensor from the machine from the alert state. If the machine has only a single sensor in an alert state, the machine is removed from the alert state.
 \end{enumerate}
-
 
 \begin{verbatim}
 async def check_iot_notification(self, iot_data:IotData):
@@ -453,7 +446,7 @@ async def check_iot_notification(self, iot_data:IotData):
             iot_data.timestamp)
 \end{verbatim}
 
-O método \texttt{\_\_put\_new\_machine\_sensor\_in\_alert\_state} é um método assíncrono privado que tem a responsabilidade de adicionar um novo sensor ao estado de alerta para uma máquina específica. Ele recebe dois parâmetros: \texttt{machine\_in\_alert}, que é uma instância da classe \texttt{MachinesSensorAlert} representando a máquina em questão, e \texttt{sensor\_type}, que é uma instância do tipo \texttt{Datatype}, mostrado em \ref{subsubsec:constantes}, representando o tipo de sensor que deve ser colocado em alerta.
+The method \texttt{\_\_put\_new\_machine\_sensor\_in\_alert\_state} is a private asynchronous method that is responsible for adding a new sensor to the alert state for a specific machine. It receives two parameters: \texttt{machine\_in\_alert}, which is an instance of the \texttt{MachinesSensorAlert} class representing the machine in question, and \texttt{sensor\_type}, which is an instance of the \texttt{Datatype} type, shown in \ref{subsubsec:constantes}, representing the type of sensor that should be put on alert.
 
 \begin{verbatim}
 class MachinesSensorAlert(BaseModel):
@@ -469,11 +462,11 @@ class MachinesSensorAlert(BaseModel):
     read_by:Optional[list[str]] = Field([])
 \end{verbatim}
 
-Importante destacar que dentro dessa instância que é mantida em memória, o atributo \texttt{read\_by} não é preenchido. Isso acontece pois esse atributo é usado para controlar os usuários que marcaram a notificação como lida, e assim identificar notificações lidas pelo usuário. Portanto, esse atributo é preenchido apenas no banco de dados, pelo modulo de notificações da \gls{API}, mostrada em \ref{subsec:modules}.
+It is important to highlight that within this instance that is kept in memory, the \texttt{read\_by} attribute is not filled. This happens because this attribute is used to control the users who marked the notification as read, and thus identify notifications read by the user. Therefore, this attribute is filled only in the database, by the notifications module of the \gls{API}, shown in \ref{subsec:modules}.
 
-A primeira etapa realizada por este método é identificar a posição (ou índice) da máquina dentro da lista de alertas \texttt{machines\_alert} usando o método \texttt{index}. Uma vez obtido o índice, o tipo do sensor é adicionado à lista de sensores em estado de alerta da máquina, representada pelo atributo \texttt{sensors}. Além disso, este sensor também é adicionado ao histórico de sensores em estado de alerta da máquina, indicado pelo atributo \texttt{sensors\_historical}. Finalmente, a máquina atualizada (com o novo sensor adicionado às suas listas de alerta e histórico) é reinserida na lista principal \texttt{machines\_alert} na mesma posição identificada anteriormente.
+The first step performed by this method is to identify the position (or index) of the machine within the \texttt{machines\_alert} list using the \texttt{index} method. Once the index is obtained, the sensor type is added to the machine's alert state sensor list, represented by the \texttt{sensors} attribute. In addition, this sensor is also added to the machine's alert state sensor history, indicated by the \texttt{sensors\_historical} attribute. Finally, the updated machine (with the new sensor added to its alert and history lists) is reinserted into the main \texttt{machines\_alert} list at the same position identified earlier.
 
-Este método, garante que sempre que um novo sensor entra em estado de alerta para uma máquina que ja tinha um sensor em alerta, as informações relevantes são adequadamente atualizadas e mantidas em memória, permitindo um acompanhamento em tempo real das condições de alerta de todas as máquinas monitoradas.
+This method ensures that whenever a new sensor enters an alert state for a machine that already had a sensor in alert, the relevant information is properly updated and kept in memory, allowing real-time monitoring of the alert conditions of all monitored machines.
 
 \begin{verbatim}
 async def __put_new_machine_sensor_in_alert_state(
@@ -486,13 +479,13 @@ async def __put_new_machine_sensor_in_alert_state(
     self.machines_alert[index] = machine_in_alert
 \end{verbatim}
 
-Já o método \texttt{\_\_put\_new\_machine\_in\_alert\_state} é um método assíncrono privado cuja principal função é criar e registrar um novo estado de alerta para uma máquina específica. Este método é invocado quando uma máquina entra em estado de alerta pela primeira vez, o que significa que ainda não está presente na lista de alertas \texttt{machines\_alert} da classe.
+The \texttt{\_\_put\_new\_machine\_in\_alert\_state} method is a private asynchronous method whose main function is to create and register a new alert state for a specific machine. This method is invoked when a machine enters an alert state for the first time, which means it is not yet present in the \texttt{machines\_alert} list of the class.
 
-Recebe quatro parâmetros: \texttt{machine\_name}, que é uma string representando o nome da máquina; \texttt{sensor\_type}, que é uma instância do tipo \texttt{Datatype}, mostrado em \ref{subsubsec:constantes}, denotando o tipo de sensor que disparou o alerta; \texttt{start\_time}, uma instância de \texttt{datetime} indicando o início do alerta; e \texttt{alert\_type}, que é uma string representando o tipo de alerta.
+It receives four parameters: \texttt{machine\_name}, which is a string representing the machine's name; \texttt{sensor\_type}, which is an instance of the \texttt{Datatype} type, shown in \ref{subsubsec:constantes}, denoting the type of sensor that triggered the alert; \texttt{start\_time}, an instance of \texttt{datetime} indicating the start of the alert; and \texttt{alert\_type}, which is a string representing the type of alert.
 
-Inicialmente, o método cria uma nova instância da classe \texttt{MachinesSensorAlert}. Esta nova instância representa o estado de alerta da máquina. A instância é inicializada com o nome da máquina, o tipo de sensor que causou o alerta, uma marca temporal do início do alerta e o tipo de alerta. Além disso, a máquina é marcada como estando em estado de alerta através do atributo \texttt{is\_in\_alert}, que é definido como \texttt{True}.
+Initially, the method creates a new instance of the \texttt{MachinesSensorAlert} class. This new instance represents the machine's alert state. The instance is initialized with the machine's name, the type of sensor that triggered the alert, a timestamp of the alert's start, and the type of alert. In addition, the machine is marked as being in an alert state through the \texttt{is\_in\_alert} attribute, which is set to \texttt{True}.
 
-Finalmente, o novo estado de alerta da máquina, representado pela instância \texttt{MachinesSensorAlert} recém-criada, é adicionado à lista \texttt{machines\_alert}.
+Finally, the machine's new alert state, represented by the newly created \texttt{MachinesSensorAlert} instance, is added to the \texttt{machines\_alert} list.
 
 \begin{verbatim}
 async def __put_new_machine_in_alert_state(self,
@@ -512,7 +505,7 @@ async def __put_new_machine_in_alert_state(self,
     self.machines_alert.append(new_machine_alert)
 \end{verbatim}
 
-O método \texttt{\_\_remove\_machine\_sensor\_from\_alert\_state} é uma função assíncrona privada projetada para remover um sensor específico do estado de alerta de uma máquina. Ele recebe três parâmetros: \texttt{machine\_in\_alert}, que é uma instância da classe \texttt{MachinesSensorAlert} representando a máquina em questão; \texttt{sensor\_to\_remove}, que é do tipo \texttt{Datatype} \ref{subsubsec:constantes}, e identifica o sensor a ser removido; e \texttt{end\_time}, uma instância de \texttt{datetime} que indica o momento em que o sensor foi removido do estado de alerta. Dentro deste método, inicialmente, as posições do sensor e da máquina são identificadas nas listas apropriadas. O sensor é então removido da lista de sensores em estado de alerta da máquina. Se, após a remoção, a máquina não tiver mais sensores em estado de alerta, ela será removida do estado de alerta, pela chamada do método \texttt{\_\_remove\_machine\_from\_alert} caso contrário, apenas o estado do sensor é atualizado, pela chamada de outro método, \texttt{\_\_remove\_sensor\_from\_alert\_state}.
+The method \texttt{\_\_remove\_machine\_sensor\_from\_alert\_state} is a private asynchronous function designed to remove a specific sensor from a machine's alert state. It takes three parameters: \texttt{machine\_in\_alert}, which is an instance of the \texttt{MachinesSensorAlert} class representing the machine in question; \texttt{sensor\_to\_remove}, which is of the \texttt{Datatype} type \ref{subsubsec:constantes}, and identifies the sensor to be removed; and \texttt{end\_time}, an instance of \texttt{datetime} that indicates the moment when the sensor was removed from the alert state. Within this method, initially, the positions of the sensor and the machine are identified in the appropriate lists. The sensor is then removed from the machine's list of sensors in alert state. If, after removal, the machine no longer has sensors in alert state, it will be removed from the alert state, by calling the method \texttt{\_\_remove\_machine\_from\_alert} otherwise, only the sensor's state is updated, by calling another method, \texttt{\_\_remove\_sensor\_from\_alert\_state}.
 
 \begin{verbatim}
 async def __remove_machine_sensor_from_alert_state(self,
@@ -531,7 +524,7 @@ async def __remove_machine_sensor_from_alert_state(self,
     
 \end{verbatim}
 
-O método \texttt{\_\_remove\_machine\_from\_alert} é outra função assíncrona privada, que tem a responsabilidade de remover completamente uma máquina do estado de alerta. Aceita dois parâmetros: \texttt{index\_of\_machine}, o índice da máquina em questão na lista, e \texttt{end\_time}, o momento em que a máquina foi removida do alerta. Dentro deste método, a máquina é primeiro marcada como não estando em alerta e depois é removida da lista \texttt{machines\_alert}. A máquina é então armazenada no banco de dados com um registro de seu estado final e o horário de término. Finalmente, uma notificação é enviada através de um websocket para informar a interface do usuário sobre a mudança no estado da máquina. O detalhamento de como a notificação é enviada está explicada em \ref{subsubsec:WebSocketImplement}.
+The \texttt{\_\_remove\_machine\_from\_alert} method is another private asynchronous function, which is responsible for completely removing a machine from the alert state. It accepts two parameters: \texttt{index\_of\_machine}, the index of the machine in question in the list, and \texttt{end\_time}, the time when the machine was removed from the alert. Within this method, the machine is first marked as not being on alert and then it is removed from the \texttt{machines\_alert} list. The machine is then stored in the database with a record of its final state and the end time. Finally, a notification is sent through a websocket to inform the user interface about the change in the machine's state. The details of how the notification is sent are explained in \ref{subsubsec:WebSocketImplement}.
 
 \begin{verbatim}
 async def __remove_machine_from_alert(self,
@@ -548,7 +541,7 @@ async def __remove_machine_from_alert(self,
     await self.websocket.send_notification(machineNotification)    
 \end{verbatim}
 
-O método \texttt{\_\_remove\_sensor\_from\_alert\_state} é uma função assíncrona simples que atualiza o estado do sensor de uma máquina em alerta na lista de máquinas em alerta. Recebe dois parâmetros: \texttt{index\_of\_machine}, que é o índice da máquina na lista \texttt{machines\_alert}, e \texttt{machine\_alert\_updated}, que é a instância atualizada da máquina em alerta. Essencialmente, este método substitui a máquina existente na lista pelo objeto atualizado fornecido como parâmetro pelo método \texttt{\_\_remove\_machine\_sensor\_from\_alert\_state}.
+The method \texttt{\_\_remove\_sensor\_from\_alert\_state} is a simple asynchronous function that updates the state of a machine's sensor in the alert list. It receives two parameters: \texttt{index\_of\_machine}, which is the index of the machine in the \texttt{machines\_alert} list, and \texttt{machine\_alert\_updated}, which is the updated instance of the machine in alert. Essentially, this method replaces the existing machine in the list with the updated object provided as a parameter by the \texttt{\_\_remove\_machine\_sensor\_from\_alert\_state} method.
 
 \begin{verbatim}
 async def __remove_sensor_from_alert_state(self,

@@ -1,25 +1,24 @@
-\section[Implementação da API]{Implementação da API}\label{sec:api}
-Como explicado na seção sobre a arquitetura ~\ref{subsec:apiArchitecture}, a \gls{API} possui um divisão por módulos, e cada modulo segue uma estrutura pré definida, com uma camada de controller, responsável por receber as requisições \gls{HTTP}, uma camada de service, responsável por tratar os dados e regras de negócio, e uma camada de respository, responsável por gerenciar o acesso ao banco de dados daquele modulo. 
 
-Além disso, a \gls{API} possui também partes que são comuns a todos os módulos. A infraestrutura que tem a função de disponibilizar uma interface de acesso ao banco de dados, uma interface de acesso para envio de mensagens web socket, os meios de autenticação, e o gerenciador de threads. Os códigos comuns, que armazenam constantes, funções comuns que precisam ser padronizadas, e modelos de dados.
+\section[API Implementation]{API Implementation}\label{sec:api}
+As explained in the section about the architecture ~\ref{subsec:apiArchitecture}, the \gls{API} has a division by modules, and each module follows a predefined structure, with a controller layer, responsible for receiving \gls{HTTP} requests, a service layer, responsible for handling data and business rules, and a repository layer, responsible for managing access to the database of that module.
 
-Portanto, essa seção irá abordar cada uma dessas partes, passando primeiro pelas partes comuns do sistema e depois será mostrado como foi desenvolvido um modulo completo.
+In addition, the \gls{API} also has parts that are common to all modules. The infrastructure that has the function of providing a database access interface, a web socket message sending access interface, authentication means, and the thread manager. The common codes, which store constants, common functions that need to be standardized, and data models.
+Therefore, this section will address each of these parts, first going through the common parts of the system and then showing how a complete module was developed.
 
-\subsection{Inicialização}\label{subsec:main}
-A inicialização do sistema acontece por meio do arquivo \texttt{main.py}, que serve como o ponto de entrada para inicializar a \gls{API} e o modulo de processamento de dados.
+\subsection{Initialization}\label{subsec:main}
+The system initialization occurs through the \texttt{main.py} file, which serves as the entry point to initialize the \gls{API} and the data processing module.
 
-A biblioteca \texttt{FastAPI} \cite{fastapiDocs} é utilizada para criar a aplicação principal, aqui referida como \texttt{app}. O middleware \texttt{CORSMiddleware} é adicionado à aplicação \texttt{FastAPI}, permitindo uma configuração de \gls{CORS} (Cross-Origin Resource Sharing) abrangente. Esta configuração faz com que a \gls{API} possa ser acessada por diferentes origens.
+The \texttt{FastAPI} library \cite{fastapiDocs} is used to create the main application, here referred to as \texttt{app}. The \texttt{CORSMiddleware} middleware is added to the \texttt{FastAPI} application, allowing for comprehensive \gls{CORS} (Cross-Origin Resource Sharing) configuration. This configuration allows the \gls{API} to be accessed from different origins.
 
-A importação do módulo \texttt{API\_data\_layer} não apenas incorpora as rotas relacionadas a esse módulo, mas também inicializa o módulo de recebimento de dados. Isso implica que a inicialização deste módulo ocorre simultaneamente ao carregamento da \gls{API}, porem em uma thread separada, como detalhado em ~\ref{sec:ImplModuloProcessamento}.
+The import of the \texttt{API\_data\_layer} module not only incorporates the routes related to this module, but also initializes the data receiving module. This implies that the initialization of this module occurs simultaneously with the loading of the \gls{API}, but on a separate thread, as detailed in ~\ref{sec:ImplModuloProcessamento}.
 
-Para o gerenciamento de metadados, uma instância do \texttt{MetadataRepository} é criada durante a inicialização. Este componente é essencial para o carregamento dos metadados que são utilizados em diferentes partes do sistema, como constantes e parâmetros de alarme.
+For metadata management, an instance of the \texttt{MetadataRepository} is created during initialization. This component is essential for loading the metadata that are used in different parts of the system, such as constants and alarm parameters.
 
-As rotas da \gls{API} são então incluídas na aplicação principal através do método \texttt{include\_router} para diferentes módulos, como autenticação, análise de API, camada de dados, notificações e usuários.
+The \gls{API} routes are then included in the main application through the \texttt{include\_router} method for different modules, such as authentication, API analysis, data layer, notifications, and users.
 
-Adicionalmente, o WebSocket é montado na raiz da aplicação através do objeto \texttt{socketio\_app}, possibilitando a comunicação em tempo real entre o servidor e os clientes. A implementação da conexão websocket pode ser vista em ~\ref{subsubsec:WebSocketImplement}.
+Additionally, the WebSocket is mounted at the root of the application through the \texttt{socketio\_app} object, enabling real-time communication between the server and the clients. The implementation of the websocket connection can be seen in ~\ref{subsubsec:WebSocketImplement}.
 
-
-A execução do arquivo se conclui com a inicialização do servidor \texttt{Uvicorn} \cite{uvicornOfficialDocs}, definindo o host e a porta para escuta. \texttt{Uvicorn} é um servidor \gls{ASGI} que serve como a interface entre o código da aplicação e o servidor web. Ele é responsável por hospedar a aplicação \texttt{FastAPI} e escutar por conexões de entrada no host e na porta especificados. A escolha deste servidor foi pautada na recomendação da documentação do FastAPI \cite{fastapiTutorial}.
+The execution of the file concludes with the initialization of the \texttt{Uvicorn} server \cite{uvicornOfficialDocs}, setting the host and port for listening. \texttt{Uvicorn} is an \gls{ASGI} server that serves as the interface between the application code and the web server. It is responsible for hosting the \texttt{FastAPI} application and listening for incoming connections on the specified host and port. The choice of this server was based on the recommendation from the FastAPI documentation \cite{fastapiTutorial}.
 
 \begin{verbatim}
 from fastapi import FastAPI
@@ -50,7 +49,7 @@ app.add_middleware(
 async def health_check():
     return {
         "Status":"OK",
-        "Message":"Access /docs to more information"    
+        "Message":"Access /docs for more information"    
     }
 app.include_router(auth_router)
 app.include_router(api_analytics_router)
@@ -64,17 +63,16 @@ if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
 \end{verbatim}
 
-\subsection{Infraestrutura}\label{subsec:infra}
+\subsection{Infrastructure}\label{subsec:infra}
 
-A infraestrutura e composta de 4 sub-módulos, Autenticação, WebSocket, Conexão com o banco de dados e Gerenciamento de Threads.
+The infrastructure is composed of 4 sub-modules, Authentication, WebSocket, Database Connection, and Thread Management.
 
-\subsubsection{Authetication}\label{subsubsec:auth}
-A implementação da autenticação do sistema foi baseada na documentação oficial do FastAPI \cite{fastapiSecurity}, portanto foi adotada uma abordagem baseada em tokens \gls{JWT}. O \gls{JWT} é um padrão amplamente aceito para transmitir informações entre partes de maneira segura. A estrutura de um \gls{JWT} é codificada e pode ser verificada para assegurar que os dados não foram alterados durante a transmissão. 
+\subsubsection{Authentication}\label{subsubsec:auth}
+The system's authentication implementation was based on the official FastAPI documentation \cite{fastapiSecurity}, therefore a token-based approach was adopted using \gls{JWT}. The \gls{JWT} is a widely accepted standard for securely transmitting information between parties. The structure of a \gls{JWT} is encoded and can be verified to ensure that the data has not been altered during transmission.
 
-O ponto de entrada para a autenticação é o \texttt{o\_auth2\_password\_bearer}, uma instância do OAuth2PasswordBearer que é designada para obter o token a partir do cabeçalho da requisição. O método \texttt{auth\_middleware} foi definido como um middleware assíncrono, que depende deste bearer token. Esse middleware é utilizado nos controllers para verificar se a requisição recebida tem ou não permissão para acessar as informações.
+The entry point for authentication is the \texttt{o\_auth2\_password\_bearer}, an instance of OAuth2PasswordBearer that is designed to obtain the token from the request header. The \texttt{auth\_middleware} method was defined as an asynchronous middleware, which depends on this bearer token. This middleware is used in the controllers to verify whether the received request has permission to access the information or not.
 
-
-Dentro deste middleware, a função \texttt{decode\_jwt\_token} é invocada para decodificar e validar o token \gls{JWT} fornecido.
+Within this middleware, the \texttt{decode\_jwt\_token} function is invoked to decode and validate the provided \gls{JWT} token.
 
 \begin{verbatim}
 o_auth2_password_bearer = OAuth2PasswordBearer(tokenUrl="/user/login")
@@ -91,7 +89,7 @@ async def auth_middleware(token:str = Depends(o_auth2_password_bearer))-> TokenP
         raise HTTPException(status_code=401, detail=Unauthorized().message)
 \end{verbatim}
 
-A função \texttt{decode\_jwt\_token} recebe um token como argumento e tenta decodificá-lo usando a chave secreta e o algoritmo especificados. Se o token for decodificado com sucesso e for do tipo "\texttt{access\_token}". Caso contrário, diferentes tipos de exceções podem ser levantadas, por exemplo, se o token estiver expirado ou se houver algum erro nas operações de \gls{JWT}.
+The function \texttt{decode\_jwt\_token} receives a token as an argument and attempts to decode it using the specified secret key and algorithm. If the token is successfully decoded and is of the type "\texttt{access\_token}". Otherwise, different types of exceptions can be raised, for example, if the token has expired or if there is some error in the \gls{JWT} operations.
 
 \begin{verbatim}
 def decode_jwt_token(token:str)->Result[TokenPayload|None]:
@@ -113,7 +111,7 @@ def decode_jwt_token(token:str)->Result[TokenPayload|None]:
         raise ex
 \end{verbatim}
 
-A classe modelo para o payload do token é a seguinte:
+The model class for the token payload is as follows:
 \begin{verbatim}
 class TokenPayload(BaseModel):
     name:str
@@ -123,11 +121,11 @@ class TokenPayload(BaseModel):
     type:str = "access_token"
 \end{verbatim}
 
-A classe \texttt{AuthService} é onde a lógica principal de autenticação é implementada. Esta classe segue o padrão \textit{Singleton} para garantir que apenas uma instância seja criada e usada ao longo da execução do programa.
+The \texttt{AuthService} class is where the main authentication logic is implemented. This class follows the \textit{Singleton} pattern to ensure that only one instance is created and used throughout the program execution.
 
-Dentro de \texttt{AuthService}, o método \texttt{verify\_password} é utilizado para verificar se uma senha fornecida coincide com uma senha criptografada, enquanto o \texttt{hash\_password} é responsável por criptografar uma senha fornecida.
+Within \texttt{AuthService}, the \texttt{verify\_password} method is used to check if a provided password matches an encrypted password, while the \texttt{hash\_password} is responsible for encrypting a provided password.
 
-O método \texttt{create\_user\_tokens} gera um par de tokens (access e refresh) para um usuário, onde o access token é válido por 4 horas e o refresh token por 168 horas. O refresh token é especialmente importante para permitir que os usuários obtenham novos tokens de acesso sem ter que inserir suas credenciais novamente. Se o token de acesso expirar, o token de atualização pode ser usado para obter um novo par de tokens, usando o método \texttt{get\_new\_user\_tokens}. Importante destacar que o frontend ainda não faz uso do refresh token, ficando essa funcionalidade para uma futura implementação.
+The \texttt{create\_user\_tokens} method generates a pair of tokens (access and refresh) for a user, where the access token is valid for 4 hours and the refresh token for 168 hours. The refresh token is especially important to allow users to obtain new access tokens without having to enter their credentials again. If the access token expires, the refresh token can be used to obtain a new pair of tokens, using the \texttt{get\_new\_user\_tokens} method. It is important to note that the frontend does not yet make use of the refresh token, leaving this functionality for a future implementation.
 
 \begin{verbatim}
 class AuthService(metaclass=Singleton):
@@ -179,7 +177,7 @@ class AuthService(metaclass=Singleton):
         return Result(status=True, data=(new_access_token, refresh_token), exception=None)
 \end{verbatim}
 
-Os métodos \texttt{\_\_create\_bearer\_token} e \texttt{\_\_decode\_token} são funções auxiliares utilizadas para criar, decodificar e verificar tokens, respectivamente
+The methods \texttt{\_\_create\_bearer\_token} and \texttt{\_\_decode\_token} are auxiliary functions used to create, decode, and verify tokens, respectively.
 
 \begin{verbatim}
 def __create_bearer_token(self,user_id:int, data:dict, expire_hours):
@@ -201,13 +199,13 @@ def __decode_token(self,token:str)->dict:
 \end{verbatim}
 
 \subsubsection{WebSocket}\label{subsubsec:WebSocketImplement}
-A implementação da conexão via WebSocket foi feita utilizando a biblioteca \texttt{socket.io} \cite{socketIoDocs}, que possui diversos recursos prontos que facilitam a gestão de conexões Web Socket, com por exemplo a criação de salas para disparo de notificações.
+The implementation of the connection via WebSocket was done using the \texttt{socket.io} library \cite{socketIoDocs}, which has various ready-to-use features that facilitate the management of Web Socket connections, such as the creation of rooms for firing notifications.
 
-A estrutura adotada para a gestão de conexões Web Socket foi feita de forma que o cliente deve efetuar uma requisição websocket ao \textit{endpoint} raiz da \gls{API} para ser registrado em uma sala virtual específica. Após a validação do token e a conclusão bem-sucedida dessa solicitação, o cliente passa a receber todas as mensagens direcionadas à sala na qual foi cadastrado.
+The structure adopted for managing Web Socket connections was designed in such a way that the client must make a websocket request to the root \textit{endpoint} of the \gls{API} to be registered in a specific virtual room. After token validation and successful completion of this request, the client begins to receive all messages directed to the room in which it was registered.
 
-A implementação atual contempla apenas uma sala, destinada especificamente ao envio de notificações relacionadas ao funcionamento das máquinas. Esta sala é identificada pelo identificador \texttt{NOTIFICATION\_ROOM}. Essa constante armazena o valor "\texttt{Notification}", que é o nome da sala a ser conectada, armazenada justo com as constantes do sistema descrito em \ref{subsubsec:constantes}.
+The current implementation contemplates only one room, specifically intended for sending notifications related to the operation of the machines. This room is identified by the identifier \texttt{NOTIFICATION\_ROOM}. This constant stores the value "\texttt{Notification}", which is the name of the room to be connected, stored along with the system constants described in \ref{subsubsec:constantes}.
 
-O modo assíncrono \gls{ASGI} selecionado para a criação do servidor, e as origens permitidas para \textit{CORS} definidas como vazias.
+The asynchronous mode \gls{ASGI} selected for the server creation, and the allowed origins for \textit{CORS} are set as empty.
 
 \begin{verbatim}
 socket_io_server = AsyncServer(async_mode="asgi",
@@ -225,11 +223,11 @@ async def connect(sid, environ, auth):
     socket_io_server.enter_room(sid, NOTIFICATION_ROOM)
 \end{verbatim}
 
-O objeto \texttt{socket\_io\_server} é responsável por gerenciar a comunicação \textit{WebSocket}, enquanto o \texttt{socketio\_app} cria uma aplicação \gls{ASGI} que interage com o servidor \textit{WebSocket}, e é adicionado ao servidor FastAPI. Adicionalmente, uma instância da classe \texttt{WebSocketDispatcher} foi criada para facilitar o envio de notificações através do \textit{WebSocket}. Essa configuração é feita na inicialização do sistema, explicado em \ref{subsec:main}
+The \texttt{socket\_io\_server} object is responsible for managing the \textit{WebSocket} communication, while the \texttt{socketio\_app} creates an \gls{ASGI} application that interacts with the \textit{WebSocket} server, and is added to the FastAPI server. Additionally, an instance of the \texttt{WebSocketDispatcher} class was created to facilitate the sending of notifications through the \textit{WebSocket}. This configuration is done at system initialization, explained in \ref{subsec:main}
 
-No evento de conexão, denominado \texttt{connect}, um cliente é automaticamente adicionado à sala \texttt{NOTIFICATION\_ROOM}.
+In the connection event, named \texttt{connect}, a client is automatically added to the \texttt{NOTIFICATION\_ROOM}.
 
-Por fim, a classe \texttt{WebSocketDispatcher} possui um método \texttt{send\_notification}, que é usado para enviar notificações. Ao chamar este método, a notificação é convertida para o formato \textit{JSON} e enviada para todos os clientes na sala \texttt{NOTIFICATION\_ROOM} através do método \texttt{emit}.
+Finally, the \texttt{WebSocketDispatcher} class has a \texttt{send\_notification} method, which is used to send notifications. When calling this method, the notification is converted to the JSON format and sent to all clients in the \texttt{NOTIFICATION\_ROOM} through the \texttt{emit} method.
 
 \begin{verbatim}
 class WebSocketDispatcher:
@@ -245,22 +243,20 @@ class WebSocketDispatcher:
             room=NOTIFICATION_ROOM)
 \end{verbatim}
 
-A classe \texttt{WebSocketDispatcher} é utilizada pelo modulo de recebimento dos dados, detalhado em ~\ref{subsec:checkDataReceived}, para disparar notificações quando é identificado um funcionamento inadequado das maquinas.
+The \texttt{WebSocketDispatcher} class is used by the data receiving module, detailed in ~\ref{subsec:checkDataReceived}, to trigger notifications when an improper operation of the machines is identified.
 
+\subsubsection{Thread Management for Asynchronous Tasks}\label{subsubsec:ThreadManager}
+In the system architecture, the need to perform tasks concurrently, without blocking the execution of the \gls{API}, was identified. These tasks are the execution of the data reception module, and the checking of the system's metadata. Both tasks must be executed in parallel with the execution of the \gls{API}, without influencing its execution. Therefore, to achieve this goal, a thread manager, called \texttt{ThreadManager}, was implemented.
 
-\subsubsection{Gerenciamento de Threads para Tarefas Assíncronas}\label{subsubsec:ThreadManager}
+The \texttt{ThreadManager} class is designed following the Singleton pattern, ensuring that only one instance is created, thus avoiding conflicts or redundancies in thread management. A list called \texttt{threads} is initialized to store all created threads, while an asynchronous event loop, assigned to the \texttt{loop} variable, is created using the \texttt{asyncio} library \cite{pythonAsyncio}.
 
-Na arquitetura do sistema, foi identificada a necessidade de realizar tarefas de forma concorrente, sem bloquear a execução da \gls{API}. Essas tarefas são a execução do modulo de recebimento de dados, e a checagem dos metadados do sistema. Ambas tarefas devem ser executadas em paralelo com a execução da \gls{API}, sem influenciar na sua execução. Portanto, para atingir esse objetivo, um gerenciador de threads, denominado \texttt{ThreadManager}, foi implementado.
-
-A classe \texttt{ThreadManager} é projetada seguindo o padrão Singleton, assegurando que apenas uma instância seja criada, evitando assim conflitos ou redundâncias no gerenciamento das threads. Uma lista denominada \texttt{threads} é inicializada para armazenar todas as threads criadas, enquanto um loop de eventos assíncronos, atribuído à variável \texttt{loop}, é criado utilizando a biblioteca \texttt{asyncio} \cite{pythonAsyncio}.
-
-O método \texttt{start\_async\_thread} foi introduzido para facilitar a criação e o gerenciamento de tarefas assíncronas. Este método aceita uma função assíncrona, \texttt{func}, como argumento e executa as seguintes operações:
+The \texttt{start\_async\_thread} method was introduced to facilitate the creation and management of asynchronous tasks. This method accepts an asynchronous function, \texttt{func}, as an argument and performs the following operations:
 
 \begin{enumerate}
-    \item Uma função interna \texttt{start\_function} é definida. Esta função é responsável por iniciar a execução da tarefa assíncrona.
-    \item Dentro de \texttt{start\_function}, verifica-se a variável booleana \texttt{isSeted} para determinar se o loop de eventos já foi configurado. Caso contrário, o loop de eventos é configurado e a tarefa assíncrona é executada até a conclusão através do método \texttt{run\_until\_complete}.
-    \item Se o loop de eventos já estiver configurado (\texttt{isSeted = True}), a tarefa assíncrona é simplesmente adicionada ao loop existente usando \texttt{create\_task}.
-    \item Finalmente, uma nova thread é criada com \texttt{start\_function} como alvo e adicionada à lista \texttt{threads}. A thread é então iniciada, executando a tarefa assíncrona.
+    \item An internal function \texttt{start\_function} is defined. This function is responsible for starting the execution of the asynchronous task.
+    \item Within \texttt{start\_function}, the boolean variable \texttt{isSeted} is checked to determine if the event loop has already been set up. Otherwise, the event loop is set up and the asynchronous task is executed until completion through the \texttt{run\_until\_complete} method.
+    \item If the event loop is already set up (\texttt{isSeted = True}), the asynchronous task is simply added to the existing loop using \texttt{create\_task}.
+    \item Finally, a new thread is created with \texttt{start\_function} as the target and added to the \texttt{threads} list. The thread is then started, executing the asynchronous task.
 \end{enumerate}
 
 \begin{verbatim}
@@ -287,12 +283,12 @@ class ThreadManager(metaclass=Singleton):
         new_thread.start()
 \end{verbatim}
 
-Esta implementação permite a execução de múltiplas tarefas assíncronas em paralelo, cada uma em sua própria thread, todas gerenciadas pelo mesmo loop de eventos assíncronos.
+This implementation allows the execution of multiple asynchronous tasks in parallel, each in its own thread, all managed by the same asynchronous event loop.
 
 \subsubsection{Database}\label{subsubsec:DatabaseImpl}
-No processo de implementação do sistema, para estabelecer uma conexão eficiente com o banco de dados foi utilizado a biblioteca \texttt{motor} \cite{motorDocs} foi adotada como mecanismo.
+In the process of implementing the system, to establish an efficient connection with the database, the \texttt{motor} library \cite{motorDocs} was adopted as the mechanism.
 
-No centro da estratégia de conexão está uma classe base, denominada \texttt{BaseDB}, que tem a responsabilidade não apenas de estabelecer a conexão com o MongoDB, mas também de definir uma série de operações básicas para a manipulação dos dados armazenados. A estrutura dessa classe é apresentada a seguir:
+At the heart of the connection strategy is a base class, named \texttt{BaseDB}, which is responsible not only for establishing the connection with MongoDB, but also for defining a series of basic operations for the manipulation of stored data. The structure of this class is presented below:
 
 \begin{verbatim}
 import motor
@@ -301,36 +297,35 @@ class BaseDB:
         self.client = motor.motor_tornado.MotorClient(url, port)
 \end{verbatim}
 
-Algumas das operações fundamentais implementadas por \texttt{BaseDB} incluem:
+Some of the fundamental operations implemented by \texttt{BaseDB} include:
 
 \begin{itemize}
-    \item \texttt{insert\_one}: Recebe como parâmetros o \textit{database} e a \textit{collection} correspondentes em formato de texto, e a \textit{data} a ser inserida. Insere um documento na coleção especificada.
+    \item \texttt{insert\_one}: Receives as parameters the corresponding \textit{database} and \textit{collection} in text format, and the \textit{data} to be inserted. It inserts a document into the specified collection.
     
-    \item \texttt{insert\_many}: Recebe como parâmetros o \textit{database} e a \textit{collection} correspondentes em formato de texto, e a \textit{data} contendo vários documentos a serem inseridos. Insere vários documentos na coleção especificada.
+    \item \texttt{insert\_many}: Receives as parameters the corresponding \textit{database} and \textit{collection} in text format, and the \textit{data} containing several documents to be inserted. It inserts several documents into the specified collection.
+
+    \item \texttt{read\_data\_with\_pagination}: Receives as parameters the \textit{database}, the \textit{collection}, the \textit{query}, the \textit{page\_number}, the \textit{limit}, the \textit{sort\_descending\_field}, and the \textit{projection}. Retrieves data with pagination, allowing for a more organized reading.
     
-    \item \texttt{read\_data\_with\_pagination}: Recebe como parâmetros o \textit{database}, a \textit{collection}, a \textit{query}, o \textit{page\_number}, o \textit{limit}, o \textit{sort\_descending\_field} e a \textit{projection}. Recupera dados com paginação, permitindo uma leitura mais organizada.
+    \item \texttt{read\_data\_with\_limit}: Receives as parameters the \textit{database}, the \textit{collection}, the \textit{query}, and the \textit{limit}. Reads data with a predefined limit of returned documents.
     
-    \item \texttt{read\_data\_with\_limit}: Recebe como parâmetros o \textit{database}, a \textit{collection}, a \textit{query} e o \textit{limit}. Lê dados com um limite predefinido de documentos retornados.
+    \item \texttt{read\_data}: Receives as parameters the \textit{database}, the \textit{collection}, and the \textit{query}. Performs a simple data reading based on a query.
     
-    \item \texttt{read\_data}: Recebe como parâmetros o \textit{database}, a \textit{collection} e a \textit{query}. Realiza uma leitura simples de dados baseada em uma query.
+    \item \texttt{get\_distinct\_property}: Receives as parameters the \textit{database}, the \textit{collection}, and the \textit{property}. It obtains distinct properties from a collection, checking all the present documents.
     
-    \item \texttt{get\_distinct\_property}: Recebe como parâmetros o \textit{database}, a \textit{collection} e a \textit{property}. Obtém propriedades distintas de uma coleção, verificando todos os documentos presentes.
+    \item \texttt{list\_collections\_by\_db}: Receives as a parameter the \textit{database}. It lists all the collections present in a specific database.
     
-    \item \texttt{list\_collections\_by\_db}: Recebe como parâmetro o \textit{database}. Lista todas as coleções presentes em um banco de dados específico.
+    \item \texttt{add\_item\_into\_lists\_by\_filter}: Receives as parameters the \textit{database}, the \textit{collection}, the \textit{filter}, the \textit{list\_properties}, and the \textit{new\_data}. It adds an item into specific lists based on a filter.
     
-    \item \texttt{add\_item\_into\_lists\_by\_filter}: Recebe como parâmetros o \textit{database}, a \textit{collection}, o \textit{filter}, as \textit{list\_properties} e a \textit{new\_data}. Adiciona um item em listas específicas baseado em um filtro.
+    \item \texttt{update\_item}: Receives as parameters the \textit{database}, the \textit{collection}, the \textit{data} to be updated, and the \textit{filter}. It updates a specific document.
     
-    \item \texttt{update\_item}: Recebe como parâmetros o \textit{database}, a \textit{collection}, a \textit{data} a ser atualizada e o \textit{filter}. Atualiza um documento específico.
+    \item \texttt{update\_many\_items}: Receives as parameters the \textit{database}, the \textit{collection}, the \textit{data} to be updated, and the \textit{filter}. It updates several documents that meet a filter.
     
-    \item \texttt{update\_many\_items}: Recebe como parâmetros o \textit{database}, a \textit{collection}, a \textit{data} a ser atualizada e o \textit{filter}. Atualiza vários documentos que atendam a um filtro.
+    \item \texttt{count\_documents}: Receives as parameters the \textit{database}, the \textit{collection}, and the \textit{query}. It counts the number of documents in a collection that meet a query.
     
-    \item \texttt{count\_documents}: Recebe como parâmetros o \textit{database}, a \textit{collection} e a \textit{query}. Conta o número de documentos em uma coleção que atendem a uma consulta.
-    
-    \item \texttt{get\_data\_between\_dates}: Recebe como parâmetros o \textit{database}, a \textit{collection} e a \textit{query}. Recupera dados entre duas datas específicas.
+    \item \texttt{get\_data\_between\_dates}: Receives as parameters the \textit{database}, the \textit{collection}, and the \textit{query}. Retrieves data between two specific dates.
 \end{itemize}
 
-
-Com a base de acesso estabelecida, outras classes foram desenvolvidas, herdados de \texttt{BaseDB}, para atender contextos específicos do sistema. Essas classes seguem o padrão singleton, o que garante que apenas uma instância da conexão seja criada para um contexto específico, otimizando a gestão dos recursos. Um exemplo é a classe \texttt{MongoDBIOT} destinada ao módulo de recebimento de dados:
+With the access base established, other classes were developed, inherited from \texttt{BaseDB}, to meet specific system contexts. These classes follow the singleton pattern, which ensures that only one instance of the connection is created for a specific context, optimizing resource management. An example is the \texttt{MongoDBIOT} class intended for the data reception module:
 
 \begin{verbatim}
 class MongoDBIOT(BaseDB, metaclass=Singleton):
@@ -338,18 +333,18 @@ class MongoDBIOT(BaseDB, metaclass=Singleton):
         super().__init__()
 \end{verbatim}
 
-Classes semelhantes, seguindo o mesmo formato, foram criadas para outros contextos, como o acesso ao banco de dados pela \gls{API}, garantindo uma estrutura organizada e eficiente de conexão e manipulação dos dados.
+Similar classes, following the same format, were created for other contexts, such as database access through the \gls{API}, ensuring an organized and efficient structure for connection and data manipulation.
 
-\subsection{Arquivos comuns}\label{subsec:commum}
+\subsection{Common Files}\label{subsec:commum}
 
-Dentro da estrutura da \gls{API}, uma pasta denominada \texttt{common} foi implementada com o intuito de centralizar componentes reutilizáveis, abrangendo múltiplos módulos e camadas. Esta organização foi estabelecida para maximizar a eficiência do desenvolvimento e a consistência do código.
+Within the structure of the \gls{API}, a folder named \texttt{common} was implemented with the aim of centralizing reusable components, covering multiple modules and layers. This organization was established to maximize development efficiency and code consistency.
 
-\subsubsection{Modelos de Dados}\label{subsubsec:dataModel}
-A seção de modelos de dados na pasta \texttt{common} abriga diversas classes que definem a estrutura dos dados utilizados. Classes que especificam usuários e dados de sensores estão presentes, e fazem o uso da biblioteca \texttt{Pydantic} para definir os modelos e criar validações dos dados.
+\subsubsection{Data Models}\label{subsubsec:dataModel}
+The data models section in the \texttt{common} folder houses various classes that define the structure of the used data. Classes specifying users and sensor data are present, and they make use of the \texttt{Pydantic} library to define the models and create data validations.
 
-\texttt{Pydantic} \cite{pydanticDocs} é uma biblioteca de validação de dados que adiciona tipagem estática no Python para validar que os dados recebidos correspondem a um determinado formato ou esquema. Quando usada para a construção da \gls{API}, \texttt{Pydantic} contribui para a verificação automática e coerente dos dados enviados por meio de solicitações \gls{HTTP}, e manipulações realizadas no banco de dados. Esta abordagem reduz a necessidade de codificação manual para validações de dados, acelerando assim o tempo de desenvolvimento e aumentando a robustez do código.
+\texttt{Pydantic} \cite{pydanticDocs} is a data validation library that adds static typing in Python to validate that the received data matches a certain format or schema. When used for the construction of the \gls{API}, \texttt{Pydantic} contributes to the automatic and consistent verification of data sent through \gls{HTTP} requests, and manipulations performed in the database. This approach reduces the need for manual coding for data validations, thus speeding up development time and increasing code robustness.
 
-Para exemplificar temos a  classeNotificationSensorResponse, que é responsável por definir o modelo de dados que é retornado quando a \gls{API} recebe uma requisição solicitando as notificações de um determinado usuário. Destaca-se o uso do \texttt{BaseModel} na sistema de herança, do \texttt{Pydantic}, necessário para definir os tipos de retorno dentro do FastAPI. Além disso é utilizado a função \texttt{Field}, também do \texttt{Pydantic}, para indicar com o três pontos que é um atributo obrigatório de ser informado na construção da classe.
+To illustrate, we have the NotificationSensorResponse class, which is responsible for defining the data model that is returned when the \gls{API} receives a request for a specific user's notifications. The use of \texttt{BaseModel} in the inheritance system, from \texttt{Pydantic}, necessary to define the return types within FastAPI, is highlighted. In addition, the \texttt{Field} function, also from \texttt{Pydantic}, is used to indicate with three points that it is a mandatory attribute to be informed in the class construction.
 
 \begin{verbatim}
 class NotificationSensorResponse(BaseModel):
@@ -357,8 +352,9 @@ class NotificationSensorResponse(BaseModel):
     total_count:int = Field(...)
 \end{verbatim}
 
-Outros modelos de dados importantes são as classes de exceções e uma classe denominada \texttt{Result}, responsável pelo tráfego de dados entre as diferentes camadas da aplicação, mostrado na implementação do modulo da \gls{API} em \ref{subsec:modules}.
-Exemplo de classe que define uma exceção do sistema.
+Other important data models are the exception classes and a class called \texttt{Result}, responsible for data traffic between the different layers of the application, shown in the implementation of the \gls{API} module in \ref{subsec:modules}.
+Example of a class that defines a system exception.
+
 \begin{verbatim}
 class CustomBaseException(Exception):
     def __init__(self, message:str, exception, *args: object) -> None:
@@ -370,12 +366,11 @@ class GenericException(CustomBaseException):
     def __init__(self,
         message:str =   "An error has occurred",
         exception = None) -> None:
-
         super().__init__(message, exception)
 \end{verbatim}
 
 
-Classe \texttt{Result} usado para comunicação entre camadas dos módulos do sistema. O \texttt{TypeVar} é utilizado para indicar um tipo genérico para o atributo \texttt{data} da classe.
+Class \texttt{Result} used for communication between layers of the system modules. The \texttt{TypeVar} is used to indicate a generic type for the \texttt{data} attribute of the class.
 
 \begin{verbatim}
 from typing import TypeVar, Generic
@@ -389,7 +384,7 @@ class Result(Generic[T]):
         self.exception = exception
 \end{verbatim}
 
-Destaca-se também o uso da classe \texttt{Singleton}, utilizada quando a existe a necessidade de garantir que apenas umas instância de determina classe será utilizada.
+The use of the \texttt{Singleton} class is also highlighted, used when there is a need to ensure that only one instance of a certain class will be used.
 
 \begin{verbatim}
 class Singleton(type):
@@ -400,9 +395,9 @@ class Singleton(type):
         return cls._instances[cls]
 \end{verbatim}
 
-Por último, é destacado a classe \texttt{PyObjectId}, utilizada para definir um tipo para o atributo ID das classes que representam modelos do banco de dados. Os métodos definidos para essa classe são usados internamente pelo \texttt{FastAPI} e pelo \texttt{Pydantic}.
+Finally, the \texttt{PyObjectId} class is highlighted, used to define a type for the ID attribute of classes that represent database models. The methods defined for this class are used internally by \texttt{FastAPI} and \texttt{Pydantic}.
 
-Essa classe é necessária para que o ID possa ser corretamente convertido para texto, e retornado nas requisições. Além disso, o uso dessa classe viabiliza a manipulação do ID quando necessário, deixando a gestão dos identificadores únicos para a aplicação e não para o banco de dados.
+This class is necessary so that the ID can be correctly converted to text, and returned in the requests. Furthermore, the use of this class enables the manipulation of the ID when necessary, leaving the management of unique identifiers to the application and not to the database.
 
 \begin{verbatim}
 class PyObjectId(ObjectId):
@@ -421,30 +416,27 @@ class PyObjectId(ObjectId):
         field_schema.update(type="string")
 \end{verbatim}
 
-\subsubsection{Funções Helpers}\label{subsubsec:helpers}
+\subsubsection{Helper Functions}\label{subsubsec:helpers}
 
-A seção de funções \textit{helpers} na pasta \texttt{common} foi construída para conter métodos que sejam comum em diferentes módulos do sistema, evitando a duplicação de código e padronizando o funcionamento.
+The section of \textit{helper} functions in the \texttt{common} folder was built to contain methods that are common in different modules of the system, avoiding code duplication and standardizing operation.
 
-Um exemplo dessas funções é a conversão de \texttt{Datatype}, mostrado na seção sobre constantes \ref{subsubsec:constantes}, para coleções do MongoDB. O código a seguir ilustra um desses processos:
+An example of these functions is the conversion of \texttt{Datatype}, shown in the section on constants \ref{subsubsec:constantes}, to MongoDB collections. The following code illustrates one of these processes:
 
 \begin{verbatim}
 def sensor_name_to_processed_collection(
     sensor_name:Datatype)->str:
-    
     sensor = (sensor_name.name).capitalize()
     return IOT_AGGREGATION_COLLECTION.replace("NAME", sensor)
-
 \end{verbatim}
 
-Estas funções são empregadas para determinar os nomes corretos das coleções em de acordo com o tipo de dado a ser tratado e manipulado pelos modulos. Funções como \texttt{sensor\_name\_to\_processed\_collection} e \texttt{sensor\_name\_to\_raw\_data\_collection} convertem entre nomes de sensores e nomes de coleções. 
+These functions are used to determine the correct names of the collections according to the type of data to be processed and manipulated by the modules. Functions such as \texttt{sensor\_name\_to\_processed\_collection} and \texttt{sensor\_name\_to\_raw\_data\_collection} convert between sensor names and collection names.
 
-Adicionalmente, uma série de funções foi desenvolvida para mapear o nome processado da coleção, de volta para o \texttt{Datatype} correspondente, mostrado na seção sobre constantes \ref{subsubsec:constantes}, garantindo uma manipulação de dados mais segura e coerente.
+Additionally, a series of functions was developed to map the processed collection name back to the corresponding \texttt{Datatype}, shown in the section on constants \ref{subsubsec:constantes}, ensuring safer and more consistent data manipulation.
 
+\subsubsection{Constants}\label{subsubsec:constantes}
+Finally, the constants section stores a series of fixed values that are used in various parts of the system. This includes database names, alert types, websocket rooms, and others as needed.
 
-\subsubsection{Constantes}\label{subsubsec:constantes}
-Por fim, a seção de constantes armazena uma série de valores fixos que são usados em várias partes do sistema. Isso inclui nomes de bancos de dados, tipos de alertas, salas de websocket, e outros que forem necessários.
-
-Dentre as constantes destaca-se a \texttt{DataType}, que é um \textit{enum} que padroniza os tipos de dados que podem ser recebidos dos sensores. Esta padronização é empregada em diversos módulos para assegurar que os dados sejam recebidos, processados, armazenados e retornados de maneira consistente e correta.
+Among the constants, \texttt{DataType} stands out, which is an enum that standardizes the types of data that can be received from the sensors. This standardization is employed in various modules to ensure that data is received, processed, stored, and returned in a consistent and correct manner.
 
 \begin{verbatim}
 from enum import Enum
@@ -462,24 +454,22 @@ class Datatype(Enum):
     PRODUCTION_COUNTER = "PRODUCTION_COUNTER"
 \end{verbatim}
 
-\subsection{Módulos}\label{subsec:modules}
-A \gls{API} foi estruturada em módulos, cada um com responsabilidade para gerenciar um determinado contexto. Abaixo são listados os módulos desenvolvidos.
+\subsection{Modules}\label{subsec:modules}
+The \gls{API} was structured into modules, each one responsible for managing a certain context. The developed modules are listed below.
 
 \begin{enumerate}
-    \item \textbf{IOT Analytics}: Modulo responsável por gerenciar o acesso as informações dos sensores, tanto os dados em tempo real via stream, quanto as informações processadas pelo modulo de processamento de dados, explicado em ~\ref{sec:ImplModuloProcessamento}.
-    \item \textbf{Notifications}: Modulo responsável por gerenciar o acesso as notificações.
-    \item \textbf{User}: Modulo responsável por gerir as informações dos usuários do sistema, e realização da autenticação explicada em ~\ref{subsubsec:auth}.
-    \item \textbf{Downtime Analytics}: Modulo usado para disponibilizar os dados de teste da paragem das maquinas. Esse modulo alimenta a tela que exibe as informações de paragem das maquinas.
-
+    \item \textbf{IOT Analytics}: Module responsible for managing access to sensor information, both real-time data via stream, and the information processed by the data processing module, explained in ~\ref{sec:ImplModuloProcessamento}.
+    \item \textbf{Notifications}: Module responsible for managing access to notifications.
+    \item \textbf{User}: Module responsible for managing the system users' information, and performing the authentication explained in ~\ref{subsubsec:auth}.
+    \item \textbf{Downtime Analytics}: Module used to provide test data on machine downtime. This module feeds the screen that displays information about machine downtime.
 \end{enumerate}
 
-Cada modulo seguiu um padrão de ter uma camada para o recebimento  das requisições \gls{HTTP}, o \texttt{controller}, outra para tratar a requisição de acordo com as regras de negócio, o \texttt{service}, e o \texttt{repositoy}, para disponibilizar métodos de acesso e manipulação das informações no banco de dados.
+Each module followed a pattern of having one layer for receiving \gls{HTTP} requests, the \texttt{controller}, another to handle the request according to business rules, the \texttt{service}, and the \texttt{repository}, to provide methods for accessing and manipulating information in the database.
 
 \subsubsection{Controller}\label{subsubsec:controller}
-O controller tem a função de receber as requisições \gls{HTTP}, enviar as informações recebidas para a camada de serviço, e realizar o retorno adequado, com as informações formatadas, e código \gls{HTTP} correto.
+The controller has the function of receiving \gls{HTTP} requests, sending the received information to the service layer, and making the appropriate return, with the formatted information, and correct \gls{HTTP} code.
 
-
-Para exemplificar o funcionamento do controller, um exemplo específico será apresentado. O seguinte fragmento de código representa o router da \gls{API} para os dados dos sensores \gls{IoT}:
+To exemplify the operation of the controller, a specific example will be presented. The following code snippet represents the router of the \gls{API} for the \gls{IoT} sensor data:
 
 \begin{verbatim}
 iot_data_router = APIRouter(tags=["IOT Data"], dependencies=[Depends(auth_middleware)])
@@ -501,16 +491,15 @@ async def real_time_iot():
         media_type="application/octet-stream")
 \end{verbatim}
 
-Neste exemplo, o controller faz uso do \texttt{APIRouter} para criar rotas associadas aos dados da IoT. Um middleware de autenticação é aplicado como uma dependência, como mostrado no detalhamento da autenticação em \ref{subsubsec:auth}, garantindo que apenas usuários autenticados possam acessar essas rotas. Nesse caso, ao aplicar o middleware na criação do \texttt{iot\_data\_router}, é garantido que todos os \texttt{endpoints} criados a partir dele precisem de autenticação.
+In this example, the controller uses the \texttt{APIRouter} to create routes associated with IoT data. An authentication middleware is applied as a dependency, as shown in the authentication detail in \ref{subsubsec:auth}, ensuring that only authenticated users can access these routes. In this case, by applying the middleware in the creation of the \texttt{iot\_data\_router}, it is guaranteed that all \texttt{endpoints} created from it require authentication.
 
-Logo abaixo é criada uma instância do serviço que deve ser utilizado pelos \texttt{endpoints} para responder as requisições recebidas.
+Below, an instance of the service to be used by the \texttt{endpoints} to respond to the received requests is created.
 
-A rota \texttt{/realtime} é designada para fornecer dados em tempo real. Uma função interna, \texttt{get\_real\_time\_data}, é 
-responsável por coletar esses dados do \texttt{SensorValue}, explicado em \ref{sec:Implementação do modulo de recebimento de dados}. Nesse endpoint, a \gls{API} pega os valores atuais e retorna uma \texttt{StreamingResponse}, que envia os dados em tempo real como um fluxo contínuo.
+The \texttt{/realtime} route is designated to provide real-time data. An internal function, \texttt{get\_real\_time\_data}, is responsible for collecting this data from the \texttt{SensorValue}, explained in \ref{sec:Implementation of the data reception module}. In this endpoint, the \gls{API} takes the current values and returns a \texttt{StreamingResponse}, which sends real-time data as a continuous stream.
 
-As outras rotas, como \texttt{/machines\_in\_sensor} e \texttt{/graph\_info}, operam de maneira semelhante, mas com diferentes responsabilidades. Elas fazem chamadas para a instancia de \texttt{ServiceIOT} para recuperar informações específicas e retorná-las ao cliente. Caso ocorra uma exceção ou erro, um \texttt{HTTPException} é lançado com um código de status HTTP apropriado e uma mensagem de erro detalhada.
+The other routes, such as \texttt{/machines\_in\_sensor} and \texttt{/graph\_info}, operate in a similar way, but with different responsibilities. They make calls to the \texttt{ServiceIOT} instance to retrieve specific information and return it to the client. If an exception or error occurs, an \texttt{HTTPException} is thrown with an appropriate HTTP status code and a detailed error message.
 
-Nesses dois endpoints é importante destacar a especificação do \texttt{response\_model}, para que ocorra validações automáticas pelo framework antes do dado ser retornado, garantido a consistência nos dados retornados.
+In these two endpoints, it is important to highlight the specification of the \texttt{response\_model}, so that automatic validations by the framework occur before the data is returned, ensuring consistency in the returned data.
 
 \begin{verbatim}
 @iot_data_router.get("/machines_in_sensor", response_model=list[MachinesSensor])
@@ -522,6 +511,8 @@ async def get_machines_in_sensor():
     raise HTTPException(status_code=500, detail=result.exception.message)
 
 @iot_data_router.get("/graph_info", response_model=list[ProcessedData])
+
+\begin{verbatim}
 async def get_graph_info(machine:str, sensor:Datatype, initial_date:datetime, end_date:datetime):
     result = await service.get_processed_data(
         machine=machine,
@@ -536,9 +527,9 @@ async def get_graph_info(machine:str, sensor:Datatype, initial_date:datetime, en
 \end{verbatim}
 
 \subsubsection{Service}\label{subsubsec:service}
-A camada de serviço serve para aplicar as devidas regras antes de retornar os dados para a camada de controle ~\ref{subsubsec:controller}. Pode acessar a camada de repositório para realizar a leitura ou escrita de dados, e deve retornar os dados para a camada de controle usando a classe \texttt{Result}, mostrada na seção ~\ref{subsec:commum}, para que possa ser identificado corretamente o resultado do processamento realizado, e o retorno adequado seja dados para o cliente que realizou a requisição. 
+The service layer is used to apply the appropriate rules before returning the data to the control layer ~\ref{subsubsec:controller}. It can access the repository layer to read or write data, and it should return the data to the control layer using the \texttt{Result} class, shown in section ~\ref{subsec:commum}, so that the result of the processing can be correctly identified, and the appropriate return can be given to the client who made the request.
 
-Para uma compreensão mais profunda, um exemplo específico da implementação da camada de serviço segue abaixo:
+For a deeper understanding, a specific example of the service layer implementation follows below:
 
 \begin{verbatim}
 class ServiceIOT:
@@ -555,7 +546,6 @@ class ServiceIOT:
         try:
             alert_parameter = await self.appMetadata.get_sensor_alert_value(
             data_type)
-
             processed_data = await self.__repository.read_iot_processed_data__(
                 machine=machine,
                 datatype=data_type,
@@ -576,11 +566,11 @@ class ServiceIOT:
                 exception=GenericException(exception=ex))
 \end{verbatim}
 
-Nesta implementação, a classe \texttt{ServiceIOT} é inicializada com instâncias de \texttt{RepositoryIOT} e \texttt{MetadataRepository}, permitindo que o serviço acesse as camadas de repositório e metadados correspondentes.
+In this implementation, the \texttt{ServiceIOT} class is initialized with instances of \texttt{RepositoryIOT} and \texttt{MetadataRepository}, allowing the service to access the corresponding repository and metadata layers.
 
-O método \texttt{get\_processed\_data} serve para obter dados processados com base em diversos parâmetros como máquina, tipo de dados e intervalo de datas. Inicialmente, um valor de alerta é recuperado do metadado do sensor para o tipo de dados fornecido. Posteriormente, os dados processados são lidos do repositório. A cada entrada de dados recuperada, o valor de alerta é adicionado como um novo campo. O método retorna um objeto \texttt{Result} encapsulando esses dados. O objeto \texttt{Result} é detalhado em ~\ref{subsec:commum}.
+The \texttt{get\_processed\_data} method is used to obtain processed data based on various parameters such as machine, data type, and date range. Initially, an alert value is retrieved from the sensor metadata for the provided data type. Subsequently, the processed data is read from the repository. For each retrieved data entry, the alert value is added as a new field. The method returns a \texttt{Result} object encapsulating these data. The \texttt{Result} object is detailed in ~\ref{subsec:commum}.
 
-O método \texttt{get\_all\_machines\_processed\_info} recupera informações sobre todas as máquinas e sensores processados. Ele itera através das coleções de dados processados, agregando informações de máquinas e sensores. Em caso de sucesso, ele retorna um objeto \texttt{Result} contendo uma lista de máquinas e seus sensores correspondentes.
+The \texttt{get\_all\_machines\_processed\_info} method retrieves information about all processed machines and sensors. It iterates through the processed data collections, aggregating machine and sensor information. In case of success, it returns a \texttt{Result} object containing a list of machines and their corresponding sensors.
 
 \begin{verbatim}
 async def get_all_machines_processed_info(
@@ -617,7 +607,7 @@ async def get_all_machines_processed_info(
             exception=GenericException(exception=ex)) 
 \end{verbatim}
 
-O último método, \texttt{read\_raw\_data\_by\_id}, serve para ler dados brutos com base em um identificador e tipo de dados. Ele acessa o repositório correspondente para recuperar os dados e retorna um objeto \texttt{Result} contendo esses dados ou uma exceção, se aplicável.
+The last method, \texttt{read\_raw\_data\_by\_id}, is used to read raw data based on an identifier and data type. It accesses the corresponding repository to retrieve the data and returns a \texttt{Result} object containing these data or an exception, if applicable.
 \begin{verbatim}
 async def read_raw_data_by_id(self,
     raw_data_id:str,
@@ -633,12 +623,12 @@ async def read_raw_data_by_id(self,
             exception=GenericException(exception=ex)) 
 
 \end{verbatim}
-Esta implementação exemplifica como a camada de serviço interage com as camadas de repositório e acessa metadados metadados, e como ela prepara os dados para serem enviados de volta ao controller, garantindo assim um fluxo de dados coeso e eficiente através das diversas camadas da aplicação.
+This implementation exemplifies how the service layer interacts with the repository layers and accesses metadata, and how it prepares the data to be sent back to the controller, thus ensuring a cohesive and efficient data flow through the various layers of the application.
 
 \subsubsection{Respository}\label{subsubsec:repository}
-Por fim a camada a camada de repositório é responsável por ter acesso ao banco de dados e realizar as operações de leitura e escrita de acordo com as necessidades. Essa camada instancia uma conexão com banco de dados, e seus métodos utilizam os métodos base definidos pela infraestrutura de conexão com o banco, em ~\ref{subsubsec:DatabaseImpl}, para realizar a operações de acordo com o contexto daquele modulo.
+Finally, the repository layer is responsible for accessing the database and performing read and write operations as needed. This layer initiates a connection with the database, and its methods use the base methods defined by the database connection infrastructure, in ~\ref{subsubsec:DatabaseImpl}, to perform operations according to the context of that module.
 
-O código a seguir fornece um exemplo da implementação dessa camada:
+The following code provides an example of the implementation of this layer:
 
 \begin{verbatim}
 class RepositoryIOT:
@@ -691,15 +681,12 @@ class RepositoryIOT:
             raise ex
 \end{verbatim}
 
-Na inicialização da classe \texttt{RepositoryIOT}, uma conexão com o MongoDB é instanciada. O método \texttt{get\_processed\_data\_collections} é utilizado para listar todas as coleções de dados processados do banco de dados \texttt{IOT\_PROCESSED\_DATA}. Este método faz uma chamada direta ao método de listagem de coleções fornecido pela classe \texttt{MongoDB}.
+Upon initializing the \texttt{RepositoryIOT} class, a connection with MongoDB is instantiated. The \texttt{get\_processed\_data\_collections} method is used to list all the processed data collections from the \texttt{IOT\_PROCESSED\_DATA} database. This method makes a direct call to the collection listing method provided by the \texttt{MongoDB} class.
 
-O método \texttt{get\_distinct\_machines\_by\_collection} é responsável por recuperar uma lista de máquinas distintas para uma determinada coleção. Ele faz isso através do método \texttt{get\_distinct\_property} do banco de dados.
+The \texttt{get\_distinct\_machines\_by\_collection} method is responsible for retrieving a list of distinct machines for a given collection. It does this through the \texttt{get\_distinct\_property} method of the database.
 
-O método \texttt{read\_raw\_data} serve para ler dados brutos de uma coleção específica, utilizando o ID dos dados como parâmetro de pesquisa. Ele faz uma chamada ao método \texttt{read\_data} da classe \texttt{MongoDB}, fornecendo os parâmetros necessários para a leitura dos dados.
+The \texttt{read\_raw\_data} method is used to read raw data from a specific collection, using the data ID as a search parameter. It makes a call to the \texttt{read\_data} method of the \texttt{MongoDB} class, providing the necessary parameters for data reading.
 
-Por fim, o método \texttt{read\_iot\_processed\_data\_\_} é utilizado para ler dados processados com base em diversos critérios como máquina, tipo de dados e intervalo de datas. Uma query é construída para esse fim e passada ao método \texttt{get\_data\_between\_dates} da classe \texttt{MongoDB}.
+Finally, the \texttt{read\_iot\_processed\_data\_\_} method is used to read processed data based on various criteria such as machine, data type, and date range. A query is built for this purpose and passed to the \texttt{get\_data\_between\_dates} method of the \texttt{MongoDB} class.
 
-Cada um desses métodos auxilia na manutenção de uma separação clara de responsabilidades, permitindo que a camada de serviço mantenha um foco estrito na lógica de negócios, enquanto a camada de repositório gerencia as operações do banco de dados.
-
-
-
+Each of these methods assists in maintaining a clear separation of responsibilities, allowing the service layer to maintain a strict focus on business logic, while the repository layer manages database operations.
