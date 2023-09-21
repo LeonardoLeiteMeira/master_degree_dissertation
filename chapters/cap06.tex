@@ -1,16 +1,11 @@
-% \chapter{Conclusões}\label{cap:conclusions}
+\chapter{System Characteristics from a Functional Point of View}\label{cap:functions}
 
-% As conclusões devem sintetizar e proporcionar uma perspetiva unificadora ao trabalho efetuado. Poderá ser feita uma breve referência a trabalhos de outros com semelhanças ao efetuado e ao conhecimento que resultou do trabalho efetuado, bem como sugestões de trabalho futuro. A coerência do documento implica que as conclusões devem ser coerentes com as ideias expostas na introdução.
+After detailing the requirements, the chosen architecture for the system, the technologies used in the project, and the detailing of the implementation of each system component, this chapter is focused on the functionalities that make up the application. The project encompasses several components, including a frontend layer, a backend layer, a data receiving module, a data processing module, and the database. Therefore, this chapter aims to detail the operation of each system functionality, providing a comprehensive view of how each component interacts and contributes to the operation of the system as a whole.
 
-\chapter{Características do Sistema do ponto de vista funcional}\label{cap:functions}
-%Adicionar capturas de tela e diagramas para exemplificar o uso
-
-Após o detalhamentos dos requisitos, da arquitetura escolhida para o sistema, das tecnologias utilizadas no projeto e do detalhamento da implementação de cada componente do sistema, esse capítulo é voltado para as funcionalidades que compõem a aplicação. O projeto abrange diversas componentes, incluindo uma camada de frontend, uma camada de backend, um módulo de recebimento de dados, um módulo de processamento de dados e o banco de dados, portanto, este capítulo tem como objetivo detalhar o funcionamento de cada funcionalidade do sistema, fornecendo uma visão abrangente de como cada componente interage e contribui para a operação do sistema como um todo.
-
-Cada seção deste capítulo se dedicará a uma funcionalidade específica, examinando seu papel e operação em profundidade, bem como a interação entre diferentes componentes do sistema para sua realização. 
+Each section of this chapter will be dedicated to a specific functionality, examining its role and operation in depth, as well as the interaction between different system components for its realization.
 
 
-\section[Monitoramento em tempo real]{Monitoramento em tempo real}\label{sec:realtimeMonitoring}
+\section[Real-time Monitoring]{Real-time Monitoring}\label{sec:realtimeMonitoring}
 
 \begin{figure}[htbp]
 	\centering
@@ -19,7 +14,7 @@ Cada seção deste capítulo se dedicará a uma funcionalidade específica, exam
 	\label{fig:dashboradPage}
 \end{figure}
 
-No dashboard de interface do usuário são apresentados cartões individuais correspondentes a cada máquina monitorada, na figura \ref{fig:dashboradPage} pode ser visto essa página com um cartão da máquina \texttt{5. MACHINE\_STAMPING}. Em cada cartão, informações dos sensores são exibidas com a possibilidade de navegar entre elas com uma seta direcional. O cartão pode ser visto na figura \ref{fig:cardData}.
+On the user interface dashboard, individual cards corresponding to each monitored machine are presented. In figure \ref{fig:dashboradPage}, this page can be seen with a card for the machine \texttt{5. MACHINE\_STAMPING}. On each card, sensor information is displayed with the possibility of navigating between them with a directional arrow. The card can be seen in figure \ref{fig:cardData}.
 
 \begin{figure}[htbp]
 	\centering
@@ -28,20 +23,20 @@ No dashboard de interface do usuário são apresentados cartões individuais cor
 	\label{fig:cardData}
 \end{figure}
 
-A obtenção desses dados em tempo real é efetuada através de um fluxo contínuo de dados por \textit{streaming}. O frontend da aplicação faz uma requisição ao endpoint \texttt{iot/realtime}, o qual retorna esse fluxo de dados em tempo real. A disponibilização dessa informação ocorre como explicado em \ref{subsec:api_access}. 
+The acquisition of this real-time data is carried out through a continuous data stream. The frontend of the application makes a request to the endpoint \texttt{iot/realtime}, which returns this real-time data stream. The provision of this information occurs as explained in \ref{subsec:api_access}.
 
-Na camada de backend, o fluxo de dados é constantemente alimentado pela classe \texttt{SensorValue}, que por sua vez, é atualizada pelo módulo de recebimento de dados. Ao receber novas leituras dos sensores, o módulo executa validações apropriadas antes de atualizar os valores na classe \texttt{SensorValue}, como explicado em \ref{sec:Implementação do modulo de recebimento de dados}. Uma vez atualizada, a \gls{API} acessa esses novos valores e os insere no fluxo de dados transmitido ao usuário conectado.
+In the backend layer, the data stream is constantly fed by the \texttt{SensorValue} class, which in turn, is updated by the data receiving module. Upon receiving new sensor readings, the module performs appropriate validations before updating the values in the \texttt{SensorValue} class, as explained in \ref{sec:Implementation of the data receiving module}. Once updated, the \gls{API} accesses these new values and inserts them into the data stream transmitted to the connected user.
 
 
-\section[Alertas e notificações]{Alertas e notificações}\label{sec:alertsAndNotifications}
+\section[Alerts and notifications]{Alerts and notifications}\label{sec:alertsAndNotifications}
 
-Esta funcionalidade tem como principal objetivo monitorar o desempenho das máquinas em tempo real e emitir alertas e notificações aos usuários caso sejam detectadas condições de operação inadequadas. Isso permite que ações corretivas sejam tomadas de forma imediata.
+The main objective of this feature is to monitor the performance of the machines in real time and issue alerts and notifications to users if inappropriate operating conditions are detected. This allows corrective actions to be taken immediately.
 
-Sempre que uma nova leitura de sensor é recebida pelo módulo de recebimento de dados, uma validação é realizada para verificar se a máquina está operando dentro dos parâmetros aceitáveis. Esses parâmetros são obtidos através dos metadados do sistema, carregados na inicialização da \gls{API}, explicado em \ref{subsec:main}.
+Whenever a new sensor reading is received by the data receiving module, a validation is performed to check if the machine is operating within acceptable parameters. These parameters are obtained through the system metadata, loaded at the initialization of the \gls{API}, explained in \ref{subsec:main}.
 
-Se um valor fora do intervalo aceitável é identificado durante a validação, o módulo de recebimento de dados insere uma marcação especial nessa leitura dentro da classe \texttt{SensorValue}. Essa marcação é posteriormente transmitida ao frontend durante o processo de transmissão de dados via \textit{stream} pelo modulo \textbf{IOT Analytics} da \gls{API}, como explicado em \ref{subsec:modules}.
+If a value outside the acceptable range is identified during validation, the data receiving module inserts a special marking on this reading within the \texttt{SensorValue} class. This marking is later transmitted to the frontend during the data streaming process by the \textbf{IOT Analytics} module of the \gls{API}, as explained in \ref{subsec:modules}.
 
-Ao receber uma leitura marcada, o frontend atualiza o cartão de informação correspondente para refletir o estado anômalo. Especificamente, dentro do dashboard mostrado na figura \ref{fig:dashboradPage}, a cor do cartão é alterada para vermelho ou amarelo, tanto nos cards individuais, figura \ref{fig:cardData}, quanto no card geral que é usado para mostrar o status geral das maquinas, figura \ref{fig:geralMachineAlert}, portanto, servindo como um alerta visual imediato para o usuário. 
+Upon receiving a marked reading, the frontend updates the corresponding information card to reflect the anomalous state. Specifically, within the dashboard shown in figure \ref{fig:dashboradPage}, the color of the card is changed to red or yellow, both on individual cards, figure \ref{fig:cardData}, and on the general card that is used to show the overall status of the machines, figure \ref{fig:geralMachineAlert}, thus serving as an immediate visual alert for the user.
 
 \begin{figure}[htbp]
 	\centering
@@ -50,9 +45,9 @@ Ao receber uma leitura marcada, o frontend atualiza o cartão de informação co
 	\label{fig:geralMachineAlert}
 \end{figure}
 
-O módulo de recebimento de dados, \ref{sec:Implementação do modulo de recebimento de dados}, mantém o controle do estado operacional de cada máquina que está enviando informações. Quando uma máquina sai de um estado de alerta, a ocorrência é registrada no banco de dados, com data de início e término do estado de alerta, junto com as informações referentes ao sensor e à máquina envolvida, como explicado em \ref{subsubsec:WebSocketImplement}. Posteriormente, uma mensagem é enviada aos usuários conectados utilizando a interface de \textit{WebSocket}, informando-os do mau funcionamento da maquina durante o período registrado pelo sistema.
+The data receiving module, \ref{sec:Implementação do modulo de recebimento de dados}, keeps track of the operational state of each machine that is sending information. When a machine exits an alert state, the occurrence is recorded in the database, with the start and end date of the alert state, along with information related to the sensor and the involved machine, as explained in \ref{subsubsec:WebSocketImplement}. Subsequently, a message is sent to the connected users using the \textit{WebSocket} interface, informing them of the machine's malfunction during the period recorded by the system.
 
-As informações sobre a finalização de alertas podem ser acessadas pelos usuários através de notificações na interface do sistema, como pode ser visto na figura \ref{fig:notificationDrawer}. Ao clicar no ícone de notificação no menu lateral do \textit{dashboard}, o usuário pode visualizar essas notificações.
+Information about alert completion can be accessed by users through notifications in the system interface, as can be seen in figure \ref{fig:notificationDrawer}. By clicking on the notification icon in the dashboard's side menu, the user can view these notifications.
 
 \begin{figure}[htbp]
 	\centering
@@ -62,25 +57,25 @@ As informações sobre a finalização de alertas podem ser acessadas pelos usu�
 \end{figure}
 
 
-Portanto, ao iniciar uma sessão no sistema, as notificações anteriores são carregadas para o usuário. Além disso, qualquer nova notificação gerada durante a sessão do usuário é transmitida em tempo real por meio de uma conexão \textit{WebSocket} estabelecida entre o frontend e o backend, como explicado em \ref{subsubsec:WebSocketImplement}.
+Therefore, when starting a session in the system, previous notifications are loaded for the user. In addition, any new notification generated during the user's session is transmitted in real time through a WebSocket connection established between the frontend and the backend, as explained in \ref{subsubsec:WebSocketImplement}.
 
 
-\section[Analise estatística de dados históricos]{Analise estatística de dados históricos}\label{sec:histicalGraphs}
+\section[Statistical Analysis of Historical Data]{Statistical Analysis of Historical Data}\label{sec:histicalGraphs}
 
-O módulo de processamento de dados é responsável pela análise estatística dos dados históricos. Seguindo o parâmetro padrão do sistema, todos os dias à meia-noite, os dados brutos não processados são lidos e analisados. O resultado da análise é então armazenado no banco de dados para consultas futuras, como explicado em \ref{sec:ImplModuloProcessamento}.
+The data processing module is responsible for the statistical analysis of historical data. Following the system's standard parameter, every day at midnight, the raw unprocessed data is read and analyzed. The result of the analysis is then stored in the database for future queries, as explained in \ref{sec:ImplModuloProcessamento}.
 
-A possibilidade de acessar esses dados analíticos é providenciada pela \gls{API}, especificamente pelo módulo "IOT Analytics". A requisição para obter essas informações deve ser autenticada, conforme descrito na seção \ref{subsec:modules}.
+The possibility to access these analytical data is provided by the \gls{API}, specifically by the "IOT Analytics" module. The request to obtain this information must be authenticated, as described in section \ref{subsec:modules}.
 
-A representação visual dessas análises é efetuada por meio de gráficos que agregam quatro métricas principais resultantes do processamento. Dessa forma é exibido no gráfico:
+The visual representation of these analyses is carried out through graphs that aggregate four main metrics resulting from the processing. Thus, the graph displays:
 
 \begin{itemize}
-    \item \textit{Valor Ideal}: Representado em um gráfico de área, serve como um parâmetro de funcionamento ideal para fornecer uma perspectiva relativa aos outros dados.
-    \item \textit{Percentil 75}: Exibido em um gráfico de linha, esta métrica oferece uma visão sobre a distribuição dos valores durante o período de agregação e sua evolução ao longo do tempo.
-    \item \textit{Média da Agregação}: Representada em um gráfico de dispersão, esta métrica fornece o valor médio dos dados agregados.
-    \item \textit{Média com Remoção de \textit{Outliers}}: Ilustrada em um gráfico de barras, esta métrica é calculada após a remoção dos valores \textit{outliers}, conforme determinado pelo método de construção do boxplot.
+    \item \textit{Ideal Value}: Represented in an area chart, it serves as an ideal operating parameter to provide a perspective relative to the other data.
+    \item \textit{75th Percentile}: Displayed in a line chart, this metric offers a view on the distribution of values during the aggregation period and its evolution over time.
+    \item \textit{Aggregation Average}: Represented in a scatter chart, this metric provides the average value of the aggregated data.
+    \item \textit{Average with Outlier Removal}: Illustrated in a bar chart, this metric is calculated after the removal of outlier values, as determined by the boxplot construction method.
 \end{itemize}
 
-Portanto, a imagem \ref{fig:graphData} mostra como fica a visualização dessas informações dentro do dashboard.
+Therefore, image \ref{fig:graphData} shows how these information are displayed within the dashboard.
 
 \begin{figure}[htbp]
 	\centering
@@ -90,7 +85,7 @@ Portanto, a imagem \ref{fig:graphData} mostra como fica a visualização dessas 
 \end{figure}
 
 
-A visualização desses gráficos pode ser filtrada por data, podendo ser selecionada a data inicial e a data final que os dados devem ser exibidos. Quando esses campos são alterados e o botão "aplicar filtro" é clicado, uma nova requisição é enviada e os dados são carregados de acordo com o período especificado. Por padrão, quando a página é carregada pela primeira vez, o sistema envia a requisição buscando os dados dos últimos 30 dias, e cabe ao usuário usar o filtro para visualizar um período diferente. O filtro por data pode ser visto na figura \ref{fig:loadDataByDate}.
+The visualization of these graphs can be filtered by date, allowing the selection of the start date and the end date for the data to be displayed. When these fields are changed and the "apply filter" button is clicked, a new request is sent and the data is loaded according to the specified period. By default, when the page is first loaded, the system sends a request seeking data from the last 30 days, and it is up to the user to use the filter to view a different period. The date filter can be seen in figure \ref{fig:loadDataByDate}.
 
 \begin{figure}[htbp]
 	\centering
@@ -99,13 +94,13 @@ A visualização desses gráficos pode ser filtrada por data, podendo ser seleci
 	\label{fig:loadDataByDate}
 \end{figure}
 
-\section[Exibição dos dados referente a paragem das máquinas]{Exibição dos dados referente a paragem das máquinas}\label{sec:downtime}
+\section[Display of data related to machine downtime]{Display of data related to machine downtime}\label{sec:downtime}
 
-Esta funcionalidade é dedicada à exibição de dados relacionados às paragens das máquinas, armazenados previamente no banco de dados. A funcionalidade tem o objetivo de demonstrar como seriam apresentados esses dados, caso fossem recebidos pelo sistema de forma similar aos dados dos sensores. A fonte dos dados para a elaboração desses gráficos provém de três planilhas recebidas no início do desenvolvimento do projeto, em que as informações foram salvas no banco de dados. Esses dados são acessados pelo frontend por meio do módulo \texttt{downtime\_analytics} da \gls{API}.
+This feature is dedicated to the display of data related to machine downtime, previously stored in the database. The functionality aims to demonstrate how this data would be presented if it were received by the system in a manner similar to sensor data. The source of the data for the preparation of these graphs comes from three spreadsheets received at the beginning of the project development, where the information was saved in the database. This data is accessed by the frontend through the \texttt{downtime\_analytics} module of the \gls{API}.
 
-Os gráficos gerados para representar esses dados são apresentados na forma de gráficos de coluna. Cada gráfico exibe um título correspondente à planilha da qual os dados foram extraídos. A legenda do gráfico indica a porcentagem que cada parada específica representa em relação ao total de paragens.
+The graphs generated to represent these data are presented in the form of column charts. Each chart displays a title corresponding to the spreadsheet from which the data were extracted. The chart legend indicates the percentage that each specific stop represents in relation to the total stops.
 
-Os gráficos de coluna fornecem uma maneira eficaz de comparar as diferentes paragens das máquinas, como pode ser visto na figura \ref{fig:downtime}. Esta visualização oferece um meio para analisar a eficiência operacional, identificar possíveis áreas para melhoria e acompanhar o resultado das ações tomadas em relação a paragem das máquinas e a manutenção preditiva.
+Column charts provide an effective way to compare the different machine stops, as can be seen in figure \ref{fig:downtime}. This visualization offers a means to analyze operational efficiency, identify possible areas for improvement, and track the outcome of actions taken in relation to machine downtime and predictive maintenance.
 
 \begin{figure}[htbp]
 	\centering
@@ -114,13 +109,13 @@ Os gráficos de coluna fornecem uma maneira eficaz de comparar as diferentes par
 	\label{fig:downtime}
 \end{figure}
 
-\section[Perfil de usuário]{Perfil de usuário}\label{sec:profile}
+\section[User Profile]{User Profile}\label{sec:profile}
 
-A funcionalidade de perfil de usuário foi desenvolvida com o objetivo de fornecer aos usuários acesso aos seus dados pessoais armazenados no sistema. Além da visualização dessas informações, esta tela permite também a realização de modificações, incluindo a alteração de senha, e-mail e outros dados pessoais como nome, sobrenome e descrição.
+The user profile functionality was developed with the aim of providing users with access to their personal data stored in the system. In addition to viewing this information, this screen also allows for modifications, including password changes, email, and other personal data such as name, surname, and description.
 
-Para ler e modificar os dados apresentados, o módulo \textit{User} da \gls{API} é utilizado. Este módulo disponibiliza endpoints que permitem o acesso e a modificação dos dados armazenados, garantindo que as informações sejam atualizadas conforme as interações do usuário, como pode ser visto na figura \ref{fig:profilePage}.
+To read and modify the displayed data, the \textit{User} module of the \gls{API} is used. This module provides endpoints that allow access and modification of the stored data, ensuring that the information is updated according to the user's interactions, as can be seen in figure \ref{fig:profilePage}.
 
-Um recurso adicional fornecido por esta tela é a opção de logout. Ao selecionar esta opção, todas as informações armazenadas do lado do cliente são apagadas, efetuando assim a saída segura do usuário do sistema.
+An additional feature provided by this screen is the logout option. By selecting this option, all client-side stored information is erased, thus ensuring the user's secure exit from the system.
 
 \begin{figure}[htbp]
 	\centering
@@ -128,4 +123,3 @@ Um recurso adicional fornecido por esta tela é a opção de logout. Ao selecion
 	\caption{Profile page.}
 	\label{fig:profilePage}
 \end{figure}
-

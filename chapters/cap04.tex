@@ -1,12 +1,7 @@
-% \chapter{Desenvolvimento/Implementação}\label{cap:development}
+\chapter{System Architecture}\label{cap:development}
+In this chapter, the architecture and structure adopted for the construction of the system components are discussed in detail. It is important to understand that the system was conceived as a set of modules, with each one performing specific functions, and when operated together, these modules result in the achievement of the purposes intended for the system.
 
-% Neste capítulo é descrito o trabalho de implementação, salientando os pontos mais relevantes da mesma, dificuldades  encontradas ou soluções técnicas inovadoras desenvolvidas ou aplicadas.  Em particular, se foi usado código desenvolvido por terceiros (por exemplo, código {\it open-source}), deve ser facilmente distinguível quais as funcionalidades originais do mesmo e o que foi necessário implementar para obter as funcionalidades desejadas.
-
-
-\chapter{Arquitetura do sistema}\label{cap:development}
-Neste capítulo, é abordado em detalhe a arquitetura e a estrutura adotada para a construção dos componentes do sistema. É importante compreender que o sistema foi concebido como um conjunto de módulos, com cada um desempenhando funções específicas, e quando operados em conjunto, esses módulos resultam na realização dos propósitos pensados para o sistema.
-
-O sistema é estruturado fundamentalmente em camadas distintas, o backend, o frontend, e o banco de dados.
+The system is fundamentally structured in distinct layers, the backend, the frontend, and the database.
 
 \begin{figure}[htbp]
 	\centering
@@ -15,31 +10,31 @@ O sistema é estruturado fundamentalmente em camadas distintas, o backend, o fro
 	\label{fig:systemAchitectureImage}
 \end{figure}
 
-O backend funciona como o núcleo do sistema. Sua principal função é a de receber os dados, processá-los conforme as regras estabelecidas nos requisitos e histórias de usuários e, armazená-los de maneira segura no banco de dados. Além das funções de armazenamento e processamento, ao backend também é atribuída a responsabilidade de disponibilizar esses dados por meio de uma \gls{API}, que pode ser acessada utilizando métodos \gls{HTTP}. Esta \gls{API} age como um intermediário entre a lógica central do sistema e as interfaces com as quais o usuário final interage, o frontend.
-Por outro lado, o frontend é caracterizado como a interface visual que o usuário final acessa. Serve como meio pelo qual os usuários interagem com o sistema, enviando e recebendo informações. Esta camada é projetada para acessar, recuperar e apresentar os dados processados e armazenados pelo backend de acordo com princípios de design e data visualization \cite{barbosa2019introduction}.
+The backend functions as the core of the system. Its main role is to receive the data, process it according to the rules established in the requirements and user stories, and store it securely in the database. In addition to storage and processing functions, the backend is also assigned the responsibility of making these data available through an \gls{API}, which can be accessed using \gls{HTTP} methods. This \gls{API} acts as an intermediary between the central logic of the system and the interfaces with which the end user interacts, the frontend.
+On the other hand, the frontend is characterized as the visual interface that the end user accesses. It serves as a means by which users interact with the system, sending and receiving information. This layer is designed to access, retrieve, and present the data processed and stored by the backend according to design principles and data visualization \cite{barbosa2019introduction}.
 
-Como pode ser visto na figura ~\ref{fig:systemAchitectureImage}, na planta industrial, onde as máquinas com os sensores se encontram, os sensores enviam os dados para o sistema, que recebe eles por meio do modulo de recebimento de dados e os armazena no banco de dados. O modulo de processamento acessa os dados armazenados para realizar a agregação, e a \gls{API} gerencia o acesso ao banco de dados, disponibilizando as informações para os usuários no frontend.
+As can be seen in figure ~\ref{fig:systemAchitectureImage}, in the industrial plant, where the machines with the sensors are located, the sensors send the data to the system, which receives them through the data receiving module and stores them in the database. The processing module accesses the stored data to perform aggregation, and the \gls{API} manages access to the database, making the information available to users on the frontend.
 
-Nas seções seguintes, cada um desses componentes será explorado mais profundamente, passando por suas especificidades e interações.
+In the following sections, each of these components will be explored more deeply, going through their specificities and interactions.
 
 
-\section[Arquitetura do backend]{Arquitetura backend}
-Nessa seção é abordado o funcionamento do backend. Ele está dividido em três partes, o modulo de recebimento dos dados dos sensores, o modulo de processamento onde é feita a agregação e analise estatística dos dados, e a \gls{API} que gerencia o acesso as informações por meio de requisições \gls{HTTP}.
+\section[Backend Architecture]{Backend Architecture}
+This section addresses the operation of the backend. It is divided into three parts, the module for receiving data from the sensors, the processing module where the aggregation and statistical analysis of the data is done, and the \gls{API} that manages access to information through \gls{HTTP} requests.
 
-Em relação a organização dos repositórios, a \gls{API} e o modulo de recebimento de dados ficam no mesmo repositório, facilitando a comunicação entre eles. Já o modulo de processamento está em um repositório a parte, sendo a sua única função sendo ler o banco de dados, processar os dados, e armazenar os resultados.
+Regarding the organization of the repositories, the \gls{API} and the data receiving module are in the same repository, facilitating communication between them. The processing module, on the other hand, is in a separate repository, its only function being to read the database, process the data, and store the results.
 
-\subsection{Modulo de Recebimento de dados}\label{subsec:receiveDataModuleArch}
-Para o modulo de recebimento de dados, inicialmente, destaca-se a classe \texttt{SensorConnection}, cuja a função é gerenciar e manter a conexão com a rede de sensores. Essa classe faz a transmissão dos dados recebidos à uma função designada \texttt{save\_data\_func}, assegurando que os dados sejam encaminhados para manipulação apropriada.
+\subsection{Data Receiving Module}\label{subsec:receiveDataModuleArch}
+For the data receiving module, initially, the \texttt{SensorConnection} class stands out, whose function is to manage and maintain the connection with the sensor network. This class transmits the received data to a designated function \texttt{save\_data\_func}, ensuring that the data is forwarded for appropriate handling.
 
-Na próxima parte da arquitetura, é utilizada a classe \texttt{IotSensorConnection}, que se origina da interface \texttt{IotSensorConnectionInterface}. Esta interface foi criada para garantir a adaptabilidade do sistema, facilitando a integração de diferentes tipos de recebimentos de dados, como por exemplo, uma classe destinada a gerar dados dos sensores em um ambiente de desenvolvimento, onde não há acesso ao sensor real. A classe \texttt{IotSensorConnection}, quando instanciada, é encarregada de estabelecer a conexão, e criar uma nova thread que opera como um ouvinte ativo, monitorando a chegada de novas informações. Ao perceber a recepção de novos dados, a classe direciona estas informações para uma terceira entidade, a qual detém a responsabilidade de aplicar as regras de negócio.
+In the next part of the architecture, the \texttt{IotSensorConnection} class is used, which originates from the \texttt{IotSensorConnectionInterface} interface. This interface was created to ensure the system's adaptability, facilitating the integration of different types of data receipts, such as a class intended to generate sensor data in a development environment, where there is no access to the real sensor. The \texttt{IotSensorConnection} class, when instantiated, is responsible for establishing the connection, and creating a new thread that operates as an active listener, monitoring the arrival of new information. Upon noticing the reception of new data, the class directs this information to a third entity, which holds the responsibility of applying the business rules.
 
-Esta terceira entidade é a classe \texttt{SensorsRepository}, que quando acionada com dados oriundos dos sensores, tem a responsabilidade de avaliar a informação com base nos parâmetros estabelecidos, decidindo se é necessário acionar um alerta, e tornar os dados do sensor acessíveis via \gls{API}, garantindo que esses dados estejam disponíveis para serem transmitidos em tempo real, via stream, para todos os usuários conectados. Além do mais, o dado é salvo no banco de dados, especificamente na coleção de dados brutos do data lake, \texttt{Raw Data}. Uma vez salvos no banco de dados, estes dados brutos estão disponíveis para serem processados pelo módulo de processamento.
+This third entity is the \texttt{SensorsRepository} class, which, when triggered with data from the sensors, has the responsibility to evaluate the information based on the established parameters, deciding whether it is necessary to trigger an alert, and make the sensor data accessible via \gls{API}, ensuring that these data are available to be transmitted in real time, via stream, to all connected users. Furthermore, the data is saved in the database, specifically in the raw data collection of the data lake, \texttt{Raw Data}. Once saved in the database, these raw data are available to be processed by the processing module.
 
-A disponibilização dos dados pela classe \texttt{SensorsRepository} acontece por meio da instancia da classe \texttt{SensorValue}, que com o método \texttt{update\_current\_sensor\_value} atualiza os dados em memoria que são acessados pelos usuários conectados.
+The data provision by the \texttt{SensorsRepository} class occurs through the instance of the \texttt{SensorValue} class, which with the \texttt{update\_current\_sensor\_value} method updates the data in memory that are accessed by the connected users.
 
-O diagrama que mostra a organização dessas classes pode ser visto na figura ~\ref{fig:receiveData}. Este design assegura que os dados brutos dos sensores sejam efetivamente recebidos, avaliados e armazenados.
+The diagram showing the organization of these classes can be seen in figure ~\ref{fig:receiveData}. This design ensures that the raw data from the sensors are effectively received, evaluated, and stored.
 
-No capítulo~\ref{cap:implementation}, é aprofundado nos detalhes de implementação desse módulo.
+In chapter~\ref{cap:implementation}, the implementation details of this module are further elaborated.
 
 
 \begin{figure}[htbp]
@@ -50,16 +45,16 @@ No capítulo~\ref{cap:implementation}, é aprofundado nos detalhes de implementa
 \end{figure}
 
 
-\subsection{Modulo de processamento de dados}\label{subsec:moduloProcessamento}
-O módulo de processamento de dados foi desenvolvido para garantir que os dados brutos coletados sejam processados, fornecendo a análise estatística que é exibida para os usuários.
+\subsection{Data Processing Module}\label{subsec:moduloProcessamento}
+The data processing module was developed to ensure that the raw data collected are processed, providing the statistical analysis that is displayed to the users.
 
-O código é executado quando é invocada uma função específica encarregada de realizar uma série de operações. Primeiramente, uma lista é constituída contendo as coleções do banco de dados responsáveis pelo armazenamento tanto dos dados brutos quanto dos dados já processados. Simultaneamente, uma segunda lista é gerada, representando as máquinas que enviaram informações para o sistema.
+The code is executed when a specific function is invoked, which is responsible for performing a series of operations. Firstly, a list is constituted containing the database collections responsible for storing both the raw data and the already processed data. Simultaneously, a second list is generated, representing the machines that sent information to the system.
 
-Com essas listas, inicia-se um procedimento iterativo, em que, para cada máquina identificada, os dados disponíveis são lidos, submetidos a um processo de análise estatística, após o qual os resultados obtidos são registrados na coleção de dados processados. Essa análise estatística adota o método do Box Plot.
+With these lists, an iterative procedure begins, in which, for each identified machine, the available data are read, submitted to a statistical analysis process, after which the results obtained are recorded in the processed data collection. This statistical analysis adopts the Box Plot method.
 
-O Box Plot, também conhecido como diagrama de caixa, é uma ferramenta gráfica utilizada para representar a variação de dados observados de uma variável numérica por meio de quartis. Na figura ~\ref{fig:boxplot}, pode ser visto o retângulo formado pelo primeiro quartil (Q1), mediana e terceiro quartil (Q3), que fornecem uma noção sobre a centralidade e dispersão dos dados, enquanto as "antenas" estendem-se para mostrar a amplitude completa dos dados, ajudando assim na identificação de possíveis outliers.
+The Box Plot, also known as a box diagram, is a graphical tool used to represent the variation of observed data from a numerical variable through quartiles. In figure ~\ref{fig:boxplot}, the rectangle formed by the first quartile (Q1), median, and third quartile (Q3) can be seen, which provide a notion about the centrality and dispersion of the data, while the "antennas" extend to show the full range of the data, thus helping in the identification of possible outliers.
 
-Ao adotar o Box Plot, o sistema garante uma compreensão robusta da distribuição dos dados, identificando não apenas tendências centrais, mas também variações e potenciais anomalias \cite{marmolejo2010shifting}.
+By adopting the Box Plot, the system ensures a robust understanding of the data distribution, identifying not only central trends but also variations and potential anomalies \cite{marmolejo2010shifting}.
 
 \begin{figure}[htbp]
 	\centering
@@ -70,7 +65,7 @@ Ao adotar o Box Plot, o sistema garante uma compreensão robusta da distribuiç�
 
 
 \subsection{API}\label{subsec:apiArchitecture}
-A \gls{API} foi estruturada em pequenos sub-módulos, cada um focado em um contexto específico. Esta modularização assegura que cada parte da \gls{API} tenha uma única responsabilidade. Em cada módulo, há uma segmentação composta por: a camada de \textit{controller}, destinada a receber e gerenciar as requisições \gls{HTTP}; a camada de serviço, que serve para processar a informação e aplicar as respectivas regras de negócio; e a camada de repositório, cujo papel é estabelecer uma ponte com o banco de dados, acessando e disponibilizando os dados necessários. A figura ~\ref{fig:api_organization} representa a organização de pastas que foi utilizada para essa arquitetura.
+The \gls{API} was structured into small sub-modules, each focused on a specific context. This modularization ensures that each part of the \gls{API} has a single responsibility. In each module, there is a segmentation composed of: the \textit{controller} layer, intended to receive and manage \gls{HTTP} requests; the service layer, which serves to process the information and apply the respective business rules; and the repository layer, whose role is to establish a bridge with the database, accessing and providing the necessary data. Figure ~\ref{fig:api_organization} represents the folder organization that was used for this architecture.
 
 \begin{figure}[htbp]
 	\centering
@@ -79,28 +74,28 @@ A \gls{API} foi estruturada em pequenos sub-módulos, cada um focado em um conte
 	\label{fig:api_organization}
 \end{figure}
 
-Quando uma solicitação é enviada à \gls{API}, a primeira interação acontece com a camada de \textit{controller}. Uma vez recebida, essa requisição é direcionada à camada de serviço, onde as regras de negócio são aplicadas. A camada de serviço se comunica estreitamente com a camada de repositório, que detém a responsabilidade de acessar o banco de dados e trazer informações precisas, adequadas às demandas do módulo em questão.
+When a request is sent to the \gls{API}, the first interaction occurs with the controller layer. Once received, this request is directed to the service layer, where business rules are applied. The service layer communicates closely with the repository layer, which holds the responsibility of accessing the database and bringing accurate information, suitable for the demands of the module in question.
 
-Os módulos implementados na \gls{API} com a lógica descrita são:
+The modules implemented in the \gls{API} with the described logic are:
 \begin{itemize}
-	\item \textbf{Downtime:} Responsável por gerenciar o acesso aos dados de paragem armazenados para teste no sistema.
-	\item \textbf{IOT Sensors:} Responsável por gerenciar o acesso aos dados referentes aos sensores das maquinas na fabrica.
-	\item \textbf{Notification:} Responsável por gerenciar o acesso as notificações geradas pelo sistema, e também as conexões web sockets para envio de notificações.
-	\item \textbf{User:} Responsável por gerenciar o acesso aos dados dos usuários, assim como realizar as operações de login e logout. 
+	\item \textbf{Downtime:} Responsible for managing access to downtime data stored for testing in the system.
+	\item \textbf{IOT Sensors:} Responsible for managing access to data related to the factory machine sensors.
+	\item \textbf{Notification:} Responsible for managing access to notifications generated by the system, as well as web socket connections for sending notifications.
+	\item \textbf{User:} Responsible for managing access to user data, as well as performing login and logout operations. 
 \end{itemize}
 
-Além dessas camadas modulares, existe uma área especifica na \gls{API} para o armazenamento de códigos comuns a todos os módulos. Esta seção engloba diversas funções úteis, modelos de classes, valores constantes e configurações padrão. Tais elementos garantem uma maior coesão e reduzem a repetição de código, otimizando o desempenho geral. Dentre as configurações padrão, merecem destaque o inicializador que estabelece o acesso ao banco de dados, middleware de autenticação, conexão web socket para envio de notificações, e o inicializador de novas \textit{threads}. Este último é utilizada para operações assíncronas que são executadas em paralelo a operação da \gls{API}, como aquelas executadas pelo módulo de recebimento de dados.
+In addition to these modular layers, there is a specific area in the \gls{API} for storing codes common to all modules. This section encompasses various useful functions, class templates, constant values, and default settings. These elements ensure greater cohesion and reduce code repetition, optimizing overall performance. Among the default settings, the initializer that establishes access to the database, authentication middleware, web socket connection for sending notifications, and the initializer of new \textit{threads} deserve special mention. The latter is used for asynchronous operations that are executed in parallel to the operation of the \gls{API}, such as those executed by the data reception module.
 
-\section[Arquitetura do frontend]{Arquitetura do frontend}\label{sec:archFront}
-Utilizando o \textit{Next.js} \cite{nextjsDocs} como framework, o frontend segue uma estrutura básica já estabelecida pelo mesmo.
+\section[Frontend Architecture]{Frontend Architecture}\label{sec:archFront}
+Using \textit{Next.js} \cite{nextjsDocs} as a framework, the frontend follows a basic structure already established by it.
 
-As rotas do sistema residem na pasta \texttt{pages}, alinhadas com as diretrizes do framework. Já os layouts que servem de base para cada página estão localizados na pasta \texttt{layouts}.
+The system's routes reside in the \texttt{pages} folder, aligned with the framework's guidelines. The layouts that serve as a base for each page are located in the \texttt{layouts} folder.
 
-Os componentes \textit{React} \cite{reactDocs} são a fundação de cada página e layout e estão organizados em uma camada específica, permitindo que sejam reutilizados em várias partes da aplicação.
+\textit{React} components \cite{reactDocs} are the foundation of each page and layout and are organized in a specific layer, allowing them to be reused in various parts of the application.
 
-Com a adoção do \textit{Typescript} \cite{typescriptLang}, modelos definem os tipos de estrutura de dados utilizados. Estes são mantidos na pasta \texttt{types}, estabelecendo contratos de formato de dados para o frontend. Isso minimiza erros e potencializa a eficiência no desenvolvimento.
+With the adoption of \textit{Typescript} \cite{typescriptLang}, models define the types of data structure used. These are kept in the \texttt{types} folder, establishing data format contracts for the frontend. This minimizes errors and enhances efficiency in development.
 
-A \textit{Context API} do React é empregada para gerir dados nos componentes, permitindo o compartilhamento centralizado de informações, como pode ser visto na figura ~\ref{fig:FrontendOrganization}. Esta abordagem otimiza a maneira como os dados são acessados e distribuídos no sistema, otimizando a organização da arquitetura.
+The React \textit{Context API} is used to manage data in components, allowing for centralized sharing of information, as can be seen in figure ~\ref{fig:FrontendOrganization}. This approach optimizes the way data is accessed and distributed in the system, enhancing the organization of the architecture.
 
 \begin{figure}[htbp]
 	\centering
@@ -109,13 +104,13 @@ A \textit{Context API} do React é empregada para gerir dados nos componentes, p
 	\label{fig:FrontendOrganization}
 \end{figure}
 
-Existe uma camada específica para acesso externo, que administra a comunicação com a \gls{API} e as conexões \textit{WebSocket}. Esta é acessada apenas pelos contextos para atualização e recuperação de dados.
+There is a specific layer for external access, which manages communication with the \gls{API} and WebSocket connections. This is accessed only by contexts for updating and retrieving data.
 
-Por fim, há uma pasta dedicada para armazenar códigos recorrentes, contendo funções auxiliares, temas e \textit{assets}, facilitando o desenvolvimento e manutenção ao proporcionar uma estrutura clara e coesa.
+Finally, there is a dedicated folder to store recurring codes, containing helper functions, themes, and assets, facilitating development and maintenance by providing a clear and cohesive structure.
 
 
 \section{Containers}
-Containers são tecnologias que permitem isolar aplicações em ambientes específicos com todas as suas dependências, bibliotecas e configurações necessárias, sem a sobrecarga de máquinas virtuais completas. Isso garante que a aplicação funcione de maneira idêntica em diferentes ambientes, desde o desenvolvimento até a produção \cite{paraiso2016model}. Na figura ~\ref{fig:container} é possível visualizar como é o funcionamento dos containers dentro do sistema operacional do host.
+Containers are technologies that allow applications to be isolated in specific environments with all their dependencies, libraries, and necessary configurations, without the overhead of full virtual machines. This ensures that the application works identically in different environments, from development to production \cite{paraiso2016model}. In figure ~\ref{fig:container}, it is possible to visualize how containers work within the host operating system.
 
 \begin{figure}[htbp]
 	\centering
@@ -124,33 +119,33 @@ Containers são tecnologias que permitem isolar aplicações em ambientes espec�
 	\label{fig:container}
 \end{figure}
 
-Dentro do universo dos containers, o \textit{Docker} \cite{dockerDocs} foi a ferramenta selecionada para este projeto. Diversos fatores influenciaram essa decisão, incluindo uma documentação abrangente, uma comunidade ativa e a presença de uma ampla variedade de conteúdos disponíveis. Além disso, o Docker simplifica a definição, criação e execução de containers, tornando-se uma solução robusta para a implantação de aplicações.
+Within the universe of containers, \textit{Docker} \cite{dockerDocs} was the tool selected for this project. Several factors influenced this decision, including comprehensive documentation, an active community, and the presence of a wide variety of available content. In addition, Docker simplifies the definition, creation, and execution of containers, making it a robust solution for application deployment.
 
-O sistema adota alguns containers para organizar e gerenciar as várias partes da aplicação:
+The system adopts some containers to organize and manage the various parts of the application:
 \begin{itemize}
-    \item \textbf{Frontend}: Um container dedicado ao frontend, construído com \textit{NextJs}.
-    \item \textbf{Backend}: Dividido em dois containers distintos:
-	\subitem Um que abrange a \gls{API} e o módulo de recebimento de dados;
-	\subitem E outro que é voltado especificamente para o módulo de processamento de dados;
-    \item \textbf{Banco de Dados}: Um container para o banco de dados MongoDB, garantindo isolamento e eficiência na gestão dos dados.
+    \item \textbf{Frontend}: A container dedicated to the frontend, built with \textit{NextJs}.
+    \item \textbf{Backend}: Divided into two distinct containers:
+	\subitem One that encompasses the \gls{API} and the data receiving module;
+	\subitem And another one specifically aimed at the data processing module;
+    \item \textbf{Database}: A container for the MongoDB database, ensuring isolation and efficiency in data management.
 \end{itemize}
 
-A comunicação entre os containers é viabilizada através de uma rede \textit{bridge} providenciada pelo Docker \cite{dockerNetwork}. Esta rede é uma interface de software criada no host que permite que containers comuniquem entre si e com o host, assegurando a conectividade necessária entre os diferentes módulos da aplicação. Com isso é adicionada uma camada a mais de segurança na aplicação, já que toda conexão externa deve ser feita por meio dessa rede. A conexão com rede externa é feita por meio de um web sever, explicado na seção ~\ref{sec:webserver}.
+The communication between the containers is made possible through a bridge network provided by Docker \cite{dockerNetwork}. This network is a software interface created on the host that allows containers to communicate with each other and with the host, ensuring the necessary connectivity between the different modules of the application. This adds an extra layer of security to the application, as all external connections must be made through this network. The connection with the external network is made through a web server, explained in section ~\ref{sec:webserver}.
 
-Para garantir a persistência dos dados e evitar a perda de informações vitais, foi empregado o conceito de \textit{volumes} \cite{dockerVolumes} do Docker na arquitetura do sistema. Volumes são espaços designados no sistema host que podem ser acessados e utilizados pelos containers. No contexto deste projeto, um volume foi especificamente configurado para o banco de dados MongoDB. Assim, mesmo que o container do banco de dados seja reiniciado ou removido, a base de dados se mantém intacta e disponível, devido à sua armazenagem no volume, que opera independentemente do ciclo de vida do container.
+To ensure data persistence and prevent the loss of vital information, the concept of Docker \textit{volumes} \cite{dockerVolumes} was employed in the system architecture. Volumes are designated spaces in the host system that can be accessed and used by containers. In the context of this project, a volume was specifically configured for the MongoDB database. Thus, even if the database container is restarted or removed, the database remains intact and available, due to its storage in the volume, which operates independently of the container's lifecycle.
 
-Com a necessidade de gerenciar múltiplos containers, configurações de rede e volumes de forma coesa e simplificada, foi adotado o \textit{Docker Compose} \cite{dockerCompose} na arquitetura do sistema. O Docker Compose permite a definição e execução de aplicações multi-container usando um arquivo YAML \cite{yamlOrg}. Esse arquivo contém todas as configurações necessárias para inicializar e interconectar os containers. Assim, ao invés de executar uma série de comandos para iniciar cada container individualmente, é possível, através do Docker Compose, iniciar todo o sistema com um único comando. Essa abordagem não apenas simplifica o processo de deploy e desenvolvimento, mas também garante que as configurações de rede e volume sejam consistentemente aplicadas em cada execução.
+With the need to manage multiple containers, network configurations, and volumes in a cohesive and simplified manner, \textit{Docker Compose} \cite{dockerCompose} was adopted in the system architecture. Docker Compose allows the definition and execution of multi-container applications using a YAML file \cite{yamlOrg}. This file contains all the necessary configurations to initialize and interconnect the containers. Thus, instead of executing a series of commands to start each container individually, it is possible, through Docker Compose, to start the entire system with a single command. This approach not only simplifies the deployment and development process but also ensures that network and volume configurations are consistently applied in each execution.
 
-A utilização de containers no projeto trouxe vantagens. Primeiramente, garantiu a consistência entre os ambientes de desenvolvimento e produção. Adicionalmente, a modularização proporcionada pelos containers facilita a escalabilidade e manutenção do sistema, permitindo atualizações e alterações de forma ágil e segura a medida que o sistema for crescendo. Por último, a utilização de containers facilita a portabilidade do sistema, podendo ser executado em diversos tipos de servidores e sistemas, bastando ter a instalação do docker.
+The use of containers in the project brought advantages. Firstly, it ensured consistency between development and production environments. Additionally, the modularization provided by the containers facilitates the scalability and maintenance of the system, allowing updates and changes to be made quickly and safely as the system grows. Lastly, the use of containers facilitates the portability of the system, which can be run on various types of servers and systems, provided that docker is installed.
 
 
 \section{Web Server}\label{sec:webserver}
 
-Dentro da arquitetura proposta, com containers executando diferentes partes da aplicação, foi utilizado o \textit{NGINX} \cite{nginxDocs} para ser o intermediário no tráfego de requisições, assegurando a distribuição correta das solicitações para cada container. 
+Within the proposed architecture, with containers running different parts of the application, \textit{NGINX} \cite{nginxDocs} was used to intermediate the traffic of requests, ensuring the correct distribution of requests to each container.
 
-O método empregado para tal é o de proxy reverso. Em termos simples, o proxy reverso atua como uma interface entre o cliente e vários servidores, direcionando as solicitações dos clientes ao servidor adequado  (no contexto desse projeto, os containers), e assim, otimizando o uso dos recursos e garantindo uma resposta mais rápida e eficiente.
+The method employed for this is the reverse proxy. In simple terms, the reverse proxy acts as an interface between the client and several servers, directing client requests to the appropriate server (in the context of this project, the containers), thus optimizing resource use and ensuring a faster and more efficient response.
 
-No que se refere a requisições específicas, aquelas que envolvem retorno em formato de stream ou estabelecem uma conexão \textit{WebSocket}, as configurações específicas foram feitas na configuração do \textit{NGINX}, sendo essas detalhadas no capítulo~\ref{cap:implementation},  dedicado à implementação. Ao receber uma requisição, o servidor \textit{NGINX} identifica, com base nela, qual container é o responsável pelo atendimento. Após essa identificação, são aplicadas as configurações adequadas, e a requisição é direcionada ao container correspondente para obter a resposta. Esse workflow pode ser visto na figura ~\ref{fig:nginx_workflow}.
+Regarding specific requests, those that involve return in stream format or establish a \textit{WebSocket} connection, specific settings were made in the \textit{NGINX} configuration, these are detailed in chapter~\ref{cap:implementation}, dedicated to implementation. Upon receiving a request, the \textit{NGINX} server identifies, based on it, which container is responsible for the service. After this identification, the appropriate settings are applied, and the request is directed to the corresponding container to obtain the response. This workflow can be seen in figure ~\ref{fig:nginx_workflow}.
 
 \begin{figure}[htbp]
 	\centering
@@ -159,4 +154,4 @@ No que se refere a requisições específicas, aquelas que envolvem retorno em f
 	\label{fig:nginx_workflow}
 \end{figure}
 
-A incorporação do \textit{NGINX} trouxe alguns benefícios ao projeto. Um deles é a camada adicional de segurança: o \textit{NGINX} limita o acesso direto aos containers, servindo como uma barreira contra tentativas de acesso não autorizado. Adicionalmente, com o NGINX, o processo de escalabilidade torna-se mais simples e eficiente, graças à capacidade inerente do servidor em atuar como um balanceador de carga. Este balanceador de carga distribui o tráfego de entrada entre vários servidores, assegurando que nenhum servidor fique sobrecarregado. Esta funcionalidade não só melhora a performance geral como também proporciona uma maior disponibilidade do sistema, já que, em caso de falha de um servidor, o tráfego pode ser direcionado a outro que esteja operacional.
+The incorporation of \textit{NGINX} brought some benefits to the project. One of them is the additional layer of security: \textit{NGINX} limits direct access to the containers, serving as a barrier against unauthorized access attempts. Additionally, with NGINX, the scalability process becomes simpler and more efficient, thanks to the server's inherent ability to act as a load balancer. This load balancer distributes incoming traffic among several servers, ensuring that no server becomes overloaded. This feature not only improves overall performance but also provides greater system availability, as in the event of a server failure, traffic can be directed to another operational one.
