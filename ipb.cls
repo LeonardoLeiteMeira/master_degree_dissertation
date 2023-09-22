@@ -121,17 +121,17 @@
     \@author \ifdefined\@authnum \quad\@authnum \fi\\
 }}
       \vfill
-    Disserta\c{c}\~{a}o apresentada \`a Escola Superior de Tecnologia e de Gest\~{a}o de Bragan\c{c}a para obten\c{c}\~{a}o do Grau de Mestre em \@course.\\
+    Dissertation presented to the School of Technology and Management of Bragança for the attainment of the Master's Degree in \@course.\\
     
     \vspace{4em}
-    Trabalho orientado por:\\
+    Work guided by:\\
     \@supervisor\\
     \ifdefined\@cosupervisor
     \@cosupervisor\\
     \fi
 	
     \vfill
-    Esta disserta\c{c}\~{a}o n\~{a}o inclui as cr\'iticas e sugest\~{o}es feitas pelo J\'uri.\\
+    This dissertation does not include the criticisms and suggestions made by the Jury.\\
     \vspace{2em}
 	Bragança\\
 	\@courseyear
@@ -157,17 +157,17 @@
     \@author \ifdefined\@authnum \quad\@authnum \fi\\
 }}
     \vfill
-    Disserta\c{c}\~{a}o apresentada \`a Escola Superior de Tecnologia e de Gest\~{a}o de Bragan\c{c}a para obten\c{c}\~{a}o do Grau de Mestre em \@course.\\
+    Dissertation presented to the School of Technology and Management of Bragança for the attainment of the Master's Degree in \@course.\\
     
 	    \vspace{4em}
-	    Trabalho orientado por:\\
+	    Work guided by:\\
 	    \@supervisor\\
     \ifdefined\@cosupervisor
     \@cosupervisor\\
     \fi
 	
     \vfill
-    Esta disserta\c{c}\~{a}o n\~{a}o inclui as cr\'iticas e sugest\~{o}es feitas pelo J\'uri.\\
+    This dissertation does not include the criticisms and suggestions made by the Jury.\\
     \vspace{2em}
 	Bragança\\
 	\@courseyear
