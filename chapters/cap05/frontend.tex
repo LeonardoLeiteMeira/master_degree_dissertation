@@ -4,7 +4,7 @@ The implementation of the user interface was developed according to the architec
 
 It is relevant to note that, to maintain compliance with best practices and simplify development, the default settings of Next.js were maintained.
 
-\subsection{System pages}\label{subsec:}
+\subsection{Pages}\label{subsec:pages}
 Being a framework, NextJs has a predefined structure for creating system pages as well as their routes \cite{nextjsDefiningRoutes}. Within the framework files, the \textit{pages} folder is used to store each of the system's pages, with each file being a page, and the file name being the route for access. The configuration of the pages occurs through files with specific names, in this case \textit{\_app.tsx} and \textit{\_document.tsx}.
 
 \subsubsection{Configuration pages}\label{subsec:configPage}
@@ -94,7 +94,7 @@ export default function Document() {
 }
 \end{verbatim}
 
-\subsubsection{System Pages}\label{subsec:}
+\subsubsection{System Pages}\label{subsec:systemPages}
 The system pages are divided into two types, private and public, with the public one being only the login page. This public page is in the \texttt{index.tsx} file, being the root route of the system.
 
 In this file, only \texttt{meta} settings and the \texttt{Login} component are invoked. The \texttt{Head} element \cite{nextjsHeadComponent} is used to define global HTML settings, such as the page title and metadata.
