@@ -5,21 +5,20 @@ As explained in ~\ref{subsec:moduloProcessamento}, the data processing module re
 \subsection{Scheduling for periodic execution}
 The data processing needs to occur periodically, in this case it was initially defined once a day. To execute the processing function call once a day, the \texttt{schedule} library was used \cite{scheduleDocs}. With this library, the execution of the data aggregation function was scheduled for every day at midnight. An infinite loop was created to keep the code running, checking whether the function should be executed or not.
 
-\begin{verbatim}
-import schedule
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 schedule.every().day.at("00:00").do(aggregation_init)
 print(datetime.now(), flush=True)
 while True:
     schedule.run_pending()
     time.sleep(1)
-\end{verbatim}
+\end{Verbatim}
 
 \subsection{Identifying the origin of the data}
 Within this structure, it is necessary to identify the correct collections from which the data should be retrieved before processing. This identification begins with the function \texttt{get\_tuples\_with\_raw\_data\_collections\_and\_processed\_collections()}. This function, as the name suggests, is responsible for retrieving tuples relating the raw data collections with their respective processed collections. It iterates over all types of sensors, represented by the enumerator \texttt{Datatype}, explained in \ref{subsubsec:constantes}, and for each type of sensor, the respective raw and processed data collections are identified, resulting in a list of tuples.
 
 It is important to highlight that the names of the collections are retrieved by the helper functions, explained in \ref{subsubsec:helpers}.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 def get_tuples_with_raw_data_collections_and_processed_collections():
     result:list[tuple] = []
     for sensor_type in Datatype:
@@ -29,46 +28,45 @@ def get_tuples_with_raw_data_collections_and_processed_collections():
         sensor_type)
         result.append((raw_collection,processed_collection))
     return result
-\end{verbatim}
+\end{Verbatim}
 
 To initiate the data processing, the function \texttt{aggregation\_init()} is called, first obtaining the list of tuples that relate the raw data collections with the processed ones. After retrieving this list, it initializes an asynchronous loop, whose aim is to execute an aggregation function until its completion. This asynchronous design is necessary to ensure that the processing can make asynchronous function calls, given that this module is separate from the \gls{API}.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 def aggregation_init():
     tuples_list = 
     get_tuples_with_raw_data_collections_and_processed_collections()
     loop = asyncio.new_event_loop()
     loop.run_until_complete(aggregation(tuples_list))
     loop.close()
-\end{verbatim}
+\end{Verbatim}
 
 In this way, the origin of the data is identified, and where they should be inserted after being processed. This information is passed to the aggregation function so that it can be executed for any stored data.
 
 \subsection{Starting the aggregation}
 Once the data source is defined through the identified collections, the data aggregation phase is initiated. The function responsible for this task is \texttt{aggregation()}, which accepts a list of tuples representing the sensor collections.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 async def aggregation(sensors_collection_list:list[tuple]):
     database = BaseDB()
     for collection_tuple in sensors_collection_list:
         (raw_data_collection, processed_data_collection) = collection_tuple
         machine_list = await database.read_machines_list(raw_data_collection)
-
         for machine in machine_list:
             await aggregate_data(
                 database,
                 raw_data_collection,
                 processed_data_collection,
                 machine)
-\end{verbatim}
+\end{Verbatim}
 
 Within this function, firstly, a database instance is initialized using the \texttt{BaseDB()} class, explained in \ref{subsubsec:DatabaseImpl}. Then, the function iterates over each tuple in the provided list. For each tuple, the raw and processed data collections are extracted. Using the raw data collection as a reference, a reading of the list of machines associated with this collection is made through the \texttt{read\_machines\_list()} method.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 async def read_machines_list(self, collection:str):
     temp_client = self.client
     return await temp_client[IOT_DATABASE][collection].distinct('machine')
-\end{verbatim}
+\end{Verbatim}
 
 For each identified machine, the data is then aggregated. The function \texttt{aggregate\_data()} is called, passing the database, the raw data collection, the processed data collection, and the specific machine in question as arguments. This function, in turn, is responsible for effectively aggregating the machine's data, transforming raw data into processed data that will be stored in the respective processed data collection.
 
@@ -79,7 +77,7 @@ The \texttt{get\_aggregation\_query()} function is responsible for generating th
 
 This function requires an instance of the database, the name of the collection where the aggregated data is stored, and the specific machine for which the aggregation is needed.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 async def get_aggregation_query(
     database:BaseDB,
     collection:str,
@@ -98,13 +96,13 @@ async def get_aggregation_query(
         more_recent_processed_data,
         machine,
         field_to_aggregate)
-\end{verbatim}
+\end{Verbatim}
 
 The construction of the \textit{query} uses two important constants. \texttt{MAX\_VALUE\_BY\_PERIOD} stores the maximum number of records that can be read for aggregation, which in this case is the equivalent amount to 24 hours of reading considering the arrival of data every second, or 86400 records. Meanwhile, \texttt{AGGREGATION\_PERIOD\_IN\_HOURS} stores the number of hours between one aggregation and another, in this case 24 hours, being consistent with the previous constant.
 
 Initially, the field \texttt{more\_recent\_register} is set as the attribute to be searched for. The function \texttt{read\_more\_recente\_data()} is then called to obtain the most recent processed data for the machine and collection in question.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 async def read_more_recente_data(self,
     collection:str,
     machine:str,
@@ -119,32 +117,27 @@ async def read_more_recente_data(self,
     except Exception as ex:
         print(ex)
         raise ex
-\end{verbatim}
+\end{Verbatim}
 
 If no recently processed data is found, the \textit{query} is built using the \texttt{\_\_build\_query\_with\_limit\_of\_data()} function. This function simply limits the amount of data retrieved to \texttt{MAX\_VALUE\_BY\_PERIOD} and searches for records that match the specified machine.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 def __build_query_with_limit_of_data(machine:str)->dict:
-    return {
-        "limit":MAX_VALUE_BY_PERIOD,
-        "query":{"machine":machine}
-    }
-\end{verbatim}
+    return {"limit":MAX_VALUE_BY_PERIOD,"query":{"machine":machine}}
+\end{Verbatim}
 
 
 However, if recent processed data is found, which is expected, the function to be used is \texttt{\_\_build\_query\_with\_range\_of\_data()}. This function considers the most recent processed record and calculates a time range (\texttt{date\_limit\_to\_process\_data}) by adding the aggregation period, defined by \texttt{AGGREGATION\_PERIOD\_IN\_HOURS}, to the date of this most recent record. The generated query searches for records with timestamps within this time range and that match the specified machine, with a maximum limit of
 records defined by \texttt{MAX\_VALUE\_BY\_PERIOD}.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 def __build_query_with_range_of_data(more_recent_processed_data:BoxPlotData,
 machine:str,
 field_to_aggregate:str)->dict:
     date_of_more_recent:datetime = 
-    more_recent_processed_data[field_to_aggregate]
-
+        more_recent_processed_data[field_to_aggregate]
     date_limit_to_process_data = date_of_more_recent + 
-    timedelta(hours = AGGREGATION_PERIOD_IN_HOURS)
-
+        timedelta(hours = AGGREGATION_PERIOD_IN_HOURS)
     return {
         "query":{
             "timestamp": {
@@ -155,13 +148,12 @@ field_to_aggregate:str)->dict:
         },
         "limit":MAX_VALUE_BY_PERIOD
     }
-
-\end{verbatim}
+\end{Verbatim}
 
 \subsubsection{BoxPlot Calculation}
 With the query assembled, the data is retrieved using the \texttt{read\_raw\_data} function.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 async def read_raw_data(self, collection:str, query:dict):
     try:
         temp_client = self.client
@@ -173,7 +165,7 @@ async def read_raw_data(self, collection:str, query:dict):
     except Exception as ex:
         print(ex)
         raise ex
-\end{verbatim}
+\end{Verbatim}
 
 The amount of data retrieved is calculated and, if this amount exceeds a predefined minimum value \texttt{MINIMUM\_DATA\_TO\_AGGREGATE}, the aggregation proceeds. If the minimum amount is not reached, the recursive function is terminated, concluding the processing of the data from that collection.
 
@@ -183,36 +175,22 @@ After the query search, a \texttt{logger} object is initialized to keep records 
 
 In this implementation, the log is used only to display information on the console, but a future implementation may add a more comprehensive form of logs, as detailed in \ref{subsubsec:futurelogs}.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 class Logger(metaclass=Singleton):
     async def store_aggregation_log(self,
         box_plot_data:BoxPlotData,
         collection:str):
-        print("+++++++++++++++++++++++++++++")
-        print("Collection {}".format(collection))
-        print("more_recent_register {}".format(box_plot_data.more_recent_register))
-        print("median {}".format(box_plot_data.median))
-        print("mean {}".format(box_plot_data.mean))
-        print("q1 {}".format(box_plot_data.q1))
-        print("q3 {}".format(box_plot_data.q3))
-        print("lower_quartile {}".format(box_plot_data.lower_quartile))
-        print("upper_quartile {}".format(box_plot_data.upper_quartile))
-        print("mean_with_selection {}".format(box_plot_data.mean_with_selection))
-        print("amount_of_data {}".format(box_plot_data.amount_of_data))
-        print("+++++++++++++++++++++++++++++")
-
+            ...
+            
     async def not_aggregated_data(self, amount:int, collection:str):
-        print("=============================")
-        print("")
-        print("Amount data not aggregated {} - {}".format(str(amount),collection))
-        print("=============================")
-\end{verbatim}
+        ...
+\end{Verbatim}
 
 The raw data read from the database is converted into a DataFrame, from the \texttt{pandas} library \cite{pandasDocs} (a python language library used for data manipulation), after which the relevant aggregated data is calculated using the \texttt{calc\_box\_plot()} function. This function returns the data in a structured form suitable for graphical representations, such as a box plot.
 
 To perform the calculation, various functions from the pandas library are used, such as \texttt{median}, \texttt{quartile}, \texttt{mean}, and \texttt{shape}, which facilitate the understanding and execution of the calculation.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 def calc_box_plot(df:pd.DataFrame, machine:str):
     values = df["value"]
 
@@ -253,7 +231,7 @@ def calc_box_plot(df:pd.DataFrame, machine:str):
     box_plot.machine=machine
 
     return box_plot
-\end{verbatim}
+\end{Verbatim}
 
 In this function, the received dataframe contains a series of values that will be used to calculate the components of the Box Plot. First, the median and mean values of the data are determined. The quartiles Q1 (first quartile) and Q3 (third quartile) are calculated using the \texttt{quantile()} function from the pandas library. From these quartiles, the \gls{IQR} is determined as the difference between Q3 and Q1.
 
@@ -267,7 +245,7 @@ With all the calculated values, a \texttt{BoxPlotData} object is instantiated an
 \subsubsection{Recording of processed data}
 After the entire process described, the data is converted into JSON format and inserted into the collection of aggregated data by the \texttt{insert\_processed\_data} function.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 async def insert_processed_data(self, collection:str, data):
     try:
         temp_client = self.client
@@ -276,7 +254,7 @@ async def insert_processed_data(self, collection:str, data):
     except Exception as ex:
         print(ex)
         raise ex
-\end{verbatim}
+\end{Verbatim}
 
 After a successful insertion, the function \texttt{aggregate\_data()} is recursively called, ensuring that all relevant raw data are aggregated.
 

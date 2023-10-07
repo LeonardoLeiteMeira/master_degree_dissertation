@@ -10,15 +10,15 @@ The \texttt{SensorConnection} class has the main responsibility of creating a so
 
 The \texttt{SensorConnection} class is initiated with the creation of an IPv4 and UDP socket:
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 class SensorConnection:
     def __init__(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-\end{verbatim}
+\end{Verbatim}
 
 To ensure that the system is constantly listening to multicast messages from the sensors, the \texttt{listen\_multicast\_messages} method was defined within this class. It starts with the creation of the connection and initiates the message reading process, also managing possible disconnections and reestablishing the connection when necessary:
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
     async def listen_multicast_messages(self, save_data_func):
         self.__create_connection()
         while True:
@@ -26,7 +26,7 @@ To ensure that the system is constantly listening to multicast messages from the
             self.sock.close()
             time.sleep(1)
             self.__reconnect()
-\end{verbatim}
+\end{Verbatim}
 
 The function \texttt{\_\_create\_connection} is responsible for establishing and configuring the initial connection with the multicast group, and within the infinite loop, the reception of messages is initiated with the \texttt{\_\_start\_read\_messages} method. When this method is finished, the socket connection is closed, and then reconnected to resume reading the messages. The call to the \texttt{time.sleep(1)} function is used to have a small interval between one call and another so as not to make a very large number of calls in case there is some kind of problem.
 
@@ -34,7 +34,7 @@ Below, each of the functions called within this method is detailed.
 
 \subsubsection[Create connection method]{Create connection method}
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 def __create_connection(self):
     self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
@@ -47,48 +47,45 @@ def __create_connection(self):
     self.sock.setsockopt(socket.IPPROTO_IP,
         socket.IP_ADD_MEMBERSHIP,
         mreq)
-\end{verbatim}
+\end{Verbatim}
 
 Initially, the socket is configured to allow multiple connections on a single address. The \texttt{SO\_REUSEADDR} option is set to the value 1, allowing more than one socket to bind to the same address, which is especially useful in multicast connection contexts:
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
     self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-\end{verbatim}
+\end{Verbatim}
 
 After this, the socket is bound to a specific multicast address and port. It is important to note that the first argument in the server address definition is left blank. This approach ensures that the system is connecting to all available network interfaces, providing broad connection coverage:
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
     server_address = ('', SENSOR_MULTICAST_PORT)
     self.sock.bind(server_address)
-\end{verbatim}
+\end{Verbatim}
 
 Finally, to effectively join the multicast group, some steps are performed. The multicast IP address is first converted to binary format with the call to \texttt{socket.inet\_aton}. Then, this address and the local address (represented by \texttt{socket.INADDR\_ANY}) are packed into a data structure by \texttt{struct.pack}. This structure is used to specify to the socket that it should join a multicast group in \texttt{self.sock.setsockopt}. The \texttt{IP\_ADD\_MEMBERSHIP} option is set and the previously created structure is passed as an argument, concluding the connection to the multicast group:
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
     multicast_group = SENSOR_MULTICAST
     group = socket.inet_aton(multicast_group)
     mreq = struct.pack('4sL', group, socket.INADDR_ANY)
     self.sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
-\end{verbatim}
+\end{Verbatim}
 
 These operations ensure that the socket is configured and connected to the multicast group, ready to receive messages from multiple sources simultaneously.
 
 
 \subsubsection[Reconnect Method]{Reconnect Method}
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 def __reconnect(self):
-    try:
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.__create_connection()
-    except Exception as e:
-        print(f"Error to reconnect: {e}")
-\end{verbatim}
+    self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    self.__create_connection()
+\end{Verbatim}
 
 In situations where the connection to the sensors is interrupted, the \texttt{\_\_reconnect} method is called to try to reestablish the connection, creating a new instance of the socket and calling the \texttt{\_\_create\_connection} function again, detailed earlier.
 
 \subsubsection[Method start read messages]{Method start read messages}
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 async def __start_read_messages(self, save_data_func):
     while True:
         try:
@@ -99,7 +96,7 @@ async def __start_read_messages(self, save_data_func):
         except Exception as e:
             print(f"Error: {e}")
             break
-\end{verbatim}
+\end{Verbatim}
 
 After the settings are made, the messages are continuously read and processed by the \texttt{\_\_start\_read\_messages} function. During this process, each message is processed by the \texttt{\_\_parse\_multicast\_message} method, and if it is in the correct format, it is passed to a function that will save and make it available for the \gls{API} to stream to connected users.
 
@@ -107,7 +104,7 @@ If there is any problem in the execution of this method, it is terminated and re
 
 \subsubsection[Parse Multicast Messages Method]{Parse Multicast Messages Method}
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 def __parse_multicast_message(self, data):
         (machine_type_high, machine_number_low) = 
             self.__parse_bytes(data[:2])
@@ -138,20 +135,19 @@ def __parse_multicast_message(self, data):
                 'Meaning': str(meaning_low)+". "+DATA_MEANING[meaning_low]
             }
         }
-
         return message_dict
-\end{verbatim}
+\end{Verbatim}
 
 To interpret and extract information from the message received from the multicast, it is crucial to properly decode the message according to the protocol defined earlier. The implementation of this decoding is done by the \texttt{\_\_parse\_multicast\_message} method. The helper function \texttt{\_\_parse\_bytes} is used for this task, given a sequence of bytes, the function interprets the bytes using the big-endian order (where the most significant bytes come first).
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 def __parse_bytes(self, bytes):
     data = int.from_bytes(bytes, byteorder='big')
     high_data = (data >> 8) & 0xFF
     low_data = data & 0xFF
 
     return (high_data,low_data)
-\end{verbatim}
+\end{Verbatim}
 
 Here, \texttt{data} contains the integer value of the provided bytes. The high-order byte is extracted by shifting the value 8 bits to the right and applying an "AND" operation (\&), and the low-order byte is simply obtained by applying the "AND" operation with \texttt{0xFF}.
 
@@ -169,20 +165,14 @@ With the ability to interpret the bytes, the main function \texttt{\_\_parse\_mu
 
 The extracted information is then organized into a dictionary for clear representation and easy access to the components individually:
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 message_dict = {
-    'Machine': {
-        ...
-    },
+    'Machine': {...},
     'Type': ...,
-    'Sensor': {
-        ...
-    },
-    'MeaningOfData': {
-        ...
-    }
+    'Sensor': {...},
+    'MeaningOfData': {...}
 }
-\end{verbatim}
+\end{Verbatim}
 
 This structure allows a clear and modular representation of the decoded message, making it easy to integrate and use in other parts of the system. Therefore, the return of the \texttt{\_\_parse\_multicast\_message} method is used as the result of the interpretation of the multicast message, and sent to the function received as a parameter, \texttt{save\_data\_func}.
 
@@ -191,7 +181,7 @@ In the data reception process, after opening the connection and the data, it is 
 
 The \texttt{IotSensorConnection} class, which implements the \texttt{IotSensorConnectionInterface} interface, plays a key role in this module. Upon its initialization, a connection with the repository is established through the \texttt{self.\_\_repository} variable. In addition, it is responsible for the connection with the sensor, which is established through the \texttt{self.\_\_sensor\_connection}, explained earlier in section ~\ref{subsec:Connection and data reception}.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 class IotSensorConnection(IotSensorConnectionInterface):
     def __init__(self, respository:SensorsRepository):
         self.__repository = respository
@@ -204,14 +194,14 @@ class IotSensorConnection(IotSensorConnectionInterface):
     async def __start_connection(self):
         await self.__sensor_connection.
             listen_multicast_messages(self.__handle_iot_data)
-\end{verbatim}
+\end{Verbatim}
 
 Upon initiating the connection, using the \texttt{start\_connection} method, a new thread is created through the \texttt{ThreadManager} class, explained in \ref{subsubsec:ThreadManager}. This thread invokes the \texttt{listen\_multicast\_messages} method from the \texttt{SensorConnection} class that was detailed in section ~\ref{subsec:Connection and data receipt}. It is necessary to create a new thread because this module is together with the \gls{API}, and it is necessary for both processes to function at the same time, a new thread was necessary for the parallel operation of both.
 
 \subsubsection{Data Format Verification}
 To handle the received data, the \texttt{\_\_handle\_iot\_data} method is passed as an argument to \texttt{listen\_multicast\_messages} (as the save\_func argument that exists in the \texttt{SensorConnection} class).
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 async def __handle_iot_data(self, sensor_data:dict):
     sensor_model = self.__parse_sensor_data_to_sensor_model(sensor_data)
     await self.__repository.update_current_sensor_value(
@@ -236,27 +226,25 @@ def __parse_sensor_data_to_sensor_model(self, sensor_data:dict):
         type=data_type,
         value=value
     )
-\end{verbatim}
+\end{Verbatim}
 
 This method is responsible for receiving the sensor data and converting it into a model class, named \texttt{ConnectionModelToParse}, which uses \texttt{Pydantic} to validate the information. The explanation of \texttt{Pydantic} is given in section ~\ref{subsubsec:dataModel}.
 
-\begin{verbatim}
-from datetime import datetime
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 class ConnectionModelToParse:
     def __init__(self,value:float,machine:str,
         date:datetime,type:Datatype,
         sensor_number:int):
-
-        self.value = value
-        self.machine = machine
-        self.date = date
-        self.type = type
-        self.sensor_number = sensor_number
-\end{verbatim}
+            self.value = value
+            self.machine = machine
+            self.date = date
+            self.type = type
+            self.sensor_number = sensor_number
+\end{Verbatim}
 
 After this transformation, the data is forwarded to the repository. The \texttt{update\_current\_sensor\_value} method from the repository is called to check if the received data triggers any type of alert, save it in the database, update the data in memory, and perform notification checks.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 class SensorsRepository:
     def __init__(self):
         self.database = MongoDBIOT()
@@ -289,7 +277,7 @@ class SensorsRepository:
         
         await self.iot_notification_check.check_iot_notification(
             iot_data)
-\end{verbatim}
+\end{Verbatim}
 
 \subsubsection{Alert Verification}
 
@@ -297,43 +285,39 @@ Within the \texttt{update\_current\_sensor\_value} method, the type of alert gen
 
 The alert status, defined by the \texttt{get\_alert\_status} function, returns as \texttt{OK} if the sensor value is less than 90\% of the value defined as a parameter, returns as \texttt{WARNING} if this value is between 90\% and 100\%, and returns as \texttt{PROBLEM} if the value returned by the sensor is greater than 100\% of the value defined as a parameter.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 def get_alert_status(self,sensor_value:int,
     alert_parameter:int)->AlertTypes:
-
-    parameter = ((sensor_value/alert_parameter)*100)
-    if parameter < 90:
-        return AlertTypes.OK
-    if parameter >= 90 and parameter < 100:
-        return AlertTypes.WARNING
-    if parameter >= 100:
-        return AlertTypes.PROBLEM
+        parameter = ((sensor_value/alert_parameter)*100)
+        if parameter < 90:
+            return AlertTypes.OK
+        if parameter >= 90 and parameter < 100:
+            return AlertTypes.WARNING
+        if parameter >= 100:
+            return AlertTypes.PROBLEM
 
 async def __get_alert_type(self, sensor_value:float,
     sensor_type:Datatype)->AlertTypes:
-    alert_parameter = await MetadataRepository()
-        .get_sensor_alert_value(sensor_type)
-    alert_type = self.get_alert_status(sensor_value,alert_parameter)
-    return alert_type
-\end{verbatim}
+        alert_parameter = await MetadataRepository()
+            .get_sensor_alert_value(sensor_type)
+        alert_type = self.get_alert_status(sensor_value,
+            alert_parameter)
+        return alert_type
+\end{Verbatim}
 
 \subsubsection{Database Registration}
 
 With the verification of the alerts, all information has been generated, so it can now be registered in the database. The \texttt{insert\_value\_into\_database} method is used for this registration.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 async def insert_value_into_database(self, value:BaseIotData, type:Datatype):
-    try:
-        collection = sensor_name_to_raw_data_collection(type)
-        return await self.database.insert_one(IOT_DATABASE,collection,value)
-    except Exception as ex:
-        print(ex)
-        raise ex
-\end{verbatim}
+    collection = sensor_name_to_raw_data_collection(type)
+    return await self.database.insert_one(IOT_DATABASE,collection,value)
+\end{Verbatim}
 
 This method uses the base class of the database with already defined operations to perform the registration. Within the \texttt{update\_current\_sensor\_value} method of the repository, the return is used to keep the registered ID in memory, important for creating the \texttt{IotData} object, which is sent to the connected users, via stream, in the next step.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 current_value = {"machine":machine,
     "value":sensor_value,
     "timestamp": date,
@@ -341,16 +325,9 @@ current_value = {"machine":machine,
     "sensor_number":sensor_number}
 result = await self.insert_value_into_database(current_value, sensor_type)
 new_id = result.inserted_id
-iot_data = IotData(
-    alert_type=current_value["alert_type"],
-    machine=current_value["machine"],
-    timestamp=current_value["timestamp"],
-    value=current_value["value"],
-    id=PyObjectId(new_id),
-    datatype=sensor_type,
-    sensor_number=sensor_number
+iot_data = IotData(...)
 )
-\end{verbatim}
+\end{Verbatim}
 
 An important piece of information to highlight is that the name of the collection used by the \texttt{insert\_value\_into\_database} method is defined according to the established data type, using the helper function \texttt{sensor\_name\_to\_raw\_data\_collection}, explained in \ref{subsubsec:helpers}.
 
@@ -360,19 +337,17 @@ With the alert type defined and the data registered in the database, the \texttt
 
 The \texttt{SensorValue} class is responsible for managing and updating the values in memory. It is noted that it uses the \texttt{Singleton} design pattern, ensuring the existence of only one instance of this class throughout the application's lifecycle, guaranteeing that there is only one instance storing the sensor information.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 class SensorValue(metaclass=Singleton):
     def __init__(self) -> None:
         self.machine_list:list[MachineData] = []
 
     def update_sensor_value_by_type(self, new_value: IotData, data_type: Datatype):
         is_new_machine = True
-
         for machine in self.machine_list:
             if machine.name == new_value.machine:
                 is_new_machine = False
                 is_new_sensor = True
-
                 for index, sensor in enumerate(machine.sensor_data):
                     if sensor.datatype == data_type:
                         machine.sensor_data[index] = new_value
@@ -382,11 +357,10 @@ class SensorValue(metaclass=Singleton):
                 if is_new_sensor:
                     machine.sensor_data.append(new_value)
                     break
-
         if is_new_machine:
             new_machine = MachineData(name=new_value.machine,sensor_data=[new_value])
             self.machine_list.append(new_machine)
-\end{verbatim}
+\end{Verbatim}
 
 At the time of its initialization, the \texttt{SensorValue} class initializes an empty list, \texttt{machine\_list}, which will be responsible for storing the sensor values organized by machine.
 
@@ -394,11 +368,11 @@ The update occurs through the \texttt{update\_sensor\_value\_by\_type} method. T
 
 On the other hand, if the machine is not found in the \texttt{machine\_list}, a new instance of \texttt{MachineData} is created and added to the list, containing the machine's information and the received sensor data.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 class MachineData(BaseModel):
     name:str = Field(...)
     sensor_data:list[IotData] = Field([])
-\end{verbatim}
+\end{Verbatim}
 
 In this way, the repository sends the information to this method, and with the appropriate verification, the most updated data is kept in memory, and available to be used by the \gls{API}, enabling real-time access to sensor data.
 
@@ -415,7 +389,7 @@ Through the \texttt{check\_iot\_notification} method, the class verifies the typ
     \item Removes a sensor from the machine from the alert state. If the machine has only a single sensor in an alert state, the machine is removed from the alert state.
 \end{enumerate}
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 async def check_iot_notification(self, iot_data:IotData):
     is_alert_value = self.__is_alert_type_a_new_alert(
         iot_data.alert_type)
@@ -424,31 +398,27 @@ async def check_iot_notification(self, iot_data:IotData):
     machine_sensor_in_alert = self.__is_machine_sensor_in_alert_state(
         machine_in_alert,
         iot_data.datatype)
-
     is_machine_in_alert = machine_in_alert!=None
-
     if is_alert_value and is_machine_in_alert and (not machine_sensor_in_alert):
         await self.__put_new_machine_sensor_in_alert_state(
             machine_in_alert,
             iot_data.datatype)
-
     if is_alert_value and (not is_machine_in_alert):
         await self.__put_new_machine_in_alert_state(
             iot_data.machine,
             iot_data.datatype,
             iot_data.timestamp,
             iot_data.alert_type)
-
     if (not is_alert_value) and is_machine_in_alert and machine_sensor_in_alert:
         await self.__remove_machine_sensor_from_alert_state(
             machine_in_alert,
             iot_data.datatype,
             iot_data.timestamp)
-\end{verbatim}
+\end{Verbatim}
 
 The method \texttt{\_\_put\_new\_machine\_sensor\_in\_alert\_state} is a private asynchronous method that is responsible for adding a new sensor to the alert state for a specific machine. It receives two parameters: \texttt{machine\_in\_alert}, which is an instance of the \texttt{MachinesSensorAlert} class representing the machine in question, and \texttt{sensor\_type}, which is an instance of the \texttt{Datatype} type, shown in \ref{subsubsec:constantes}, representing the type of sensor that should be put on alert.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 class MachinesSensorAlert(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     machine:str = Field(...)
@@ -457,10 +427,9 @@ class MachinesSensorAlert(BaseModel):
     start_time:datetime = Field(...)
     sensors_historical:list[str] = Field([])
     is_in_alert:bool = Field(True)
-    
     end_time:Optional[datetime|None] = Field(None)
     read_by:Optional[list[str]] = Field([])
-\end{verbatim}
+\end{Verbatim}
 
 It is important to highlight that within this instance that is kept in memory, the \texttt{read\_by} attribute is not filled. This happens because this attribute is used to control the users who marked the notification as read, and thus identify notifications read by the user. Therefore, this attribute is filled only in the database, by the notifications module of the \gls{API}, shown in \ref{subsec:modules}.
 
@@ -468,16 +437,16 @@ The first step performed by this method is to identify the position (or index) o
 
 This method ensures that whenever a new sensor enters an alert state for a machine that already had a sensor in alert, the relevant information is properly updated and kept in memory, allowing real-time monitoring of the alert conditions of all monitored machines.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 async def __put_new_machine_sensor_in_alert_state(
-        self,
-        machine_in_alert: MachinesSensorAlert,
-        sensor_type:Datatype):
-    index = self.machines_alert.index(machine_in_alert)
-    machine_in_alert.sensors.append(sensor_type.value)
-    machine_in_alert.sensors_historical.append(sensor_type.value)
-    self.machines_alert[index] = machine_in_alert
-\end{verbatim}
+    self,
+    machine_in_alert: MachinesSensorAlert,
+    sensor_type:Datatype):
+        index = self.machines_alert.index(machine_in_alert)
+        machine_in_alert.sensors.append(sensor_type.value)
+        machine_in_alert.sensors_historical.append(sensor_type.value)
+        self.machines_alert[index] = machine_in_alert
+\end{Verbatim}
 
 The \texttt{\_\_put\_new\_machine\_in\_alert\_state} method is a private asynchronous method whose main function is to create and register a new alert state for a specific machine. This method is invoked when a machine enters an alert state for the first time, which means it is not yet present in the \texttt{machines\_alert} list of the class.
 
@@ -487,46 +456,41 @@ Initially, the method creates a new instance of the \texttt{MachinesSensorAlert}
 
 Finally, the machine's new alert state, represented by the newly created \texttt{MachinesSensorAlert} instance, is added to the \texttt{machines\_alert} list.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 async def __put_new_machine_in_alert_state(self,
     machine_name:str,
     sensor_type:Datatype,
     start_time:datetime,
     alert_type:str):
-
-    new_machine_alert = MachinesSensorAlert(
-        machine=machine_name,
-        sensors=[sensor_type.value],
-        sensors_historical=[sensor_type.value],
-        is_in_alert=True,
-        start_time=start_time,
-        alert_type=alert_type)
-
-    self.machines_alert.append(new_machine_alert)
-\end{verbatim}
+        new_machine_alert = MachinesSensorAlert(
+            machine=machine_name,
+            sensors=[sensor_type.value],
+            sensors_historical=[sensor_type.value],
+            is_in_alert=True,
+            start_time=start_time,
+            alert_type=alert_type)
+        self.machines_alert.append(new_machine_alert)
+\end{Verbatim}
 
 The method \texttt{\_\_remove\_machine\_sensor\_from\_alert\_state} is a private asynchronous function designed to remove a specific sensor from a machine's alert state. It takes three parameters: \texttt{machine\_in\_alert}, which is an instance of the \texttt{MachinesSensorAlert} class representing the machine in question; \texttt{sensor\_to\_remove}, which is of the \texttt{Datatype} type \ref{subsubsec:constantes}, and identifies the sensor to be removed; and \texttt{end\_time}, an instance of \texttt{datetime} that indicates the moment when the sensor was removed from the alert state. Within this method, initially, the positions of the sensor and the machine are identified in the appropriate lists. The sensor is then removed from the machine's list of sensors in alert state. If, after removal, the machine no longer has sensors in alert state, it will be removed from the alert state, by calling the method \texttt{\_\_remove\_machine\_from\_alert} otherwise, only the sensor's state is updated, by calling another method, \texttt{\_\_remove\_sensor\_from\_alert\_state}.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 async def __remove_machine_sensor_from_alert_state(self,
     machine_in_alert: MachinesSensorAlert,
     sensor_to_remove:Datatype,
     end_time:datetime):
-    index_of_machine = self.machines_alert.index(machine_in_alert)
-    index_of_sensor = machine_in_alert.sensors.index(sensor_to_remove.value)
-    
-    machine_in_alert.sensors.pop(index_of_sensor)
-    
-    if len(machine_in_alert.sensors) == 0:
-    await self.__remove_machine_from_alert(index_of_machine, end_time)
-    else:
-    await self.__remove_sensor_from_alert_state(index_of_machine,machine_in_alert)
-    
-\end{verbatim}
+        index_of_machine = self.machines_alert.index(machine_in_alert)
+        index_of_sensor = machine_in_alert.sensors.index(sensor_to_remove.value)
+        machine_in_alert.sensors.pop(index_of_sensor)
+        if len(machine_in_alert.sensors) == 0:
+        await self.__remove_machine_from_alert(index_of_machine, end_time)
+        else:
+        await self.__remove_sensor_from_alert_state(index_of_machine,machine_in_alert)
+\end{Verbatim}
 
 The \texttt{\_\_remove\_machine\_from\_alert} method is another private asynchronous function, which is responsible for completely removing a machine from the alert state. It accepts two parameters: \texttt{index\_of\_machine}, the index of the machine in question in the list, and \texttt{end\_time}, the time when the machine was removed from the alert. Within this method, the machine is first marked as not being on alert and then it is removed from the \texttt{machines\_alert} list. The machine is then stored in the database with a record of its final state and the end time. Finally, a notification is sent through a websocket to inform the user interface about the change in the machine's state. The details of how the notification is sent are explained in \ref{subsubsec:WebSocketImplement}.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 async def __remove_machine_from_alert(self,
     index_of_machine:int,
     end_time:datetime):
@@ -539,13 +503,13 @@ async def __remove_machine_from_alert(self,
     IOT_MACHINE_ALERTS,
     machineNotification.to_bson())
     await self.websocket.send_notification(machineNotification)    
-\end{verbatim}
+\end{Verbatim}
 
 The method \texttt{\_\_remove\_sensor\_from\_alert\_state} is a simple asynchronous function that updates the state of a machine's sensor in the alert list. It receives two parameters: \texttt{index\_of\_machine}, which is the index of the machine in the \texttt{machines\_alert} list, and \texttt{machine\_alert\_updated}, which is the updated instance of the machine in alert. Essentially, this method replaces the existing machine in the list with the updated object provided as a parameter by the \texttt{\_\_remove\_machine\_sensor\_from\_alert\_state} method.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 async def __remove_sensor_from_alert_state(self,
     index_of_machine:int,
     machine_alert_updated:MachinesSensorAlert):
     self.machines_alert[index_of_machine] = machine_alert_updated
-\end{verbatim}
+\end{Verbatim}

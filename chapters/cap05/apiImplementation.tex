@@ -20,20 +20,7 @@ Additionally, the WebSocket is mounted at the root of the application through th
 
 The execution of the file concludes with the initialization of the \texttt{Uvicorn} server \cite{uvicornOfficialDocs}, setting the host and port for listening. \texttt{Uvicorn} is an \gls{ASGI} server that serves as the interface between the application code and the web server. It is responsible for hosting the \texttt{FastAPI} application and listening for incoming connections on the specified host and port. The choice of this server was based on the recommendation from the FastAPI documentation \cite{fastapiTutorial}.
 
-\begin{verbatim}
-from fastapi import FastAPI
-import uvicorn
-from fastapi.middleware.cors import CORSMiddleware
-from src.infrastructure.database.metadata.metadata_repository import (
-MetadataRepository)
-from src.modules.api_analytics import api_analytics_router
-from src.modules.api_data_layer import api_data_layer_router
-from src.modules.notifications import notification_module_router
-from src.modules.user import user_module_router, auth_router
-from src.infrastructure.websocket import socketio_app
-from src.infrastructure.websocket import socket_dispacher
-from dotenv import load_dotenv
-
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 load_dotenv()
 MetadataRepository()
 socket_dispacher
@@ -61,7 +48,7 @@ app.mount("/",socketio_app)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
-\end{verbatim}
+\end{Verbatim}
 
 \subsection{Infrastructure}\label{subsec:infra}
 
@@ -74,7 +61,7 @@ The entry point for authentication is the \texttt{o\_auth2\_password\_bearer}, a
 
 Within this middleware, the \texttt{decode\_jwt\_token} function is invoked to decode and validate the provided \gls{JWT} token.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
 o_auth2_password_bearer = OAuth2PasswordBearer(tokenUrl="/user/login")
 
 async def auth_middleware(token:str = Depends(o_auth2_password_bearer))-> TokenPayload:
@@ -87,11 +74,11 @@ async def auth_middleware(token:str = Depends(o_auth2_password_bearer))-> TokenP
     except JWSError as jwt_err:
         print(jwt_err)
         raise HTTPException(status_code=401, detail=Unauthorized().message)
-\end{verbatim}
+\end{Verbatim}
 
 The function \texttt{decode\_jwt\_token} receives a token as an argument and attempts to decode it using the specified secret key and algorithm. If the token is successfully decoded and is of the type "\texttt{access\_token}". Otherwise, different types of exceptions can be raised, for example, if the token has expired or if there is some error in the \gls{JWT} operations.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
 def decode_jwt_token(token:str)->Result[TokenPayload|None]:
     try:
         token_dict = jwt.decode(token,key=SECRET_KEY, algorithms=ALGORITHM)
@@ -109,17 +96,17 @@ def decode_jwt_token(token:str)->Result[TokenPayload|None]:
     except Exception as ex:
         print(ex)
         raise ex
-\end{verbatim}
+\end{Verbatim}
 
 The model class for the token payload is as follows:
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
 class TokenPayload(BaseModel):
     name:str
     exp:int|None = None
     sub:str|None = None
     user_id:str
     type:str = "access_token"
-\end{verbatim}
+\end{Verbatim}
 
 The \texttt{AuthService} class is where the main authentication logic is implemented. This class follows the \textit{Singleton} pattern to ensure that only one instance is created and used throughout the program execution.
 
@@ -127,7 +114,7 @@ Within \texttt{AuthService}, the \texttt{verify\_password} method is used to che
 
 The \texttt{create\_user\_tokens} method generates a pair of tokens (access and refresh) for a user, where the access token is valid for 4 hours and the refresh token for 168 hours. The refresh token is especially important to allow users to obtain new access tokens without having to enter their credentials again. If the access token expires, the refresh token can be used to obtain a new pair of tokens, using the \texttt{get\_new\_user\_tokens} method. It is important to note that the frontend does not yet make use of the refresh token, leaving this functionality for a future implementation.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
 class AuthService(metaclass=Singleton):
     def __init__(self):
         self.__database__ = MongoDB()
@@ -148,38 +135,16 @@ class AuthService(metaclass=Singleton):
         return self.__pwd_context__.hash(password)
     
     async def create_user_tokens(self, user:User)->tuple[str,str]:
-        payload = TokenPayload(name=user.name,user_id=str(user.id))
-        access_token = self.__create_bearer_token(
-            user_id=user.id,
-            data=payload.__dict__,
-            expire_hours=self.__ACCESS_TOKEN_EXPIRE_HOURS__)
-        refresh_token = await self.__create_refresh_token(str(user.id))
-        return (access_token, refresh_token)
+        ...
         
     async def get_new_user_tokens(self,
-        refresh_token:str) -> Result[tuple[str, str]]:
-        result = self.__decode_jwt_refresh_token(refresh_token)
-        if not result.status:
-            return Result(status=False, exception=result.exception, data=None)
-        
-        token_payload = result.data
-        is_valid = await self.__check_if_refresh_token_is_valid(token_payload)
-        if not is_valid:
-            return Result(status=False, data=None, exception=Unauthorized())
-        
-        user = await self.__user_repository.read_user_by_id(token_payload.user)
-        payload = TokenPayload(name=user.name,user_id=str(user.id))
-        new_access_token = self.__create_bearer_token(
-            user_id=token_payload.user,
-            data=payload.__dict__,
-            expire_hours=self.__ACCESS_TOKEN_EXPIRE_HOURS__)
-
+        ...
         return Result(status=True, data=(new_access_token, refresh_token), exception=None)
-\end{verbatim}
+\end{Verbatim}
 
 The methods \texttt{\_\_create\_bearer\_token} and \texttt{\_\_decode\_token} are auxiliary functions used to create, decode, and verify tokens, respectively.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
 def __create_bearer_token(self,user_id:int, data:dict, expire_hours):
     data_to_enconde = data.copy()
     expire = datetime.now()+timedelta(hours=expire_hours)
@@ -196,7 +161,7 @@ def __decode_token(self,token:str)->dict:
         key=self.__SECRET_KEY__,
         algorithms=self.__ALGORITHM__)
     
-\end{verbatim}
+\end{Verbatim}
 
 \subsubsection{WebSocket}\label{subsubsec:WebSocketImplement}
 The implementation of the connection via WebSocket was done using the \texttt{socket.io} library \cite{socketIoDocs}, which has various ready-to-use features that facilitate the management of Web Socket connections, such as the creation of rooms for firing notifications.
@@ -207,7 +172,7 @@ The current implementation contemplates only one room, specifically intended for
 
 The asynchronous mode \gls{ASGI} selected for the server creation, and the allowed origins for \textit{CORS} are set as empty.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
 socket_io_server = AsyncServer(async_mode="asgi",
     cors_allowed_origins=[])
 
@@ -221,7 +186,7 @@ async def connect(sid, environ, auth):
     token = auth["Authorization"]
     await auth_middleware(token)
     socket_io_server.enter_room(sid, NOTIFICATION_ROOM)
-\end{verbatim}
+\end{Verbatim}
 
 The \texttt{socket\_io\_server} object is responsible for managing the \textit{WebSocket} communication, while the \texttt{socketio\_app} creates an \gls{ASGI} application that interacts with the \textit{WebSocket} server, and is added to the FastAPI server. Additionally, an instance of the \texttt{WebSocketDispatcher} class was created to facilitate the sending of notifications through the \textit{WebSocket}. This configuration is done at system initialization, explained in \ref{subsec:main}
 
@@ -229,19 +194,18 @@ In the connection event, named \texttt{connect}, a client is automatically added
 
 Finally, the \texttt{WebSocketDispatcher} class has a \texttt{send\_notification} method, which is used to send notifications. When calling this method, the notification is converted to the JSON format and sent to all clients in the \texttt{NOTIFICATION\_ROOM} through the \texttt{emit} method.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
 class WebSocketDispatcher:
     def __init__(self,socket_io_server: AsyncServer):
         self.__socket_io_server = socket_io_server
     
     async def send_notification(self,
-        machine_sensor_notification:MachinesSensorAlert):
-        machine_sensors_dict = machine_sensor_notification.to_json()
+        ...
         await self.__socket_io_server.emit(
             NOTIFICATION_ROOM,
             machine_sensors_dict,
             room=NOTIFICATION_ROOM)
-\end{verbatim}
+\end{Verbatim}
 
 The \texttt{WebSocketDispatcher} class is used by the data receiving module, detailed in ~\ref{subsec:checkDataReceived}, to trigger notifications when an improper operation of the machines is identified.
 
@@ -259,10 +223,7 @@ The \texttt{start\_async\_thread} method was introduced to facilitate the creati
     \item Finally, a new thread is created with \texttt{start\_function} as the target and added to the \texttt{threads} list. The thread is then started, executing the asynchronous task.
 \end{enumerate}
 
-\begin{verbatim}
-import asyncio
-from threading import Thread
-
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
 class ThreadManager(metaclass=Singleton):
     def __init__(self):
         self.threads = []
@@ -281,7 +242,7 @@ class ThreadManager(metaclass=Singleton):
         new_thread = Thread(target = start_function)
         self.threads.append(new_thread)
         new_thread.start()
-\end{verbatim}
+\end{Verbatim}
 
 This implementation allows the execution of multiple asynchronous tasks in parallel, each in its own thread, all managed by the same asynchronous event loop.
 
@@ -290,12 +251,11 @@ In the process of implementing the system, to establish an efficient connection 
 
 At the heart of the connection strategy is a base class, named \texttt{BaseDB}, which is responsible not only for establishing the connection with MongoDB, but also for defining a series of basic operations for the manipulation of stored data. The structure of this class is presented below:
 
-\begin{verbatim}
-import motor
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
 class BaseDB:
     def __init__(self):
         self.client = motor.motor_tornado.MotorClient(url, port)
-\end{verbatim}
+\end{Verbatim}
 
 Some of the fundamental operations implemented by \texttt{BaseDB} include:
 
@@ -327,11 +287,11 @@ Some of the fundamental operations implemented by \texttt{BaseDB} include:
 
 With the access base established, other classes were developed, inherited from \texttt{BaseDB}, to meet specific system contexts. These classes follow the singleton pattern, which ensures that only one instance of the connection is created for a specific context, optimizing resource management. An example is the \texttt{MongoDBIOT} class intended for the data reception module:
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
 class MongoDBIOT(BaseDB, metaclass=Singleton):
     def __init__(self):
         super().__init__()
-\end{verbatim}
+\end{Verbatim}
 
 Similar classes, following the same format, were created for other contexts, such as database access through the \gls{API}, ensuring an organized and efficient structure for connection and data manipulation.
 
@@ -346,16 +306,16 @@ The data models section in the \texttt{common} folder houses various classes tha
 
 To illustrate, we have the NotificationSensorResponse class, which is responsible for defining the data model that is returned when the \gls{API} receives a request for a specific user's notifications. The use of \texttt{BaseModel} in the inheritance system, from \texttt{Pydantic}, necessary to define the return types within FastAPI, is highlighted. In addition, the \texttt{Field} function, also from \texttt{Pydantic}, is used to indicate with three points that it is a mandatory attribute to be informed in the class construction.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
 class NotificationSensorResponse(BaseModel):
     data:list[dict] = Field(...)
     total_count:int = Field(...)
-\end{verbatim}
+\end{Verbatim}
 
 Other important data models are the exception classes and a class called \texttt{Result}, responsible for data traffic between the different layers of the application, shown in the implementation of the \gls{API} module in \ref{subsec:modules}.
 Example of a class that defines a system exception.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
 class CustomBaseException(Exception):
     def __init__(self, message:str, exception, *args: object) -> None:
         self.message = message,
@@ -367,39 +327,36 @@ class GenericException(CustomBaseException):
         message:str =   "An error has occurred",
         exception = None) -> None:
         super().__init__(message, exception)
-\end{verbatim}
+\end{Verbatim}
 
 
 Class \texttt{Result} used for communication between layers of the system modules. The \texttt{TypeVar} is used to indicate a generic type for the \texttt{data} attribute of the class.
 
-\begin{verbatim}
-from typing import TypeVar, Generic
-from src.common.models.exceptions.unauthorized import CustomBaseException
-
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
 T = TypeVar('T')
 class Result(Generic[T]):
     def __init__(self, status:bool, data:T|None, exception:CustomBaseException|None):
         self.status = status
         self.data = data
         self.exception = exception
-\end{verbatim}
+\end{Verbatim}
 
 The use of the \texttt{Singleton} class is also highlighted, used when there is a need to ensure that only one instance of a certain class will be used.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
 class Singleton(type):
     _instances = {}
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
-\end{verbatim}
+\end{Verbatim}
 
 Finally, the \texttt{PyObjectId} class is highlighted, used to define a type for the ID attribute of classes that represent database models. The methods defined for this class are used internally by \texttt{FastAPI} and \texttt{Pydantic}.
 
 This class is necessary so that the ID can be correctly converted to text, and returned in the requests. Furthermore, the use of this class enables the manipulation of the ID when necessary, leaving the management of unique identifiers to the application and not to the database.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
 class PyObjectId(ObjectId):
     @classmethod
     def __get_validators__(cls):
@@ -414,7 +371,7 @@ class PyObjectId(ObjectId):
     @classmethod
     def __modify_schema__(cls, field_schema):
         field_schema.update(type="string")
-\end{verbatim}
+\end{Verbatim}
 
 \subsubsection{Helper Functions}\label{subsubsec:helpers}
 
@@ -422,12 +379,12 @@ The section of \textit{helper} functions in the \texttt{common} folder was built
 
 An example of these functions is the conversion of \texttt{Datatype}, shown in the section on constants \ref{subsubsec:constantes}, to MongoDB collections. The following code illustrates one of these processes:
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
 def sensor_name_to_processed_collection(
     sensor_name:Datatype)->str:
     sensor = (sensor_name.name).capitalize()
     return IOT_AGGREGATION_COLLECTION.replace("NAME", sensor)
-\end{verbatim}
+\end{Verbatim}
 
 These functions are used to determine the correct names of the collections according to the type of data to be processed and manipulated by the modules. Functions such as \texttt{sensor\_name\_to\_processed\_collection} and \texttt{sensor\_name\_to\_raw\_data\_collection} convert between sensor names and collection names.
 
@@ -438,8 +395,7 @@ Finally, the constants section stores a series of fixed values that are used in 
 
 Among the constants, \texttt{DataType} stands out, which is an enum that standardizes the types of data that can be received from the sensors. This standardization is employed in various modules to ensure that data is received, processed, stored, and returned in a consistent and correct manner.
 
-\begin{verbatim}
-from enum import Enum
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
 
 class Datatype(Enum):
     PRESSURE = "PRESSURE"
@@ -452,7 +408,7 @@ class Datatype(Enum):
     HUMIDITY = "HUMIDITY"
     FORCE = "FORCE"
     PRODUCTION_COUNTER = "PRODUCTION_COUNTER"
-\end{verbatim}
+\end{Verbatim}
 
 \subsection{Modules}\label{subsec:modules}
 The \gls{API} was structured into modules, each one responsible for managing a certain context. The developed modules are listed below.
@@ -471,7 +427,7 @@ The controller has the function of receiving \gls{HTTP} requests, sending the re
 
 To exemplify the operation of the controller, a specific example will be presented. The following code snippet represents the router of the \gls{API} for the \gls{IoT} sensor data:
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
 iot_data_router = APIRouter(tags=["IOT Data"], dependencies=[Depends(auth_middleware)])
 
 service = ServiceIOT()
@@ -489,7 +445,7 @@ async def real_time_iot():
     return StreamingResponse(
         get_real_time_data(),
         media_type="application/octet-stream")
-\end{verbatim}
+\end{Verbatim}
 
 In this example, the controller uses the \texttt{APIRouter} to create routes associated with IoT data. An authentication middleware is applied as a dependency, as shown in the authentication detail in \ref{subsubsec:auth}, ensuring that only authenticated users can access these routes. In this case, by applying the middleware in the creation of the \texttt{iot\_data\_router}, it is guaranteed that all \texttt{endpoints} created from it require authentication.
 
@@ -501,7 +457,7 @@ The other routes, such as \texttt{/machines\_in\_sensor} and \texttt{/graph\_inf
 
 In these two endpoints, it is important to highlight the specification of the \texttt{response\_model}, so that automatic validations by the framework occur before the data is returned, ensuring consistency in the returned data.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
 @iot_data_router.get("/machines_in_sensor", response_model=list[MachinesSensor])
 async def get_machines_in_sensor():
     result = await service.get_all_machines_processed_info()
@@ -512,7 +468,7 @@ async def get_machines_in_sensor():
 
 @iot_data_router.get("/graph_info", response_model=list[ProcessedData])
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
 async def get_graph_info(machine:str, sensor:Datatype, initial_date:datetime, end_date:datetime):
     result = await service.get_processed_data(
         machine=machine,
@@ -524,14 +480,14 @@ async def get_graph_info(machine:str, sensor:Datatype, initial_date:datetime, en
         return result.data
     
     raise HTTPException(status_code=500, detail=result.exception.message)
-\end{verbatim}
+\end{Verbatim}
 
 \subsubsection{Service}\label{subsubsec:service}
 The service layer is used to apply the appropriate rules before returning the data to the control layer ~\ref{subsubsec:controller}. It can access the repository layer to read or write data, and it should return the data to the control layer using the \texttt{Result} class, shown in section ~\ref{subsec:commum}, so that the result of the processing can be correctly identified, and the appropriate return can be given to the client who made the request.
 
 For a deeper understanding, a specific example of the service layer implementation follows below:
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
 class ServiceIOT:
     def __init__(self):
         self.__repository = RepositoryIOT()
@@ -543,28 +499,23 @@ class ServiceIOT:
         data_type:Datatype,
         initial_date:datetime,
         end_date:datetime)-> Result[list[ProcessedData]]:
-        try:
-            alert_parameter = await self.appMetadata.get_sensor_alert_value(
-            data_type)
-            processed_data = await self.__repository.read_iot_processed_data__(
-                machine=machine,
-                datatype=data_type,
-                initial_date=initial_date,
-                end_date=end_date,
-                sort_by_field="more_recent_register")
-            
-            for data in processed_data:
-                data["alert_parameter"] = alert_parameter
-            return Result[list[MachinesSensor]](
-                status=True,
-                data=processed_data,
-                exception=None)
-        except Exception as ex:
-            return Result[list[MachinesSensor]](
-                status=False,
-                data=None,
-                exception=GenericException(exception=ex))
-\end{verbatim}
+        alert_parameter = await self.appMetadata.get_sensor_alert_value(
+        data_type)
+        processed_data = await self.__repository.read_iot_processed_data__(
+            machine=machine,
+            datatype=data_type,
+            initial_date=initial_date,
+            end_date=end_date,
+            sort_by_field="more_recent_register")
+        
+        for data in processed_data:
+            data["alert_parameter"] = alert_parameter
+        return Result[list[MachinesSensor]](
+            status=True,
+            data=processed_data,
+            exception=None)
+
+\end{Verbatim}
 
 In this implementation, the \texttt{ServiceIOT} class is initialized with instances of \texttt{RepositoryIOT} and \texttt{MetadataRepository}, allowing the service to access the corresponding repository and metadata layers.
 
@@ -572,43 +523,36 @@ The \texttt{get\_processed\_data} method is used to obtain processed data based 
 
 The \texttt{get\_all\_machines\_processed\_info} method retrieves information about all processed machines and sensors. It iterates through the processed data collections, aggregating machine and sensor information. In case of success, it returns a \texttt{Result} object containing a list of machines and their corresponding sensors.
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
 async def get_all_machines_processed_info(
     self)-> Result[list[MachinesSensor]]:
-    try:
-        collection_list = 
-            await self.__repository.get_processed_data_collections()
-        machine_sensors: list[MachinesSensor] = []
-        for collection in collection_list:
-            machine_list = await self.__repository
-                .get_distinct_machines_by_collection(collection)
-            sensor = processed_collection_to_sensor_name(collection)
+    collection_list = 
+        await self.__repository.get_processed_data_collections()
+    machine_sensors: list[MachinesSensor] = []
+    for collection in collection_list:
+        machine_list = await self.__repository
+            .get_distinct_machines_by_collection(collection)
+        sensor = processed_collection_to_sensor_name(collection)
 
-            for machine in machine_list:
-                matching_sensor = 
-                next((data for data in machine_sensors 
-                    if data.machine == machine), None)
-                if matching_sensor:
-                    matching_sensor.sensors.append(sensor)
-                else:
-                    machine_sensors.append(MachinesSensor(
-                        machine=machine,
-                        sensors=[sensor]))
-        
-        return Result[list[MachinesSensor]](
-            status=True,
-            data=machine_sensors,
-            exception=None)
-    except Exception as ex:
-        print(ex)
-        return Result[bool](
-            status=False,
-            data=None,
-            exception=GenericException(exception=ex)) 
-\end{verbatim}
+        for machine in machine_list:
+            matching_sensor = 
+            next((data for data in machine_sensors 
+                if data.machine == machine), None)
+            if matching_sensor:
+                matching_sensor.sensors.append(sensor)
+            else:
+                machine_sensors.append(MachinesSensor(
+                    machine=machine,
+                    sensors=[sensor]))
+    
+    return Result[list[MachinesSensor]](
+        status=True,
+        data=machine_sensors,
+        exception=None)
+\end{Verbatim}
 
 The last method, \texttt{read\_raw\_data\_by\_id}, is used to read raw data based on an identifier and data type. It accesses the corresponding repository to retrieve the data and returns a \texttt{Result} object containing these data or an exception, if applicable.
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
 async def read_raw_data_by_id(self,
     raw_data_id:str,
     datatype:Datatype) -> Result:
@@ -622,7 +566,7 @@ async def read_raw_data_by_id(self,
             data=None,
             exception=GenericException(exception=ex)) 
 
-\end{verbatim}
+\end{Verbatim}
 This implementation exemplifies how the service layer interacts with the repository layers and accesses metadata, and how it prepares the data to be sent back to the controller, thus ensuring a cohesive and efficient data flow through the various layers of the application.
 
 \subsubsection{Respository}\label{subsubsec:repository}
@@ -630,56 +574,32 @@ Finally, the repository layer is responsible for accessing the database and perf
 
 The following code provides an example of the implementation of this layer:
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
 class RepositoryIOT:
     def __init__(self):
         self.__database__ = MongoDB()
     
     async def get_processed_data_collections(self):
         collection_list = 
-            await self.__database__.list_collections_by_db(
-            IOT_PROCESSED_DATA)
-    
+            await self.__database__.list_collections_by_db...
         return collection_list
         
     async def get_distinct_machines_by_collection(self, collection:str):
         machine_list = 
-            await self.__database__.get_distinct_property(
-                IOT_PROCESSED_DATA,
-                collection,
-                "machine")
-
+            await self.__database__.get_distinct_property...
         return machine_list
     
     async def read_raw_data(self, collection:str, raw_data_id:str):
-        result = await self.__database__.read_data(
-            IOT_DATABASE,
-            collection,
-            {"_id":ObjectId(raw_data_id)})
-
+        result = await self.__database__.read_data ...
         return result
     
     async def read_iot_processed_data__(self, machine:str, datatype:Datatype, 
         initial_date:datetime, end_date:datetime, 
         sort_by_field:str) -> list[ProcessedData]:
-        
-        try:
-            collection = sensor_name_to_processed_collection(datatype)
-            query = {
-                "machine":machine,
-                sort_by_field:{
-                    "$gte":initial_date,
-                    "$lte":end_date
-                }
-            }
-            result = await self.__database__.get_data_between_dates(
-                IOT_PROCESSED_DATA,
-                collection,query)
-            return result
-        except Exception as ex:
-            print(ex)
-            raise ex
-\end{verbatim}
+        query = {...}
+        result = await self.__database__.get_data_between_dates...
+        return result
+\end{Verbatim}
 
 Upon initializing the \texttt{RepositoryIOT} class, a connection with MongoDB is instantiated. The \texttt{get\_processed\_data\_collections} method is used to list all the processed data collections from the \texttt{IOT\_PROCESSED\_DATA} database. This method makes a direct call to the collection listing method provided by the \texttt{MongoDB} class.
 

@@ -5,7 +5,7 @@ The system is fundamentally structured in distinct layers, the backend, the fron
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=\textwidth]{images/Architecture.jpg}
+	\includegraphics[scale=0.12]{images/Architecture.jpg}
 	\caption{System architecture.}
 	\label{fig:systemAchitectureImage}
 \end{figure}
@@ -18,7 +18,7 @@ As can be seen in figure ~\ref{fig:systemAchitectureImage}, in the industrial pl
 In the following sections, each of these components will be explored more deeply, going through their specificities and interactions.
 
 
-\section[Backend Architecture]{Backend Architecture}
+\section[Backend]{Backend}
 This section addresses the operation of the backend. It is divided into three parts, the module for receiving data from the sensors, the processing module where the aggregation and statistical analysis of the data is done, and the \gls{API} that manages access to information through \gls{HTTP} requests.
 
 Regarding the organization of the repositories, the \gls{API} and the data receiving module are in the same repository, facilitating communication between them. The processing module, on the other hand, is in a separate repository, its only function being to read the database, process the data, and store the results.
@@ -39,7 +39,7 @@ In chapter~\ref{cap:implementation}, the implementation details of this module a
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=\textwidth]{images/recebimento_dados.png}
+	\includegraphics[scale=0.45]{images/recebimento_dados.png}
 	\caption{Module to receive sensor data.}
 	\label{fig:receiveData}
 \end{figure}
@@ -58,7 +58,7 @@ By adopting the Box Plot, the system ensures a robust understanding of the data 
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=\textwidth]{images/boxplot.jpg}
+	\includegraphics[scale=0.1]{images/boxplot.jpg}
 	\caption{BoxPlot.}
 	\label{fig:boxplot}
 \end{figure}
@@ -69,7 +69,7 @@ The \gls{API} was structured into small sub-modules, each focused on a specific 
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=\textwidth]{images/API_Organization.jpg}
+	\includegraphics[scale=0.1]{images/API_Organization.jpg}
 	\caption{API Organization.}
 	\label{fig:api_organization}
 \end{figure}
@@ -86,7 +86,7 @@ The modules implemented in the \gls{API} with the described logic are:
 
 In addition to these modular layers, there is a specific area in the \gls{API} for storing codes common to all modules. This section encompasses various useful functions, class templates, constant values, and default settings. These elements ensure greater cohesion and reduce code repetition, optimizing overall performance. Among the default settings, the initializer that establishes access to the database, authentication middleware, web socket connection for sending notifications, and the initializer of new \textit{threads} deserve special mention. The latter is used for asynchronous operations that are executed in parallel to the operation of the \gls{API}, such as those executed by the data reception module.
 
-\section[Frontend Architecture]{Frontend Architecture}\label{sec:archFront}
+\section[Frontend]{Frontend}\label{sec:archFront}
 Using \textit{Next.js} \cite{nextjsDocs} as a framework, the frontend follows a basic structure already established by it.
 
 The system's routes reside in the \texttt{pages} folder, aligned with the framework's guidelines. The layouts that serve as a base for each page are located in the \texttt{layouts} folder.
@@ -99,7 +99,7 @@ The React \textit{Context API} is used to manage data in components, allowing fo
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=\textwidth]{images/components_frontend.png}
+	\includegraphics[scale=0.4]{images/components_frontend.png}
 	\caption{Frontend organization.}
 	\label{fig:FrontendOrganization}
 \end{figure}
@@ -112,9 +112,10 @@ Finally, there is a dedicated folder to store recurring codes, containing helper
 \section{Containers}
 Containers are technologies that allow applications to be isolated in specific environments with all their dependencies, libraries, and necessary configurations, without the overhead of full virtual machines. This ensures that the application works identically in different environments, from development to production \cite{paraiso2016model}. In figure ~\ref{fig:container}, it is possible to visualize how containers work within the host operating system.
 
+%TODO add docker compose to image
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=\textwidth]{images/container.jpg}
+	\includegraphics[scale=0.12]{images/container.jpg}
 	\caption{How container works.}
 	\label{fig:container}
 \end{figure}
@@ -149,7 +150,7 @@ Regarding specific requests, those that involve return in stream format or estab
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=\textwidth]{images/diagrama_nginx.png}
+	\includegraphics[scale=0.2]{images/diagrama_nginx.png}
 	\caption{NGINX workflow.}
 	\label{fig:nginx_workflow}
 \end{figure}
