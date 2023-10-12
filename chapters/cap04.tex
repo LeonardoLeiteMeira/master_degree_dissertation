@@ -13,7 +13,7 @@ The system is fundamentally structured in distinct layers, the backend, the fron
 The backend functions as the core of the system. Its main role is to receive the data, process it according to the rules established in the requirements and user stories, and store it securely in the database. In addition to storage and processing functions, the backend is also assigned the responsibility of making these data available through an \gls{API}, which can be accessed using \gls{HTTP} methods. This \gls{API} acts as an intermediary between the central logic of the system and the interfaces with which the end user interacts, the frontend.
 On the other hand, the frontend is characterized as the visual interface that the end user accesses. It serves as a means by which users interact with the system, sending and receiving information. This layer is designed to access, retrieve, and present the data processed and stored by the backend according to design principles and data visualization \cite{barbosa2019introduction}.
 
-As can be seen in figure ~\ref{fig:systemAchitectureImage}, in the industrial plant, where the machines with the sensors are located, the sensors send the data to the system, which receives them through the data receiving module and stores them in the database. The processing module accesses the stored data to perform aggregation, and the \gls{API} manages access to the database, making the information available to users on the frontend.
+As can be seen in figure ~\ref{fig:systemAchitectureImage}, in the industrial plant, where the machines with the sensors are located, the sensors send the data to the system, which receives them through the Data Receiving Module and stores them in the Database. The processing module accesses the stored data to perform aggregation, and the \gls{API} manages access to the database, making the information available to users on the frontend.
 
 In the following sections, each of these components will be explored more deeply, going through their specificities and interactions.
 
@@ -21,10 +21,10 @@ In the following sections, each of these components will be explored more deeply
 \section[Backend]{Backend}
 This section addresses the operation of the backend. It is divided into three parts, the module for receiving data from the sensors, the processing module where the aggregation and statistical analysis of the data is done, and the \gls{API} that manages access to information through \gls{HTTP} requests.
 
-Regarding the organization of the repositories, the \gls{API} and the data receiving module are in the same repository, facilitating communication between them. The processing module, on the other hand, is in a separate repository, its only function being to read the database, process the data, and store the results.
+Regarding the organization of the repositories, the \gls{API} and the Data Receiving Module are in the same repository, facilitating communication between them. The processing module, on the other hand, is in a separate repository, its only function being to read the database, process the data, and store the results.
 
 \subsection{Data Receiving Module}\label{subsec:receiveDataModuleArch}
-For the data receiving module, initially, the \texttt{SensorConnection} class stands out, whose function is to manage and maintain the connection with the sensor network. This class transmits the received data to a designated function \texttt{save\_data\_func}, ensuring that the data is forwarded for appropriate handling.
+For the data receiving module, initially, the SensorConnection class stands out, whose function is to manage and maintain the connection with the sensor network. This class transmits the received data to a designated function \texttt{save\_data\_func}, ensuring that the data is forwarded for appropriate handling.
 
 In the next part of the architecture, the \texttt{IotSensorConnection} class is used, which originates from the \texttt{IotSensorConnectionInterface} interface. This interface was created to ensure the system's adaptability, facilitating the integration of different types of data receipts, such as a class intended to generate sensor data in a development environment, where there is no access to the real sensor. The \texttt{IotSensorConnection} class, when instantiated, is responsible for establishing the connection, and creating a new thread that operates as an active listener, monitoring the arrival of new information. Upon noticing the reception of new data, the class directs this information to a third entity, which holds the responsibility of applying the business rules.
 
@@ -78,13 +78,13 @@ When a request is sent to the \gls{API}, the first interaction occurs with the c
 
 The modules implemented in the \gls{API} with the described logic are:
 \begin{itemize}
-	\item \textbf{Downtime:} Responsible for managing access to downtime data stored for testing in the system.
 	\item \textbf{IOT Sensors:} Responsible for managing access to data related to the factory machine sensors.
 	\item \textbf{Notification:} Responsible for managing access to notifications generated by the system, as well as web socket connections for sending notifications.
 	\item \textbf{User:} Responsible for managing access to user data, as well as performing login and logout operations. 
+	\item \textbf{Downtime:} Responsible for managing access to downtime data stored for testing in the system.
 \end{itemize}
 
-In addition to these modular layers, there is a specific area in the \gls{API} for storing codes common to all modules. This section encompasses various useful functions, class templates, constant values, and default settings. These elements ensure greater cohesion and reduce code repetition, optimizing overall performance. Among the default settings, the initializer that establishes access to the database, authentication middleware, web socket connection for sending notifications, and the initializer of new \textit{threads} deserve special mention. The latter is used for asynchronous operations that are executed in parallel to the operation of the \gls{API}, such as those executed by the data reception module.
+In addition to these modular layers, there is a specific area in the \gls{API} for storing codes common to all modules. This section encompasses various useful functions, class models, constant values, and default settings. These elements ensure greater cohesion and reduce code repetition, optimizing overall performance. Among the default settings, the initializer that establishes access to the database, authentication middleware, web socket connection for sending notifications, and the initializer of new \textit{threads} deserve special mention. The latter is used for asynchronous operations that are executed in parallel to the operation of the \gls{API}, such as those executed by the data reception module.
 
 \section[Frontend]{Frontend}\label{sec:archFront}
 Using \textit{Next.js} \cite{nextjsDocs} as a framework, the frontend follows a basic structure already established by it.
@@ -112,7 +112,6 @@ Finally, there is a dedicated folder to store recurring codes, containing helper
 \section{Containers}
 Containers are technologies that allow applications to be isolated in specific environments with all their dependencies, libraries, and necessary configurations, without the overhead of full virtual machines. This ensures that the application works identically in different environments, from development to production \cite{paraiso2016model}. In figure ~\ref{fig:container}, it is possible to visualize how containers work within the host operating system.
 
-%TODO add docker compose to image
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[scale=0.12]{images/container.jpg}
@@ -120,7 +119,7 @@ Containers are technologies that allow applications to be isolated in specific e
 	\label{fig:container}
 \end{figure}
 
-Within the universe of containers, \textit{Docker} \cite{dockerDocs} was the tool selected for this project. Several factors influenced this decision, including comprehensive documentation, an active community, and the presence of a wide variety of available content. In addition, Docker simplifies the definition, creation, and execution of containers, making it a robust solution for application deployment.
+Within the area of containers, \textit{Docker} \cite{dockerDocs} was the tool selected for this project. Several factors influenced this decision, including comprehensive documentation, an active community, and the presence of a wide variety of available content. In addition, Docker simplifies the definition, creation, and execution of containers, making it a robust solution for application deployment.
 
 The system adopts some containers to organize and manage the various parts of the application:
 \begin{itemize}
@@ -129,9 +128,11 @@ The system adopts some containers to organize and manage the various parts of th
 	\subitem One that encompasses the \gls{API} and the data receiving module;
 	\subitem And another one specifically aimed at the data processing module;
     \item \textbf{Database}: A container for the MongoDB database, ensuring isolation and efficiency in data management.
+    \item \textbf{Database Initialization}: A container with a Python script responsible for initialize the database with default user, system parameters and Downtime machine data.
+    \item \textbf{Web Server}: A container with \textit{NGINX} responsible for managing the traffic of requests between the different containers.
 \end{itemize}
 
-The communication between the containers is made possible through a bridge network provided by Docker \cite{dockerNetwork}. This network is a software interface created on the host that allows containers to communicate with each other and with the host, ensuring the necessary connectivity between the different modules of the application. This adds an extra layer of security to the application, as all external connections must be made through this network. The connection with the external network is made through a web server, explained in section ~\ref{sec:webserver}.
+The communication between the containers is made possible through a bridge network provided by Docker \cite{dockerNetwork}. This network is a software interface created on the host that allows containers to communicate with each other and with the host, ensuring the necessary connectivity between the different modules of the application. This adds an extra layer of security to the application, as all external connections must be made through this network. The connection with the external network is made through a web server container, explained in section ~\ref{sec:webserver}.
 
 To ensure data persistence and prevent the loss of vital information, the concept of Docker \textit{volumes} \cite{dockerVolumes} was employed in the system architecture. Volumes are designated spaces in the host system that can be accessed and used by containers. In the context of this project, a volume was specifically configured for the MongoDB database. Thus, even if the database container is restarted or removed, the database remains intact and available, due to its storage in the volume, which operates independently of the container's lifecycle.
 
@@ -146,7 +147,7 @@ Within the proposed architecture, with containers running different parts of the
 
 The method employed for this is the reverse proxy. In simple terms, the reverse proxy acts as an interface between the client and several servers, directing client requests to the appropriate server (in the context of this project, the containers), thus optimizing resource use and ensuring a faster and more efficient response.
 
-Regarding specific requests, those that involve return in stream format or establish a \textit{WebSocket} connection, specific settings were made in the \textit{NGINX} configuration, these are detailed in chapter~\ref{cap:implementation}, dedicated to implementation. Upon receiving a request, the \textit{NGINX} server identifies, based on it, which container is responsible for the service. After this identification, the appropriate settings are applied, and the request is directed to the corresponding container to obtain the response. This workflow can be seen in figure ~\ref{fig:nginx_workflow}.
+Regarding specific requests, those that involve return in stream format or establish a \textit{WebSocket} connection, specific settings were made in the \textit{NGINX} configuration, these are detailed in chapter~\ref{cap:implementation}, dedicated to implementation. Upon receiving a request, the \textit{NGINX} container server identifies, based on it, which other container is responsible for the service. After this identification, the appropriate settings are applied, and the request is directed to the corresponding container to obtain the response. This workflow can be seen in figure ~\ref{fig:nginx_workflow}.
 
 \begin{figure}[htbp]
 	\centering

@@ -45,7 +45,7 @@ Upon receiving a marked reading, the frontend updates the corresponding informat
 	\label{fig:geralMachineAlert}
 \end{figure}
 
-The data receiving module, \ref{sec:Implementação do modulo de recebimento de dados}, keeps track of the operational state of each machine that is sending information. When a machine exits an alert state, the occurrence is recorded in the database, with the start and end date of the alert state, along with information related to the sensor and the involved machine, as explained in \ref{subsubsec:WebSocketImplement}. Subsequently, a message is sent to the connected users using the \textit{WebSocket} interface, informing them of the machine's malfunction during the period recorded by the system.
+The data receiving module, \ref{sec:Implementation of the data receiving module}, keeps track of the operational state of each machine that is sending information. When a machine exits an alert state, the occurrence is recorded in the database, with the start and end date of the alert state, along with information related to the sensor and the involved machine, as explained in \ref{subsubsec:WebSocketImplement}. Subsequently, a message is sent to the connected users using the \textit{WebSocket} interface, informing them of the machine's malfunction during the period recorded by the system.
 
 Information about alert completion can be accessed by users through notifications in the system interface, as can be seen in figure \ref{fig:notificationDrawer}. By clicking on the notification icon in the dashboard's side menu, the user can view these notifications.
 

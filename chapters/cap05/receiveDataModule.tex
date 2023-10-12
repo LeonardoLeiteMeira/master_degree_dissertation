@@ -196,7 +196,7 @@ class IotSensorConnection(IotSensorConnectionInterface):
             listen_multicast_messages(self.__handle_iot_data)
 \end{Verbatim}
 
-Upon initiating the connection, using the \texttt{start\_connection} method, a new thread is created through the \texttt{ThreadManager} class, explained in \ref{subsubsec:ThreadManager}. This thread invokes the \texttt{listen\_multicast\_messages} method from the \texttt{SensorConnection} class that was detailed in section ~\ref{subsec:Connection and data receipt}. It is necessary to create a new thread because this module is together with the \gls{API}, and it is necessary for both processes to function at the same time, a new thread was necessary for the parallel operation of both.
+Upon initiating the connection, using the \texttt{start\_connection} method, a new thread is created through the \texttt{ThreadManager} class, explained in \ref{subsubsec:ThreadManager}. This thread invokes the \texttt{listen\_multicast\_messages} method from the \texttt{SensorConnection} class that was detailed in section ~\ref{subsec:Connection and data reception}. It is necessary to create a new thread because this module is together with the \gls{API}, and it is necessary for both processes to function at the same time, a new thread was necessary for the parallel operation of both.
 
 \subsubsection{Data Format Verification}
 To handle the received data, the \texttt{\_\_handle\_iot\_data} method is passed as an argument to \texttt{listen\_multicast\_messages} (as the save\_func argument that exists in the \texttt{SensorConnection} class).

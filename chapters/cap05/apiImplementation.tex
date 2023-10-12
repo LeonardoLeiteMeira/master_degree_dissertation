@@ -88,10 +88,15 @@ def decode_jwt_token(token:str)->Result[TokenPayload|None]:
         return Result(status=True, data=token_payload, exception=None)
     
     except ExpiredSignatureError as invalid_token:
-        return Result(status=False, exception=Unauthorized(exception=invalid_token), data=None)
+        return Result(status=False,
+            exception=Unauthorized(exception=invalid_token),
+            data=None)
 
     except (JWSError, JOSEError, JWTError, JWEError) as ex:
-        return Result(status=False, exception=GenericException(message="Authorization error!",exception=ex), data=None)
+        return Result(status=False,
+            exception=GenericException(message="Authorization error!",
+            exception=ex),
+            data=None)
 
     except Exception as ex:
         print(ex)
@@ -199,8 +204,7 @@ class WebSocketDispatcher:
     def __init__(self,socket_io_server: AsyncServer):
         self.__socket_io_server = socket_io_server
     
-    async def send_notification(self,
-        ...
+    async def send_notification(self,...):
         await self.__socket_io_server.emit(
             NOTIFICATION_ROOM,
             machine_sensors_dict,
@@ -313,6 +317,18 @@ class NotificationSensorResponse(BaseModel):
 \end{Verbatim}
 
 Other important data models are the exception classes and a class called \texttt{Result}, responsible for data traffic between the different layers of the application, shown in the implementation of the \gls{API} module in \ref{subsec:modules}.
+
+Class \texttt{Result} used for communication between layers of the system modules. The \texttt{TypeVar} is used to indicate a generic type for the \texttt{data} attribute of the class.
+
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
+T = TypeVar('T')
+class Result(Generic[T]):
+    def __init__(self, status:bool, data:T|None, exception:CustomBaseException|None):
+        self.status = status
+        self.data = data
+        self.exception = exception
+\end{Verbatim}
+
 Example of a class that defines a system exception.
 
 \begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
@@ -329,17 +345,6 @@ class GenericException(CustomBaseException):
         super().__init__(message, exception)
 \end{Verbatim}
 
-
-Class \texttt{Result} used for communication between layers of the system modules. The \texttt{TypeVar} is used to indicate a generic type for the \texttt{data} attribute of the class.
-
-\begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
-T = TypeVar('T')
-class Result(Generic[T]):
-    def __init__(self, status:bool, data:T|None, exception:CustomBaseException|None):
-        self.status = status
-        self.data = data
-        self.exception = exception
-\end{Verbatim}
 
 The use of the \texttt{Singleton} class is also highlighted, used when there is a need to ensure that only one instance of a certain class will be used.
 
@@ -451,11 +456,11 @@ In this example, the controller uses the \texttt{APIRouter} to create routes ass
 
 Below, an instance of the service to be used by the \texttt{endpoints} to respond to the received requests is created.
 
-The \texttt{/realtime} route is designated to provide real-time data. An internal function, \texttt{get\_real\_time\_data}, is responsible for collecting this data from the \texttt{SensorValue}, explained in \ref{sec:Implementation of the data reception module}. In this endpoint, the \gls{API} takes the current values and returns a \texttt{StreamingResponse}, which sends real-time data as a continuous stream.
+The \texttt{/realtime} route is designated to provide real-time data. An internal function, \texttt{get\_real\_time\_data}, is responsible for collecting this data from the \texttt{SensorValue}, explained in \ref{sec:Implementation of the data receiving module}. In this endpoint, the \gls{API} takes the current values and returns a \texttt{StreamingResponse}, which sends real-time data as a continuous stream.
 
-The other routes, such as \texttt{/machines\_in\_sensor} and \texttt{/graph\_info}, operate in a similar way, but with different responsibilities. They make calls to the \texttt{ServiceIOT} instance to retrieve specific information and return it to the client. If an exception or error occurs, an \texttt{HTTPException} is thrown with an appropriate HTTP status code and a detailed error message.
+The other routes, such as \texttt{/machines\_in\_sensor} and \texttt{/graph\_info}, operate in a similar way, but with different responsibilities. They make calls to the \texttt{ServiceIOT} instance to retrieve specific information and return it to the client. If an exception or error occurs, an \texttt{HTTPException} is thrown with an appropriate HTTP status code and a error message.
 
-In these two endpoints, it is important to highlight the specification of the \texttt{response\_model}, so that automatic validations by the framework occur before the data is returned, ensuring consistency in the returned data.
+In these two endpoints, it is important to highlight the specification of the \texttt{response\_model}, so that automatic validations by the framework occur using \texttt{Pydantic} before the data is returned, ensuring consistency in the returned data.
 
 \begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
 @iot_data_router.get("/machines_in_sensor", response_model=list[MachinesSensor])
@@ -468,7 +473,6 @@ async def get_machines_in_sensor():
 
 @iot_data_router.get("/graph_info", response_model=list[ProcessedData])
 
-\begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
 async def get_graph_info(machine:str, sensor:Datatype, initial_date:datetime, end_date:datetime):
     result = await service.get_processed_data(
         machine=machine,

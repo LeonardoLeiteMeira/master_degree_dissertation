@@ -154,8 +154,8 @@ The contexts created for state management are as follows:
     \item \texttt{AuthContext}: Responsible for managing the user's authentication state, \ref{subsubsec:auth}.
     \item \texttt{ThemeContext}: Responsible for managing the visual theme of the application \cite{muiDefaultTheme}.
     \item \texttt{NotificationContext}: Used for the management, reading, and receiving of notifications in the system.
-    \item \texttt{LegacyContext}: Manages machine stoppage information after being read from the backend.
-    \item \texttt{IotContext}: Used for managing states related to IoT devices in the system.
+    \item \texttt{LegacyContext}: Manages machine downtime information after being read from the backend.
+    \item \texttt{IotContext}: Used for managing states related to IoT devices in the system, realtime and graph data.
     \item \texttt{DrawerContext}: Responsible for managing the state of the side menu (open or closed), and making it available on all system pages that use the side menu.
 \end{enumerate}
 
@@ -398,7 +398,7 @@ In this way, the external access layer provides a Web Socket connection method t
 
 \subsubsection{Receiving data via Stream}\label{subsec:streamData}
 
-Regarding the external access layer, the last type of connection is the receipt of data via stream. This mechanism allows for the constant updating of received data, thus ensuring a continuous flow of updated information for the application. Specifically, this connection is used to provide the data from the sensors that are received in the backend, as explained in \ref{sec:Implementation of the data reception module}.
+Regarding the external access layer, the last type of connection is the receipt of data via stream. This mechanism allows for the constant updating of received data, thus ensuring a continuous flow of updated information for the application. Specifically, this connection is used to provide the data from the sensors that are received in the backend, as explained in \ref{sec:Implementation of the data receiving module}.
 
 The receipt of data via stream is implemented using the \textit{fetch} function \cite{mdnFetchAPI}, native to JavaScript. This function is responsible for making the request to the corresponding endpoint and obtaining the data stream in real time.
 

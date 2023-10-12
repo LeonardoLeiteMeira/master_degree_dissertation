@@ -104,22 +104,19 @@ Initially, the field \texttt{more\_recent\_register} is set as the attribute to 
 
 \begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 async def read_more_recente_data(self,
-    collection:str,
-    machine:str,
-    date_time_field:str):
-    try:
-        temp_client = self.client
-        cursor = temp_client[IOT_PROCESSED_DATA][collection]
-            .find({"machine":machine})
-            .sort([(date_time_field,pymongo.DESCENDING)])
-        result:list = await cursor.to_list(None)
-        return result[0] if len(result)!= 0 else None
-    except Exception as ex:
-        print(ex)
-        raise ex
+        collection:str,
+        machine:str,
+        date_time_field:str):
+
+    temp_client = self.client
+    cursor = temp_client[IOT_PROCESSED_DATA][collection]
+        .find({"machine":machine})
+        .sort([(date_time_field,pymongo.DESCENDING)])
+    result:list = await cursor.to_list(None)
+    return result[0] if len(result)!= 0 else None
 \end{Verbatim}
 
-If no recently processed data is found, the \textit{query} is built using the \texttt{\_\_build\_query\_with\_limit\_of\_data()} function. This function simply limits the amount of data retrieved to \texttt{MAX\_VALUE\_BY\_PERIOD} and searches for records that match the specified machine.
+If no recently processed data is found, the \texttt{\_\_build\_query\_with\_limit\_of\_data()} function is used to build the \textit{query}. This function simply limits the amount of data retrieved to \texttt{MAX\_VALUE\_BY\_PERIOD} and searches for records that match the specified machine.
 
 \begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 def __build_query_with_limit_of_data(machine:str)->dict:
@@ -155,21 +152,17 @@ With the query assembled, the data is retrieved using the \texttt{read\_raw\_dat
 
 \begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 async def read_raw_data(self, collection:str, query:dict):
-    try:
-        temp_client = self.client
-        cursor = temp_client[IOT_DATABASE][collection].find(
-            query["query"])
-            .sort([("timestamp",pymongo.ASCENDING)])
-            .limit(query["limit"])
-        return await cursor.to_list(None)
-    except Exception as ex:
-        print(ex)
-        raise ex
+    temp_client = self.client
+    cursor = temp_client[IOT_DATABASE][collection].find(
+        query["query"])
+        .sort([("timestamp",pymongo.ASCENDING)])
+        .limit(query["limit"])
+    return await cursor.to_list(None)
 \end{Verbatim}
 
 The amount of data retrieved is calculated and, if this amount exceeds a predefined minimum value \texttt{MINIMUM\_DATA\_TO\_AGGREGATE}, the aggregation proceeds. If the minimum amount is not reached, the recursive function is terminated, concluding the processing of the data from that collection.
 
-\texttt{MINIMUM\_DATA\_TO\_AGGREGATE} is a constant value defined as 100, which ensures that there are enough data to be aggregated, avoiding the aggregation of a small amount of data, which could compromise the analysis.
+\texttt{MINIMUM\_DATA\_TO\_AGGREGATE} is a constant value defined as 1000, which ensures that there are enough data to be aggregated, avoiding the aggregation of a small amount of data, which could compromise the analysis.
 
 After the query search, a \texttt{logger} object is initialized to keep records of the aggregation process.
 
@@ -247,13 +240,9 @@ After the entire process described, the data is converted into JSON format and i
 
 \begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
 async def insert_processed_data(self, collection:str, data):
-    try:
-        temp_client = self.client
-        await temp_client[IOT_PROCESSED_DATA][collection]
-            .insert_one(data)
-    except Exception as ex:
-        print(ex)
-        raise ex
+    temp_client = self.client
+    await temp_client[IOT_PROCESSED_DATA][collection]
+        .insert_one(data)
 \end{Verbatim}
 
 After a successful insertion, the function \texttt{aggregate\_data()} is recursively called, ensuring that all relevant raw data are aggregated.
