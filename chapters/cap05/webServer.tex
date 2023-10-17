@@ -1,0 +1,19 @@
+\section{Web Server Implementation}\label{sec:webserverimpl}
+The construction of the Web Server was carried out using NGINX \cite{nginxDocs} as the main entry platform for all requests, serving both the user interface (front-end) and the API. Different endpoints are defined to direct appropriate requests to the corresponding services, whether the API or the user interface.
+
+For requests that are different from HTTP methods, there are specific settings, whether for connection via stream, which is used for real-time data transmissions, as well as a setting for communications via web socket, to send notifications. The configuration for web socket has a specific set of proxy directives, including the upgrade of the connection to support web sockets.
+
+The complete NGINX configuration can be found in the \texttt{.conf} file in \ref{apendice1nginx}.
+
+To ensure that communications are secure and protected, NGINX uses Let's Encrypt \cite{letsencrypt2023}. Let's Encrypt is a free, automated, and open certificate authority, which provides SSL/TLS certificates to enable HTTPS connections. Evidence of this can be found in the configuration where the paths to the SSL certificates are provided, specifically in \texttt{ssl\_certificate} and \texttt{ssl\_certificate\_key}.
+
+
+A script named "\texttt{init-letsencrypt.sh}" is used to automate the configuration of Let's Encrypt within a Docker environment, ensuring a simpler implementation. This script is also attached for analysis \ref{letsencryptscript}.
+
+Therefore, the NGINX configuration is divided into three main blocks, each with a specific purpose:
+
+\begin{itemize}
+    \item The server starts by listening on port 80 (standard HTTP) and redirects all requests to the HTTPS version of the site, using port 443.
+    \item The SSL configuration is defined in the second server block, listening on port 443 (standard HTTPS). The certificates provided by Let's Encrypt are referenced here.
+    \item Different endpoints are defined to direct requests to the corresponding services, whether it's the API, real-time broadcasts, or the user interface.
+\end{itemize}
