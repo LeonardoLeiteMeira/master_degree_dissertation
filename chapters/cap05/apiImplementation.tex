@@ -10,7 +10,7 @@ The system initialization occurs through the \texttt{main.py} file, which serves
 
 The \texttt{FastAPI} library \cite{fastapiDocs} is used to create the main application, here referred to as \texttt{app}. The \texttt{CORSMiddleware} middleware is added to the \texttt{FastAPI} application, allowing for comprehensive \gls{CORS} (Cross-Origin Resource Sharing) configuration. This configuration allows the \gls{API} to be accessed from different origins.
 
-The import of the \texttt{API\_data\_layer} module not only incorporates the routes related to this module, but also initializes the data receiving module. This implies that the initialization of this module occurs simultaneously with the loading of the \gls{API}, but on a separate thread, as detailed in ~\ref{sec:ImplModuloProcessamento}.
+The import of the \texttt{API\_data\_layer} module incorporates the routes related to this module, and initializes the data receiving module. This implies that the initialization of this module occurs simultaneously with the loading of the \gls{API}, but on a separate thread, as detailed in ~\ref{sec:ImplModuloProcessamento}.
 
 For metadata management, an instance of the \texttt{MetadataRepository} is created during initialization. This component is essential for loading the metadata that are used in different parts of the system, such as constants and alarm parameters.
 
@@ -253,7 +253,7 @@ This implementation allows the execution of multiple asynchronous tasks in paral
 \subsubsection{Database}\label{subsubsec:DatabaseImpl}
 In the process of implementing the system, to establish an efficient connection with the database, the \texttt{motor} library \cite{motorDocs} was adopted as the mechanism.
 
-At the heart of the connection strategy is a base class, named \texttt{BaseDB}, which is responsible not only for establishing the connection with MongoDB, but also for defining a series of basic operations for the manipulation of stored data. The structure of this class is presented below:
+At the heart of the connection strategy is a base class, named \texttt{BaseDB}, which is responsible for establishing the connection with MongoDB, and for defining a series of basic operations for the manipulation of stored data. The structure of this class is presented below:
 
 \begin{Verbatim}[fontsize=\small, baselinestretch=0.6]
 class BaseDB:

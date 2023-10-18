@@ -18,6 +18,8 @@ Regarding data organization, the following databases were created:
     \item \textbf{Downtime}: Stores one collections with processed data. This database with this collection is only to simulate what the machine downtime data would look like if they were inserted into the system.
 \end{itemize}
 
-With this structuring, the aim is not only to logically organize the data, but also to optimize query operations and ensure simplified expansion as it becomes necessary to store new data in the system.
+With this structuring, the aim is to logically organize the data, and to optimize query operations and ensure simplified expansion as it becomes necessary to store new data in the system.
+
+The initialization of the database is done by a script that is activated at the system startup. This script performs a check on certain collections in the database and, if it identifies any empty collection, it proceeds with the insertion of default data. Specifically, the "Users" collection is initialized with a default user; the "Metadata" collection is filled with initial alert parameters; and the "Industrial" collection is populated with information about machine downtime, serving as an illustrative example in the system.
 
 The implementation of database access is detailed in the implementation section of the \gls{API}, in ~\ref{subsubsec:DatabaseImpl}.

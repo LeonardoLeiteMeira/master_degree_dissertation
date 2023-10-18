@@ -13,7 +13,7 @@ Thus, the agile methodologies discussed in the article can serve as a guiding fr
 \subsection[Functional Requirements]{Functional Requirements}
 Functional requirements play a fundamental role in system development, defining the functions that a system or software component should be able to perform. Essentially, they provide a description of the interactions the system will have with its users or other systems, specifying the services the system should provide.
 
-To ensure effectiveness, functional requirements must be clearly defined, unambiguous, and measurable, traceable, complete, and consistent. Moreover, they should be defined considering the needs and objectives of the project, ensuring that the developed system is not only technically sound but also useful and relevant to its end users.
+To ensure effectiveness, functional requirements must be clearly defined, unambiguous, and measurable, traceable, complete, and consistent. Moreover, they should be defined considering the needs and objectives of the project, ensuring that the developed system is technically sound, useful and relevant to its end users.
 
 Within the context of the developed system, the functional requirements of the system and their description are listed below, to clearly state, functionally, what the system should do.
 
@@ -218,12 +218,14 @@ In the development of the backend, the Python language \cite{pythonOfficialDocs}
 
 Python's intuitive syntax favors rapid prototyping and development, while the wide range of available frameworks and libraries enhances its application in various aspects, from data analysis to web development. These intrinsic characteristics, combined with the language's flexibility and efficiency, consolidate the decision to adopt Python as the central language for the backend in this master's project.
 
+In addition to the inherent advantages of Python, the utilization of \texttt{Pipenv} \cite{pipenvOfficialDocs} further bolstered the project's development workflow. \texttt{Pipenv} is a packaging tool for Python that facilitates the creation of virtual environments. This ensures the segregation of project dependencies, which is crucial for maintaining a clean and consistent development environment. It aids in defining specific versions of dependencies to avoid potential conflicts and generates a \texttt{Pipfile.lock} that ensures deterministic builds, preserving the exact version and dependency tree. Such deterministic builds are paramount for reproducing the development environment across different stages and setups, thereby ensuring consistency throughout the project lifecycle.
+
 \subsection{FastAPI}
 In the backend implementation, the Python language was used in conjunction with the FastAPI framework \cite{fastapiDocs}. The motivation behind this choice came from FastAPI's efficiency and high performance. An important feature is its integration with the \gls{ASGI} library. This library refines request management by providing asynchronous processing, thus ensuring faster and more accurate responses.
 
-FastAPI's comprehensive documentation is also a factor that contributes to its choice. For developers, especially those in the field of software engineering, well-structured documentation serves as an important learning resource. It not only accelerates the learning curve but also assists when facing potential problems and doubts during the development phase.
+FastAPI's comprehensive documentation is also a factor that contributes to its choice. For developers, especially those in the field of software engineering, well-structured documentation serves as an important learning resource. It accelerates the learning curve and assists when facing potential problems and doubts during the development phase.
 
-Another significant aspect of FastAPI is its support for data validation with the Pydantic library. Through Pydantic, it is possible to validate data types and structures, ensuring that the received data aligns with the expected formats. This functionality not only reinforces the robustness of the application but also minimizes runtime errors originating from unexpected data inputs.
+Another significant aspect of FastAPI is its support for data validation with the Pydantic library. Through Pydantic, it is possible to validate data types and structures, ensuring that the received data aligns with the expected formats. This functionality reinforces the robustness of the application and minimizes runtime errors originating from unexpected data inputs.
 
 In addition, FastAPI facilitates API documentation through its integration with \texttt{Swagger UI} \cite{swaggerui2023}. This means that as developers design and implement API endpoints, a documentation interface is automatically generated. This serves as a great advantage for developers and end users, enabling real-time testing, understanding, and interaction with the API, thus improving the overall development and usage experience.
 
