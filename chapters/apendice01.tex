@@ -1,3 +1,71 @@
+\chapter{Requirements}\label{projectrequirements}
+\section{Function Requirements}\label{functionrequirements}
+
+\subsubsection{FR1 - The system must allow a user to securely access the system with an email and password}Given that the system is for viewing the operational data of a stamping industry, the information provided should only be accessed by previously authorized users.
+
+\subsubsection{FR2 - The system must allow a user to view their personal information that is stored in the system}
+Each user who has access to the system will have some of their personal data registered in it, such as email, position, and type of access. Therefore, each user should have access to their personal information that is saved in the system.
+
+\subsubsection{FR3 - The system must display in real time the values read by the sensors in each of the machines}Upon receiving the data sent by the sensors, the system should display on screen the read values, separated by sensor type and machine.
+
+\subsubsection{FR4 - The system must store an ideal maximum value for each type of sensor used}
+Each sensor should have an ideal maximum value for operation. It will serve as a parameter to understand whether the value read by the sensor indicates good or poor machine performance.
+
+\subsubsection{FR5 - The system must identify whenever a value read by the sensor is not below the ideal value}
+This requirement refers to the system's ability to automatically detect every time the sensor indicates a value that is not below the pre-defined limit. That is, if the ideal value is X, and the sensor reads a value greater than or equal to X, the system will recognize this situation.
+
+\subsubsection{FR6 - The system must always register when a value read by the sensor is not in accordance with the ideal value}
+This requirement implies that the system must keep a record of all times when the value detected by the sensor is not below the stored ideal value.
+
+\subsubsection{FR7 - The system must display on screen when a value read by the sensor is not below the ideal}
+Whenever the sensor detects a value below the ideal standard, the system should display an alert on the interface so that it is always visible to the user.
+
+\subsubsection{FR8 - The system must display in notification format the records of non-operation below the ideal value}This requirement establishes that the system should present to users in the form of notifications when the sensor reads a value above the ideal, to enable users to be informed, even if later, whenever an alert is identified.
+
+\subsubsection{FR9 - The system should allow the user to mark a notification as read, so that it does not appear again}
+After being notified, users should have the ability to mark this notification as "read", ensuring that the same information does not continue to be displayed repeatedly.
+
+\subsubsection{FR10 - The system should display graphs showing the values read by the sensors on previous days in an aggregated manner, separating by machines}This requirement ensures that users can view, through graphical representations, the readings of sensors from previous days in an aggregated manner. These graphs should be categorized by machine, providing a detailed analysis of the performance of each piece of equipment over time.
+
+\subsubsection{FR11 - The system must display in the graphs a statistical analysis of the machines' operation, along with the maximum ideal operating value}
+The graphs should provide a statistical analysis, showing the statistical indicators of the aggregated data average, median, 75th percentile, and average removing outliers. Along with this, the graph will also show the ideal value, serving as a reference for evaluating performance.
+
+\subsubsection{FR12 - The system must allow filtering the information displayed on screen by machines}
+Users should have the flexibility to select and view specific information for certain machines, allowing them to focus on specific equipment as needed.
+
+\subsubsection{FR13 - The system must allow filtering the charts displayed on screen by date}
+The system should offer the ability for users to filter graphic displays by specific dates, allowing for detailed temporal analyses and comparisons between different periods.
+
+\subsubsection{FR14 - The system must display the machine stoppage charts in a way that exemplifies the display of this data}The system should display machine stops according to the data passed by the spreadsheets with the data. In this way, it can be exemplified how the machine stop information would look if the system received this information.
+
+\section{Non Function Requirements}\label{nonfunctionrequirements}
+
+\subsubsection{NFR1 - Availability}The system must have automatic reconnection mechanisms that activate when connection problems or data reception from sensors are detected, thus ensuring the continuity in data reception.
+
+\subsubsection{NFR2 - Access Security}
+The system must implement access controls so that only authorized employees have permission to access data and functionalities relevant to their role.
+
+\subsubsection{NFR3 - Network Security}
+To ensure the security of data transmission, the connection to the system must be established using the \gls{HTTPS} protocol, which incorporates the \gls{TLS} security layer, thus protecting the data against interceptions and alterations.
+
+\subsubsection{NFR4 - Real-time Transmission}
+The system must process and transmit the data sent by the sensors in a streaming-based architecture. The delay between the sensor sending the data and its visualization by the end user should be less than three seconds.
+
+\subsubsection{NFR5 - Modularity}
+The system's architecture should be modular, allowing for the integration and addition of new components or functionalities in an efficient manner without compromising the operation of the existing parts.
+
+\subsubsection{NFR6 - Maintainability}
+Prioritizing longevity and ease of maintenance, the system should be developed following good programming practices and system modularization. This will facilitate future modifications, expansions, and the correction of any potential problems.
+
+\subsubsection{NFR7 - Scalability of sensors and machines}
+The system design must be able to handle an increasing volume of sensors and machines, ensuring that there is no performance degradation or failures when the demand for resources increases.
+
+\subsubsection{NFR8 - Portability}
+The system must ensure compatibility with the main web browsers available on the market. In addition, the user interface should adapt well on larger screens such as televisions, allowing the dashboard to be clearly viewed in different factory environments.
+
+\subsubsection{NFR9 - Usability}The system interface and its components should be designed considering fundamental principles of interaction design, ensuring that users can understand and interact with the system in an intuitive and efficient manner.
+
+
 \chapter{Web Server Configuration}\label{webServer}
 
 \section{NGINX Configuration}\label{apendice1nginx}
