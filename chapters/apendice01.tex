@@ -66,376 +66,376 @@ The system must ensure compatibility with the main web browsers available on the
 \subsubsection{NFR9 - Usability}The system interface and its components should be designed considering fundamental principles of interaction design, ensuring that users can understand and interact with the system in an intuitive and efficient manner.
 
 
-\chapter{Web Server Configuration}\label{webServer}
+% \chapter{Web Server Configuration}\label{webServer}
 
-\section{NGINX Configuration}\label{apendice1nginx}
-\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
-    server {
-    listen 80;
-    server_name  catraport.estig.ipb.pt;
-    server_tokens off;
+% \section{NGINX Configuration}\label{apendice1nginx}
+% \begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
+%     server {
+%     listen 80;
+%     server_name  catraport.estig.ipb.pt;
+%     server_tokens off;
 
-    location /.well-known/acme-challenge/ {
-        root /var/www/certbot;
-    }
+%     location /.well-known/acme-challenge/ {
+%         root /var/www/certbot;
+%     }
 
-    location / {
-        return 301 https://$host$request_uri;
-    }
-}
+%     location / {
+%         return 301 https://$host$request_uri;
+%     }
+% }
 
-server {
-    listen 443 ssl;
-    server_name  catraport.estig.ipb.pt;
-    server_tokens off;
+% server {
+%     listen 443 ssl;
+%     server_name  catraport.estig.ipb.pt;
+%     server_tokens off;
 
-    ssl_certificate /etc/letsencrypt/live/example.org/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/example.org/privkey.pem;
-    include /etc/letsencrypt/options-ssl-nginx.conf;
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+%     ssl_certificate /etc/letsencrypt/live/example.org/fullchain.pem;
+%     ssl_certificate_key /etc/letsencrypt/live/example.org/privkey.pem;
+%     include /etc/letsencrypt/options-ssl-nginx.conf;
+%     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
-    location /api/iot/realtime/ {
-        proxy_pass http://catraport_api:8000/iot/realtime;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_buffering off;
-        proxy_request_buffering off;
-        proxy_cache off;
-        proxy_read_timeout 864000s;
-        send_timeout 864000s;
-        chunked_transfer_encoding on;
-    }
+%     location /api/iot/realtime/ {
+%         proxy_pass http://catraport_api:8000/iot/realtime;
+%         proxy_http_version 1.1;
+%         proxy_set_header Host $host;
+%         proxy_set_header X-Real-IP $remote_addr;
+%         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+%         proxy_set_header X-Forwarded-Proto $scheme;
+%         proxy_buffering off;
+%         proxy_request_buffering off;
+%         proxy_cache off;
+%         proxy_read_timeout 864000s;
+%         send_timeout 864000s;
+%         chunked_transfer_encoding on;
+%     }
 
-    location /socket.io/ {
-        proxy_pass http://catraport_api:8000;
-        #Config to receive websocket connection
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_buffering off;
-        proxy_request_buffering off;
-        proxy_cache off;
+%     location /socket.io/ {
+%         proxy_pass http://catraport_api:8000;
+%         #Config to receive websocket connection
+%         proxy_http_version 1.1;
+%         proxy_set_header Upgrade $http_upgrade;
+%         proxy_set_header Connection "upgrade";
+%         proxy_set_header Host $host;
+%         proxy_set_header X-Real-IP $remote_addr;
+%         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+%         proxy_set_header X-Forwarded-Proto $scheme;
+%         proxy_buffering off;
+%         proxy_request_buffering off;
+%         proxy_cache off;
 
-        proxy_read_timeout 86400s;
-        send_timeout 86400s;
-    }
+%         proxy_read_timeout 86400s;
+%         send_timeout 86400s;
+%     }
 
-    location /api/ {
-        proxy_pass http://catraport_api:8000/;
-    }
+%     location /api/ {
+%         proxy_pass http://catraport_api:8000/;
+%     }
 
-    location / {
-        proxy_pass http://frontend:3000/;
-    }
-}
-\end{Verbatim}
-
-
-\section{Let's Encrypt Script}\label{letsencryptscript}
-
-\begin{Verbatim}
-    #!/bin/bash
-
-if ! [ -x "$(command -v docker-compose)" ]; then
-  echo 'Error: docker-compose is not installed.' >&2
-  exit 1
-fi
-
-domains=(catraport.estig.ipb.pt www.catraport.estig.ipb.pt)
-rsa_key_size=4096
-data_path="./data/certbot"
-email="a54363@alunos.ipb.pt" # Adding a valid address is strongly recommended
-staging=0 # Set to 1 if you're testing your setup to avoid hitting request limits
-
-if [ -d "$data_path" ]; then
-  read -p "Existing data found for $domains. 
-    Continue and replace existing certificate?(y/N) " decision
-  if [ "$decision" != "Y" ] && [ "$decision" != "y" ]; then
-    exit
-  fi
-fi
+%     location / {
+%         proxy_pass http://frontend:3000/;
+%     }
+% }
+% \end{Verbatim}
 
 
-if [ ! -e "$data_path/conf/options-ssl-nginx.conf" ] 
-    || [ ! -e "$data_path/conf/ssl-dhparams.pem" ]; then
-  echo "### Downloading recommended TLS parameters ..."
-  mkdir -p "$data_path/conf"
-  curl -s 
-    https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx
-    /certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf 
-        > "$data_path/conf/options-ssl-nginx.conf"
-  curl -s 
-    https://raw.githubusercontent.com/certbot/certbot/master/certbot/certbot
-    /ssl-dhparams.pem 
-        > "$data_path/conf/ssl-dhparams.pem"
-  echo
-fi
+% \section{Let's Encrypt Script}\label{letsencryptscript}
 
-echo "### Creating dummy certificate for $domains ..."
-path="/etc/letsencrypt/live/$domains"
-mkdir -p "$data_path/conf/live/$domains"
-docker-compose run --rm --entrypoint "\
-  openssl req -x509 -nodes -newkey rsa:$rsa_key_size -days 1\
-    -keyout '$path/privkey.pem' \
-    -out '$path/fullchain.pem' \
-    -subj '/CN=localhost'" certbot
-echo
+% \begin{Verbatim}
+%     #!/bin/bash
 
+% if ! [ -x "$(command -v docker-compose)" ]; then
+%   echo 'Error: docker-compose is not installed.' >&2
+%   exit 1
+% fi
 
-echo "### Starting nginx ..."
-docker-compose up --force-recreate -d nginx
-echo
+% domains=(catraport.estig.ipb.pt www.catraport.estig.ipb.pt)
+% rsa_key_size=4096
+% data_path="./data/certbot"
+% email="a54363@alunos.ipb.pt" # Adding a valid address is strongly recommended
+% staging=0 # Set to 1 if you're testing your setup to avoid hitting request limits
 
-echo "### Deleting dummy certificate for $domains ..."
-docker-compose run --rm --entrypoint "\
-  rm -Rf /etc/letsencrypt/live/$domains && \
-  rm -Rf /etc/letsencrypt/archive/$domains && \
-  rm -Rf /etc/letsencrypt/renewal/$domains.conf" certbot
-echo
+% if [ -d "$data_path" ]; then
+%   read -p "Existing data found for $domains. 
+%     Continue and replace existing certificate?(y/N) " decision
+%   if [ "$decision" != "Y" ] && [ "$decision" != "y" ]; then
+%     exit
+%   fi
+% fi
 
 
-echo "### Requesting Let's Encrypt certificate for $domains ..."
-#Join $domains to -d args
-domain_args=""
-for domain in "${domains[@]}"; do
-  domain_args="$domain_args -d $domain"
-done
+% if [ ! -e "$data_path/conf/options-ssl-nginx.conf" ] 
+%     || [ ! -e "$data_path/conf/ssl-dhparams.pem" ]; then
+%   echo "### Downloading recommended TLS parameters ..."
+%   mkdir -p "$data_path/conf"
+%   curl -s 
+%     https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx
+%     /certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf 
+%         > "$data_path/conf/options-ssl-nginx.conf"
+%   curl -s 
+%     https://raw.githubusercontent.com/certbot/certbot/master/certbot/certbot
+%     /ssl-dhparams.pem 
+%         > "$data_path/conf/ssl-dhparams.pem"
+%   echo
+% fi
 
-# Select appropriate email arg
-case "$email" in
-  "") email_arg="--register-unsafely-without-email" ;;
-  *) email_arg="--email $email" ;;
-esac
+% echo "### Creating dummy certificate for $domains ..."
+% path="/etc/letsencrypt/live/$domains"
+% mkdir -p "$data_path/conf/live/$domains"
+% docker-compose run --rm --entrypoint "\
+%   openssl req -x509 -nodes -newkey rsa:$rsa_key_size -days 1\
+%     -keyout '$path/privkey.pem' \
+%     -out '$path/fullchain.pem' \
+%     -subj '/CN=localhost'" certbot
+% echo
 
-# Enable staging mode if needed
-if [ $staging != "0" ]; then staging_arg="--staging"; fi
 
-docker-compose run --rm --entrypoint "\
-  certbot certonly --webroot -w /var/www/certbot \
-    $staging_arg \
-    $email_arg \
-    $domain_args \
-    --rsa-key-size $rsa_key_size \
-    --agree-tos \
-    --force-renewal" certbot
-echo
+% echo "### Starting nginx ..."
+% docker-compose up --force-recreate -d nginx
+% echo
 
-echo "### Reloading nginx ..."
-docker-compose exec nginx nginx -s reload
+% echo "### Deleting dummy certificate for $domains ..."
+% docker-compose run --rm --entrypoint "\
+%   rm -Rf /etc/letsencrypt/live/$domains && \
+%   rm -Rf /etc/letsencrypt/archive/$domains && \
+%   rm -Rf /etc/letsencrypt/renewal/$domains.conf" certbot
+% echo
 
-\end{Verbatim}
 
-\chapter{Containers}\label{containerscompleted}
+% echo "### Requesting Let's Encrypt certificate for $domains ..."
+% #Join $domains to -d args
+% domain_args=""
+% for domain in "${domains[@]}"; do
+%   domain_args="$domain_args -d $domain"
+% done
 
-\section{Images}\label{containersimages}
-\subsection{Database Initialization}\label{databaseInitializationDockerfile}
-\begin{Verbatim}
-FROM python:3.10.10-slim
+% # Select appropriate email arg
+% case "$email" in
+%   "") email_arg="--register-unsafely-without-email" ;;
+%   *) email_arg="--email $email" ;;
+% esac
 
-RUN pip install pymongo
+% # Enable staging mode if needed
+% if [ $staging != "0" ]; then staging_arg="--staging"; fi
 
-COPY . .
+% docker-compose run --rm --entrypoint "\
+%   certbot certonly --webroot -w /var/www/certbot \
+%     $staging_arg \
+%     $email_arg \
+%     $domain_args \
+%     --rsa-key-size $rsa_key_size \
+%     --agree-tos \
+%     --force-renewal" certbot
+% echo
 
-CMD ["python", "/main.py"]
+% echo "### Reloading nginx ..."
+% docker-compose exec nginx nginx -s reload
 
-\end{Verbatim}
+% \end{Verbatim}
 
-\subsection{Process Module}\label{processDockerfile}
-\begin{Verbatim}
-    FROM python:3.10.10-slim
-    WORKDIR /app
+% \chapter{Containers}\label{containerscompleted}
+
+% \section{Images}\label{containersimages}
+% \subsection{Database Initialization}\label{databaseInitializationDockerfile}
+% \begin{Verbatim}
+% FROM python:3.10.10-slim
+
+% RUN pip install pymongo
+
+% COPY . .
+
+% CMD ["python", "/main.py"]
+
+% \end{Verbatim}
+
+% \subsection{Process Module}\label{processDockerfile}
+% \begin{Verbatim}
+%     FROM python:3.10.10-slim
+%     WORKDIR /app
     
-    # Copiar arquivos de dependência
-    COPY Pipfile* ./
+%     # Copiar arquivos de dependência
+%     COPY Pipfile* ./
     
-    # Instalar o Pipenv
-    RUN pip install pipenv
+%     # Instalar o Pipenv
+%     RUN pip install pipenv
     
-    # Instalar dependências com o python e  Pipenv
-    RUN pipenv requirements > requirements.txt && pip install --no-cache-dir -r requirements.txt
+%     # Instalar dependências com o python e  Pipenv
+%     RUN pipenv requirements > requirements.txt && pip install --no-cache-dir -r requirements.txt
     
-    COPY . .
+%     COPY . .
     
-    EXPOSE 8000
+%     EXPOSE 8000
     
-    # Variáveis de ambiente para conexão com o banco de dados
-    ENV DATABASE_HOST mongohost
-    ENV DATABASE_PORT 27017
-    ENV DATABASE_PASSWORD password
-    ENV DATABASE_USERNAME mongodbuser
+%     # Variáveis de ambiente para conexão com o banco de dados
+%     ENV DATABASE_HOST mongohost
+%     ENV DATABASE_PORT 27017
+%     ENV DATABASE_PASSWORD password
+%     ENV DATABASE_USERNAME mongodbuser
     
-    CMD ["python", "src/main.py"]
-\end{Verbatim}
+%     CMD ["python", "src/main.py"]
+% \end{Verbatim}
 
-\subsection{API}\label{apiDockerfile}
-\begin{Verbatim}
-    FROM python:3.10.10-slim
-    WORKDIR /app
+% \subsection{API}\label{apiDockerfile}
+% \begin{Verbatim}
+%     FROM python:3.10.10-slim
+%     WORKDIR /app
     
-    # Copiar arquivos de dependência
-    COPY Pipfile* ./
+%     # Copiar arquivos de dependência
+%     COPY Pipfile* ./
     
-    # Instalar o Pipenv
-    RUN pip install pipenv
+%     # Instalar o Pipenv
+%     RUN pip install pipenv
     
-    # Gere o requirements.txt e instale as dependências
-    RUN pipenv requirements > requirements.txt && pip install --no-cache-dir -r requirements.txt
+%     # Gere o requirements.txt e instale as dependências
+%     RUN pipenv requirements > requirements.txt && pip install --no-cache-dir -r requirements.txt
     
-    COPY . .
-    
-    
-    ENV ENV DEV
-    ENV SECRET_KEY 85dd92549a580674063fa6c9ebc98e34c09a2c2916c84cd3f9aa09aed1d5b8df
-    ENV ALGORITHM HS256
-    
-    EXPOSE 8000
+%     COPY . .
     
     
-    CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+%     ENV ENV DEV
+%     ENV SECRET_KEY 85dd92549a580674063fa6c9ebc98e34c09a2c2916c84cd3f9aa09aed1d5b8df
+%     ENV ALGORITHM HS256
     
-\end{Verbatim}
+%     EXPOSE 8000
+    
+    
+%     CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    
+% \end{Verbatim}
 
-\subsection{Frontend}\label{frontendDockerfile}
-\begin{Verbatim}
-    #syntax=docker/dockerfile:1.4
+% \subsection{Frontend}\label{frontendDockerfile}
+% \begin{Verbatim}
+%     #syntax=docker/dockerfile:1.4
 
-    # This dockerfiles is a sugestion of the documentation
-    # Repository https://github.com/vercel/next.js/blob/canary/examples/with-docker-multi-env/docker/production/Dockerfile
+%     # This dockerfiles is a sugestion of the documentation
+%     # Repository https://github.com/vercel/next.js/blob/canary/examples/with-docker-multi-env/docker/production/Dockerfile
     
-    FROM node:16-alpine AS base
+%     FROM node:16-alpine AS base
     
-    # 1. Install dependencies only when needed
-    FROM base AS deps
-    # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-    RUN apk add --no-cache libc6-compat
+%     # 1. Install dependencies only when needed
+%     FROM base AS deps
+%     # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
+%     RUN apk add --no-cache libc6-compat
     
-    WORKDIR /app
+%     WORKDIR /app
     
-    # Install dependencies based on the preferred package manager
-    COPY --link package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
-    RUN \
-      if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
-      elif [ -f package-lock.json ]; then npm ci; \
-      elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i; \
-      else echo "Lockfile not found." && exit 1; \
-      fi
+%     # Install dependencies based on the preferred package manager
+%     COPY --link package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+%     RUN \
+%       if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+%       elif [ -f package-lock.json ]; then npm ci; \
+%       elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i; \
+%       else echo "Lockfile not found." && exit 1; \
+%       fi
     
     
-    # 2. Rebuild the source code only when needed
-    FROM base AS builder
-    WORKDIR /app
-    COPY --from=deps --link /app/node_modules ./node_modules
-    COPY --link . .
-    # This will do the trick, use the corresponding env file for each environment.
-    # COPY --link .env.production.sample .env.production
-    RUN yarn build
+%     # 2. Rebuild the source code only when needed
+%     FROM base AS builder
+%     WORKDIR /app
+%     COPY --from=deps --link /app/node_modules ./node_modules
+%     COPY --link . .
+%     # This will do the trick, use the corresponding env file for each environment.
+%     # COPY --link .env.production.sample .env.production
+%     RUN yarn build
     
-    # 3. Production image, copy all the files and run next
-    FROM base AS runner
-    WORKDIR /app
+%     # 3. Production image, copy all the files and run next
+%     FROM base AS runner
+%     WORKDIR /app
     
-    ENV NODE_ENV=production
+%     ENV NODE_ENV=production
     
-    RUN \
-      addgroup -g 1001 -S nodejs; \
-      adduser -S nextjs -u 1001
+%     RUN \
+%       addgroup -g 1001 -S nodejs; \
+%       adduser -S nextjs -u 1001
     
-    COPY --from=builder --link /app/public ./public
+%     COPY --from=builder --link /app/public ./public
     
-    # Automatically leverage output traces to reduce image size
-    # https://nextjs.org/docs/advanced-features/output-file-tracing
-    COPY --from=builder --link --chown=1001:1001 /app/.next/standalone ./
-    COPY --from=builder --link --chown=1001:1001 /app/.next/static ./.next/static
+%     # Automatically leverage output traces to reduce image size
+%     # https://nextjs.org/docs/advanced-features/output-file-tracing
+%     COPY --from=builder --link --chown=1001:1001 /app/.next/standalone ./
+%     COPY --from=builder --link --chown=1001:1001 /app/.next/static ./.next/static
     
-    USER nextjs
+%     USER nextjs
     
-    EXPOSE 3000
+%     EXPOSE 3000
     
-    ENV PORT 3000
+%     ENV PORT 3000
     
-    CMD ["node", "server.js"]
-\end{Verbatim}
+%     CMD ["node", "server.js"]
+% \end{Verbatim}
 
 
-\section{Docker Compose}\label{containerscompose}
-\begin{Verbatim}
-    version: "3.9"
-    services:
-      catraport_database:
-        container_name: catraport_database
-        image: mongo
-        restart: always
-        environment:
-          MONGO_INITDB_ROOT_USERNAME: root
-          MONGO_INITDB_ROOT_PASSWORD: rootpassword
-        volumes:
-          - mongodb_data_container:/data/db
+% \section{Docker Compose}\label{containerscompose}
+% \begin{Verbatim}
+%     version: "3.9"
+%     services:
+%       catraport_database:
+%         container_name: catraport_database
+%         image: mongo
+%         restart: always
+%         environment:
+%           MONGO_INITDB_ROOT_USERNAME: root
+%           MONGO_INITDB_ROOT_PASSWORD: rootpassword
+%         volumes:
+%           - mongodb_data_container:/data/db
       
-      catraport_database_initialization:
-        container_name: catraport_database_initialization
-        image: catraport_pt_database_initialization:0.1
-        depends_on:
-          - catraport_database
-        environment:
-          DATABASE_CONNECTION_STRING: mongodb://root:rootpassword@catraport_database:27017/
+%       catraport_database_initialization:
+%         container_name: catraport_database_initialization
+%         image: catraport_pt_database_initialization:0.1
+%         depends_on:
+%           - catraport_database
+%         environment:
+%           DATABASE_CONNECTION_STRING: mongodb://root:rootpassword@catraport_database:27017/
       
-      catraport_api:
-        container_name: catraport_api
-        image: catraport_pt_dashboard_backend:0.1
-        ports:
-          - 8000:8000
-        depends_on:
-          - catraport_database_initialization
-        environment:
-          DATABASE_CONNECTION_STRING: mongodb://root:rootpassword@catraport_database:27017/
+%       catraport_api:
+%         container_name: catraport_api
+%         image: catraport_pt_dashboard_backend:0.1
+%         ports:
+%           - 8000:8000
+%         depends_on:
+%           - catraport_database_initialization
+%         environment:
+%           DATABASE_CONNECTION_STRING: mongodb://root:rootpassword@catraport_database:27017/
     
-      catraport_process_module:
-        container_name: catraport_process_module
-        image: catraport_pt_process_module:0.1
-        depends_on:
-          - catraport_database
-        environment:
-          DATABASE_CONNECTION_STRING: mongodb://root:rootpassword@catraport_database:27017/
+%       catraport_process_module:
+%         container_name: catraport_process_module
+%         image: catraport_pt_process_module:0.1
+%         depends_on:
+%           - catraport_database
+%         environment:
+%           DATABASE_CONNECTION_STRING: mongodb://root:rootpassword@catraport_database:27017/
     
-      catraport_frontend:
-        container_name: catraport_frontend
-        image: catraport_pt_dashboard_frontend:0.1
-        depends_on:
-          - catraport_api
+%       catraport_frontend:
+%         container_name: catraport_frontend
+%         image: catraport_pt_dashboard_frontend:0.1
+%         depends_on:
+%           - catraport_api
     
-      catraport_server:
-        image: nginx:1.15-alpine
-        restart: unless-stopped
-        volumes:
-          - ./data/nginx:/etc/nginx/conf.d
-          - ./data/certbot/conf:/etc/letsencrypt
-          - ./data/certbot/www:/var/www/certbot
-        ports:
-          - "80:80"
-          - "443:443"
-        command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
-        depends_on:
-          - catraport_frontend
+%       catraport_server:
+%         image: nginx:1.15-alpine
+%         restart: unless-stopped
+%         volumes:
+%           - ./data/nginx:/etc/nginx/conf.d
+%           - ./data/certbot/conf:/etc/letsencrypt
+%           - ./data/certbot/www:/var/www/certbot
+%         ports:
+%           - "80:80"
+%           - "443:443"
+%         command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+%         depends_on:
+%           - catraport_frontend
     
-      certbot:
-        container_name: certbot
-        image: certbot/certbot
-        restart: unless-stopped
-        volumes:
-          - ./data/certbot/conf:/etc/letsencrypt
-          - ./data/certbot/www:/var/www/certbot
-        entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-        depends_on:
-          - catraport_frontend
+%       certbot:
+%         container_name: certbot
+%         image: certbot/certbot
+%         restart: unless-stopped
+%         volumes:
+%           - ./data/certbot/conf:/etc/letsencrypt
+%           - ./data/certbot/www:/var/www/certbot
+%         entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+%         depends_on:
+%           - catraport_frontend
     
-    volumes:
-      mongodb_data_container:
+%     volumes:
+%       mongodb_data_container:
     
-\end{Verbatim}
+% \end{Verbatim}

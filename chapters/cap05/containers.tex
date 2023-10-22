@@ -5,9 +5,9 @@ The construction of each of the project's containers was done from a DockerFile 
 
 For the construction of the database container, a ready-made MongoDB image available on Docker HUB \cite{dockerMongo} was used (Docker platform that serves as a repository of images that can be used for container construction \cite{dockerHub}).
 
-For the construction of the image that contains the API and the Data Reception Module, the image with the Database Initialization, and the image with the Processing Module, a Python image \cite{dockerPython} was used as a base. Subsequently, a script was executed that installs the necessary dependencies and starts the system. The DockerFile that assembles these images is in the appendices. API and Data Reception Module \ref{apiDockerfile}, Database Initialization \ref{databaseInitializationDockerfile}, and Data Processing Module \ref{processDockerfile}.
+For the construction of the image that contains the API and the Data Reception Module, the image with the Database Initialization, and the image with the Processing Module, a Python image \cite{dockerPython} was used as a base. Subsequently, a script was executed that installs the necessary dependencies and starts the system. %The DockerFile that assembles these images is in the appendices. API and Data Reception Module \ref{apiDockerfile}, Database Initialization \ref{databaseInitializationDockerfile}, and Data Processing Module \ref{processDockerfile}.
 
-For the construction of the container with the Frontend, a Node image \cite{dockerNode} was used as a base, dependencies were installed according to the package manager, then the application was built, and finally, the application was executed. The DockerFile that assembles this image is in the appendices \ref{frontendDockerfile}.
+For the construction of the container with the Frontend, a Node image \cite{dockerNode} was used as a base, dependencies were installed according to the package manager, then the application was built, and finally, the application was executed. %The DockerFile that assembles this image is in the appendices \ref{frontendDockerfile}.
 
 Lastly, for the construction of the web server, a ready-made NGINX image \cite{dockerNginx} was used with access to volumes that store the server configuration file and necessary Let's Encrypt settings, and exposing ports 80 and 443 for external connections. In addition, for the proper configuration of Let's Encrypt, a container was built with the \texttt{certbot} image \cite{dockerCertbot}, so that it was possible to configure and update the SSL certificate automatically.
 
@@ -39,6 +39,6 @@ For the container that manages the Web Server using the NGINX image, a periodic 
 
 For the execution of the Web Server, an auxiliary container is used, responsible for the renewal of SSL certificates through \texttt{Certbot} \cite{dockerCertbot}. It is configured to renew the certificates periodically and depends on the frontend, ensuring that the certificate is renewed only when the user interface is available.
 
-The definition of the volume used by the database is explicitly made in the \texttt{docker-compose.yml} file, which is used by the MongoDB container to store data persistently. The network used by the containers is implicitly defined by Docker Compose, which creates a network for the containers and connects them to it, enabling communication between the containers that make up the system.
+The definition of the volume used by the database is explicitly made in the \texttt{Docker Compose} file, which is used by the MongoDB container to store data persistently. The network used by the containers is implicitly defined by Docker Compose, which creates a network for the containers and connects them to it, enabling communication between the containers that make up the system.
 
-The \texttt{docker-compose.yml} file that defines the configuration of the containers is in the appendices \ref{containerscompose}.
+%The \texttt{docker-compose.yml} file that defines the configuration of the containers is in the appendices \ref{containerscompose}.
