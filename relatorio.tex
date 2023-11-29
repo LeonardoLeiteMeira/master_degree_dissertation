@@ -45,8 +45,8 @@
 % Para nao mostrar a lista de tabelas
 %\tablespagefalse
 
-\makeglossaries
 \loadglsentries{acronym}
+\makeglossaries
 
 
 %http://tex.stackexchange.com/questions/59572/custom-page-numbering-for-appendix
@@ -78,8 +78,8 @@
 
 %\cleardoublepage
 
-%\prefacesection*{Resumo}
-%\input{chapters/resumo}
+\prefacesection*{Resumo}
+\input{chapters/resumo}
 
 %\cleardoublepage
 
@@ -89,8 +89,31 @@
 % Coloca indices
 \afterpreface
 %\cleardoublepage
-%\printglossary[type=\acronymtype,title={Acrónimos}]
-%\printglossary[type=\acronymtype,title={Siglas}]
+\printglossary[type=\acronymtype,title={Acrónimos}]
+\printglossary[type=\acronymtype,title={Siglas}]
+
+\prefacesection{List of Abbreviations}
+\begin{description}
+    \item[AI] Artificial Intelligence
+    \item[IoT] Internet of Things
+    \item[JSON] JavaScript Object Notation
+    \item[FQC] FastQ Quality Control
+    \item[KPI] Key Performance Indicator
+    \item[PdM] Predictive Maintenance
+    \item[IIoT] Industrial Internet of Things
+    \item[ODAS] Obstacle Detection and Alert System
+    \item[BDA] Big Data Analysis
+    \item[HTTPS] HyperText Transfer Protocol Secure
+    \item[TLS] Transport Layer Security
+    \item[ASGI] Asynchronous Server Gateway Interface
+    \item[API] Application Programming Interface
+    \item[HTTP] HyperText Transfer Protocol
+    \item[JWT] JSON Web Token
+    \item[CORS] Cross-Origin Resource Sharing
+    \item[MUI5] Material-UI Version 5
+    \item[IQR] Interquartile Range
+\end{description}
+
 
 \bodystart
 

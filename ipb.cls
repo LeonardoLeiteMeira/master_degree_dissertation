@@ -131,7 +131,7 @@
     \fi
 	
     \vfill
-    This dissertation does not include the criticisms and suggestions made by the Jury.\\
+    %This dissertation does not include the criticisms and suggestions made by the Jury.\\
     \vspace{2em}
 	Bragança\\
 	\@courseyear
@@ -167,7 +167,7 @@
     \fi
 	
     \vfill
-    This dissertation does not include the criticisms and suggestions made by the Jury.\\
+    %This dissertation does not include the criticisms and suggestions made by the Jury.\\
     \vspace{2em}
 	Bragança\\
 	\@courseyear
